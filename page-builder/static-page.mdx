@@ -1,0 +1,73 @@
+---
+title: Static Page Builder
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny supports static page building. You can render a static page with just a Markdown file, without writing any code.
+
+Static page files are defined in the `content/pages` directory. One file corresponds to one page, and multi-language support is available.
+
+## Default Static Pages
+
+The template includes two built-in static pages:
+
+- Terms of Service page
+
+The access route is `/terms-of-service`, and the corresponding file is `content/pages/terms-of-service.mdx`.
+
+- Privacy Policy page
+
+The access route is `/privacy-policy`, and the corresponding file is `content/pages/privacy-policy.mdx`.
+
+For example, when you visit the privacy policy page, you'll see:
+
+![](https://cdn.shipany.ai/imgs/03b599b5988681746e68eaced04a4007.png)
+
+> Static pages support multi-language display. For example, if your project needs to display a Chinese privacy policy page, the access route is `/zh/privacy-policy`, and you need to create the static page file: `content/pages/privacy-policy.zh.mdx`.
+
+## Create a New Static Page
+
+You can follow the steps below to create a new static page.
+
+For example, let's create a company introduction page with the access route `/about/company`:
+
+<Steps>
+
+<Step>Create a static page file</Step>
+
+Create the `about/company.mdx` file in the `content/pages` directory.
+
+Write the page content:
+
+```mdx
+---
+title: ShipAny Company
+description: Introduction about our company
+created_at: 2025-12-05
+---
+
+## Company Introduction
+
+ShipAny is a company that helps our customers build AI SaaS products quickly and easily.
+
+![](/preview.png)
+```
+
+> Write the page content in [Markdown](https://en.wikipedia.org/wiki/Markdown) format. The `title`, `description`, and `created_at` fields wrapped in `---` at the beginning of the file are optional and are used to set the page title, description, and creation time.
+
+<Step>Preview the static page</Step>
+
+When you visit the `/about/company` page, you'll see:
+
+![](https://cdn.shipany.ai/imgs/d23ec9febdd90612872d8d12b4608f19.png)
+
+<Step>Configure multi-language static pages</Step>
+
+If your project needs to support multi-language access to static pages, you need to create corresponding static page files for each language.
+
+For example, to access the `/ja/about/company` page, the corresponding static page file is `content/pages/about/company.ja.mdx`.
+
+> `content/pages` is the root directory for static page files. You can create multi-level subdirectories under this directory. For example, you can create a `content/pages/foo/bar/abc.mdx` file, and the corresponding access route is `/foo/bar/abc`.
+
+</Steps>

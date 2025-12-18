@@ -1,0 +1,129 @@
+---
+title: Customize Locale
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny implements a multilingual system based on [next-intl](https://next-intl.dev/).
+
+You can refer to the following content to customize multilingual display for your project.
+
+## Configure Locale Switching
+
+In the `src/config/locale/index.ts` configuration file, set the languages that your project supports for display.
+
+You can add or remove supported languages according to your needs.
+
+```ts
+export const localeNames: any = {
+  en: 'English',
+  zh: '中文',
+  ja: '日本語',
+};
+
+export const locales = ['en', 'zh', 'ja'];
+```
+
+In the `src/config/locale/messages/{locale}/landing.json` file, control whether to display the locale switcher button through the `show_locale` field in the `header` and `footer` blocks.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/locale-selector.png)
+
+> Note: Please modify the configuration content in the `src/config/locale/messages/{locale}/` folder for each language according to the enabled language list to ensure that the page content for each language can be displayed correctly.
+
+If your project's first version goes live and doesn't need to support multiple languages, you can set:
+
+```ts
+export const localeNames: any = {
+  en: 'English',
+};
+
+export const locales = ['en'];
+```
+
+And set the `show_locale` field to `false` in the `src/config/locale/messages/en/landing.json` file.
+
+## Set Default Display Language
+
+The default display language of the project is English. If you want to display another language by default, such as Chinese, you can configure the default language through environment variables.
+
+```toml
+NEXT_PUBLIC_DEFAULT_LOCALE = "zh"
+```
+
+When accessing the default language, the corresponding language code will not be displayed in the URL. When accessing non-default languages, the corresponding language code will be displayed in the URL.
+
+For example, according to the above configuration, accessing the Chinese pricing page uses the route: `/pricing`, and accessing the English pricing page uses the route: `/en/pricing`.
+
+## Customize Multilingual Pages
+
+For example, if you want to add a new `/about` page to your project and support multilingual display.
+
+You can follow these steps to configure multilingual pages:
+
+<Steps>
+<Step>Create Locale Files</Step>
+
+Create corresponding page files under the `src/config/locale/messages/{locale}` folder, supporting subdirectories.
+
+For example, create a page file for English display: `src/config/locale/messages/en/pages/about.json`.
+
+Write the page content:
+
+```json
+{
+  "metadata": {
+    "title": "About",
+    "description": "Nano Banana Pro is an AI image generator based on the Nano Banana Pro model, powered by Gemini 3 Pro image generation technology. Create stunning images with advanced AI capabilities."
+  }
+}
+```
+
+> Note: Create corresponding page files for each language according to the configured language list.
+
+<Step>Configure Locale Files</Step>
+
+Add the newly created locale files to the `localeMessagesPaths` array exported from the `src/config/locale/index.ts` file:
+
+```ts
+export const localeMessagesPaths = [
+  // ... other locale file list
+  'pages/about',
+];
+```
+
+<Step>Create Multilingual Page Routes</Step>
+
+Create page route files that support multilingual access under the `src/app/[locale]` folder.
+
+For example, the route file corresponding to the `/about` page is: `src/app/[locale]/about/page.tsx`.
+
+> Note: If you want to reuse the landing page layout, the created page route file should be: `src/app/[locale]/(landing)/about/page.tsx`.
+
+Write the page route file content:
+
+```tsx
+import { getTranslations } from 'next-intl/server';
+
+import { Hero } from '@/themes/default/blocks';
+
+export default async function AboutPage() {
+  const t = await getTranslations('pages.about');
+
+  return (
+    <Hero
+      hero={{
+        title: t('metadata.title'),
+        description: t('metadata.description'),
+      }}
+    />
+  );
+}
+```
+
+<Step>Preview Multilingual Page</Step>
+
+When accessing the `/about` page, you will see the following effect:
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/about-page.png)
+
+</Steps>

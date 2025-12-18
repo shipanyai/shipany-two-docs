@@ -1,0 +1,75 @@
+---
+title: Cloudflare R2
+created_at: 2025-11-25
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny 项目需要配置文件存储服务，才能正常使用图片上传功能，影响用户编辑头像、存储 AI 生成图片等功能。
+
+## 快速开始
+
+按照以下步骤，为你的项目配置 [Cloudflare R2](https://developers.cloudflare.com/r2/) 文件存储。
+
+<Steps>
+<Step>创建存储桶</Step>
+
+从 Cloudflare 控制台进入 `Storage & databases -> R2 object storage -> Overview` 页面，点击 `Create bucket` 按钮，创建存储桶。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/r2-create.png)
+
+填写存储桶名称，选择存储桶区域（或者使用默认区域），点击 `Create` 按钮，创建存储桶。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/r2-create-bucket.png)
+
+<Step>配置存储桶访问域名</Step>
+
+进入存储桶设置页面，点击 `Public Development URL` 右侧的 `Enable` 按钮，启用存储桶默认的访问域名。
+
+启用后得到的访问域名类似：
+
+```shell
+https://pub-xxx.r2.dev
+```
+
+存储桶默认的访问域名有速率限制，可以在开发调试时使用。项目正式上线时，建议配置自定义域名。
+
+点击 `Custom Domains` 右侧的 `Add` 按钮，添加自定义域名。在弹出的输入框中输入你的自定义域名，比如：`r2.shipany.ai`
+
+你可能需要为自定义域名配置 DNS 解析，如果你的域名是托管在 Cloudflare，添加之后会自动添加 DNS 解析记录。
+
+最终你得到的存储桶访问域名类似：
+
+```shell
+https://r2.shipany.ai
+```
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/r2-domain.png)
+
+<Step>设置 API 密钥</Step>
+
+回到第一步的 `R2 object storage` 页面，点击右下角的 `Account Details -> API Tokens` 右边的 `Manage` 按钮，进入 API 密钥管理页面。
+
+点击 `User API Tokens` 右侧的 `Create User API token` 按钮，创建 API 密钥。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/r2-create-token.png)
+
+点击 `Create User API Token` 按钮，创建访问存储桶的 API 密钥。
+
+在密钥展示页面，复制 `Access Key ID`、`Secret Access Key` 和 `Default` 下的三个值。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/r2-config.png)
+
+<Step>配置项目存储</Step>
+
+在项目管理后台，进入 `Settings -> Storage -> Cloudflare R2` 面板，填入 Cloudflare R2 的存储桶配置，点击 `Save` 按钮保存配置。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/r2-settings.png)
+
+<Step>测试存储</Step>
+
+进入项目的 `/settings/profile` 页面，点击上传头像，如果图片能上传成功，右键 `在新标签页中打开图片`，看到的图片访问地址跟在存储桶中配置的自定义域名一致，说明 Cloudflare R2 存储配置成功。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/r2-test.png)
+
+</Steps>

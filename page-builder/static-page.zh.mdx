@@ -1,0 +1,73 @@
+---
+title: 静态页面构建
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny 支持静态页面构建，无需编写代码，只需一个 Markdown 文件，即可渲染一个静态页面。
+
+静态页面文件定义在 `content/pages` 目录，一个文件对应一个页面，支持多语言。
+
+## 默认静态页面
+
+模板内置了两个静态页面：
+
+- 服务条款页面
+
+访问路由是：`/terms-of-service`，对应的文件是 `content/pages/terms-of-service.mdx`。
+
+- 隐私政策页面
+
+访问路由是：`/privacy-policy`，对应的文件是 `content/pages/privacy-policy.mdx`。
+
+比如访问隐私政策页面，看到的效果是
+
+![](https://cdn.shipany.ai/imgs/03b599b5988681746e68eaced04a4007.png)
+
+> 静态页面展示支持多语言，比如你的项目需要展示中文隐私政策页面，访问路由是：`/zh/privacy-policy`，则需要创建静态页面文件： `content/pages/privacy-policy.zh.mdx`。
+
+## 新建静态页面
+
+你可以参考下面的步骤，创建新的静态页面。
+
+比如，我们希望创建一个公司介绍页面，访问路由是：`/about/company`
+
+<Steps>
+
+<Step>创建静态页面文件</Step>
+
+在 `content/pages` 目录下，创建 `about/company.mdx` 文件。
+
+写入页面内容：
+
+```mdx
+---
+title: ShipAny Company
+description: Introduction about our company
+created_at: 2025-12-05
+---
+
+## Company Introduction
+
+ShipAny is a company that helps our customers build AI SaaS products quickly and easily.
+
+![](/preview.png)
+```
+
+> 按照 [Markdown](https://en.wikipedia.org/wiki/Markdown) 格式书写页面内容。文件开头包裹在 `---` 里的 title、description、created_at 字段是可选的，用于设置页面标题、描述和创建时间。
+
+<Step>预览静态页面</Step>
+
+访问 `/about/company` 页面，看到的效果是：
+
+![](https://cdn.shipany.ai/imgs/d23ec9febdd90612872d8d12b4608f19.png)
+
+<Step>配置多语言静态页面</Step>
+
+如果你的项目要支持多语言访问静态页面，你需要为每个语言创建对应的静态页面文件。
+
+比如访问 `/ja/about/company` 页面，对应的静态页面文件是 `content/pages/about/company.ja.mdx`。
+
+> content/pages 是静态页面文件的根目录，在此目录下支持创建多级子目录。比如可以创建 `content/pages/foo/bar/abc.mdx` 文件，对应的访问路由是：`/foo/bar/abc`。
+
+</Steps>

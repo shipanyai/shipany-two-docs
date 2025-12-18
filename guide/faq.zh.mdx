@@ -1,0 +1,110 @@
+---
+title: 常见问题解答
+---
+
+## ShipAny Two 跟 ShipAny One 有什么区别？
+
+ShipAny Two 是 ShipAny 的第二个版本，相比于 ShipAny One，在架构设计、功能丰富度、性能优化等方面都有很大提升。
+包括以下几个方面：
+
+- ShipAny Two 支持 `Next.js 16`，本地开发更快、内存占用更小。
+- ShipAny Two 使用 `Better-Auth` 替换 `NextAuth`，支持更多认证方式。
+- ShipAny Two 支持在管理后台可视化配置功能，更加灵活
+- ShipAny Two 支持 RBAC 控制后台管理系统的访问
+- ShipAny Two 支持可插拔扩展，包括支付、存储、邮件、数据统计、广告、联盟营销、客服等
+- ShipAny Two 内置了大量 AI 功能，包括 AI 对话、AI 生成图片、AI 生成视频等
+
+更多内容可以查阅 [ShipAny Two 系统架构](/zh/docs/guide/architecture)。
+
+## ShipAny Two 需要单独购买吗？
+
+在 [个人中心 -> 活动 -> 已购模板](https://shipany.ai/zh/activity/templates) 查看是否有 ShipAny Two 模板，如果没有，参考下面的流程购买。
+
+- 原有 ShipAny 高级版用户在 [ShipAny Two 模板详情页](https://shipany.ai/zh/templates/shipany-template-two) 支付 0 元购买，再绑定 Github 用户名激活。
+
+- 新用户在 [定价页面](https://shipany.ai/zh/pricing) 购买 ShipAny 高级版，自动获得 ShipAny Two 模板，再绑定 Github 用户名激活。
+
+## 如何开始使用 ShipAny Two？
+
+参考 [获取 ShipAny](/zh/docs/guide/get-shipany) 获得 ShipAny Two 代码仓库访问权限。
+
+参考 [快速开始](/zh/docs/quick-start) 使用 ShipAny Two 启动你的项目。
+
+## 如何获得技术支持？
+
+你可以通过以下三种方式，获得技术支持：
+
+- 在 [Github issues](https://github.com/shipanyai/shipany-template-two/issues) 提 issue。
+- 加入 [ShipAny Discord 群](https://discord.com/invite/x9usYqTaaj) 提问。
+- 发邮件给 [support@shipany.ai](mailto:support@shipany.ai) 获取帮助。
+
+> 环境配置、Next.js、React 等常规问题，建议优先通过搜索 + AI 问答等方式自行解决。ShipAny 框架相关问题，可在代码仓库提 issue 或在 Discord 交流。
+
+## 购买的模板可以退款吗？
+
+在 [个人中心 -> 活动 -> 已购模板](https://shipany.ai/zh/activity/templates) 查看已购买模板，如果是未激活状态，可以申请退款。
+
+复制订单号，通过技术支持渠道申请退款。
+
+> 如果模板已激活，不支持退款。
+
+## ShipAny Two 代码仓库不能 fork 吗？
+
+私有仓库，不支持 fork。你需要创建自己的 Github 私有仓库，保存你的项目代码。
+
+## 如何同步 ShipAny Two 的更新？
+
+1. 先克隆 ShipAny Two 代码仓库，初始化你自己的项目
+
+```shell
+git clone git@github.com:shipanyai/shipany-template-two my-shipany-project
+```
+
+2. 为你的项目创建私有 Github 仓库
+
+比如，你在 Github 创建了一个私有仓库来保存你的项目代码，仓库地址是：`github.com/idoubi/my-shipany-project`
+
+3. 把项目代码推送到你的私有 Github 仓库
+
+```shell
+# 进入项目根目录
+cd my-shipany-project
+# 修改代码托管地址
+git remote set-url origin git@github.com:idoubi/my-shipany-project.git
+# 推送代码
+git push origin main
+```
+
+4. 把 ShipAny Two 代码仓库设置为你的项目上游仓库
+
+```shell
+git remote add upstream git@github.com:shipanyai/shipany-template-two.git
+```
+
+5. 同步 ShipAny Two 的更新
+
+```shell
+# 拉取上游仓库的更新
+git fetch upstream
+# 合并上游仓库的更新
+git merge upstream/main
+# 推送代码到你的私有 Github 仓库
+git push origin main
+```
+
+你可以按需更新 ShipAny Two 最新代码，如果上游代码跟你的项目代码有冲突，你需要手动解决冲突。
+
+更新完代码后，记得安装一下项目依赖。
+
+```shell
+pnpm install
+```
+
+## 如何更新数据库表结构？
+
+每次同步完上游代码，记得更新一下数据表结构，确保你的项目能同步上游的数据表变更。
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```

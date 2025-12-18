@@ -1,0 +1,417 @@
+---
+title: Stripe
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny integrates [Stripe](https://stripe.com/) as a payment service provider, allowing you to access it with simple configuration.
+
+## Integrate Stripe Payment
+
+Follow these steps to integrate Stripe payment for your project.
+
+<Steps>
+<Step>Activate Stripe Merchant</Step>
+
+Refer to the [Stripe Merchant Onboarding Guide](https://stripe.com/resources/more/merchant-onboarding-explained) to activate a Stripe merchant account.
+
+You can activate a Stripe merchant account as an individual or a business, bind your withdrawal account, and set up basic merchant information.
+
+<Step>Create API Keys</Step>
+
+Enter your merchant page in the Stripe dashboard, and select `Developers -> API keys -> Standard keys -> Create secret key` to create an API key.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/create-stripe-keys.png)
+
+Copy the `Publishable key` and `Secret key`.
+
+> Note: The `Secret key` can only be copied when it is created. It is sensitive information, so please prevent it from being leaked.
+
+You can switch to the test environment by clicking `Switch to sandbox -> Test mode` in the upper left corner of the Stripe console to create API keys for testing.
+
+<Step>Configure Stripe Payment</Step>
+
+In the project management dashboard, go to the `Settings -> Payment -> Stripe` panel, and enter the `Publishable key` and `Secret key` obtained in the previous step into the `Stripe Publishable Key` and `Stripe Secret Key` fields respectively.
+
+`Stripe Signing Secret` is the signing key for verifying payment notifications. You can leave it blank for now and fill it in after configuring payment notifications in subsequent steps.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/set-stripe-configs.png)
+
+> Note: During local development, you can fill in the test API key set in the previous step. When deploying online, fill in the official API key.
+
+<Step>Payment Verification</Step>
+
+Visit the `/pricing` page of the project, view the default pricing table, select a pricing plan, and click the order button.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/pricing-page.png)
+
+If you can jump to the Stripe payment page normally, the payment configuration is successful.
+
+If you filled in the test API key in the previous step, you can copy a [Stripe test card number](https://docs.stripe.com/testing#cards) for payment verification.
+
+</Steps>
+
+## Design Pricing Table
+
+The default pricing table is configured in the `src/config/locale/messages/{locale}/pricing.json` file, which supports multiple languages. Each `locale` corresponds to an independent pricing table configuration.
+
+The `pricing.groups` field defines the pricing plan groups, with default values as follows:
+
+```json
+{
+  "pricing": {
+    "groups": [
+      {
+        "name": "one-time",
+        "title": "Pay as you go"
+      },
+      {
+        "name": "monthly",
+        "title": "Monthly",
+        "is_featured": true,
+        "label": "save 15%"
+      },
+      {
+        "name": "yearly",
+        "title": "Annually"
+      }
+    ]
+  }
+}
+```
+
+- `name`: The unique identifier of the group. In `pricing.items`, each pricing plan is associated with the group `name` through the `group` field.
+- `title`: The display name of the group.
+- `is_featured`: Whether it is a recommended group. If `true`, this group and the recommended pricing plans it contains will be displayed by default.
+- `label`: The label of the group. It is displayed as a badge in the upper right corner of the display name.
+
+The `pricing.items` field defines the list of pricing plans. The data structure of one of the default pricing plans is as follows:
+
+```json
+{
+  "pricing": {
+    "items": [
+      {
+        "title": "Starter",
+        "description": "Get started with your first SaaS startup.",
+        "features_title": "Includes",
+        "features": [
+          "100 credits, valid for 1 month",
+          "NextJS boilerplate",
+          "SEO-friendly structure",
+          "Payment with Stripe",
+          "Data storage with Supabase",
+          "Google Oauth & One-Tap Login",
+          "i18n support"
+        ],
+        "interval": "one-time",
+        "amount": 9900,
+        "currency": "USD",
+        "price": "$99",
+        "original_price": "$199",
+        "unit": "",
+        "is_featured": false,
+        "tip": "Pay once. Build unlimited projects!",
+        "button": {
+          "title": "Get ShipAny",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "starter",
+        "product_name": "ShipAny Boilerplate Starter",
+        "credits": 100,
+        "valid_days": 30,
+        "group": "one-time"
+      }
+    ]
+  }
+}
+```
+
+- `title`: Pricing plan title.
+- `description`: Pricing plan description.
+- `features_title`: Pricing plan feature list title.
+- `features`: Pricing plan feature list.
+- `interval`: Pricing plan billing cycle. Possible values are `one-time` (one-time payment), `month` (monthly subscription), `year` (annual subscription).
+- `amount`: Pricing plan amount. This value is used to request a Stripe order, unit: cents.
+- `currency`: Pricing plan currency. Possible values are `USD` (US Dollar), `CNY` (Chinese Yuan), etc.
+- `price`: The displayed selling price of the pricing plan.
+- `original_price`: The displayed original price of the pricing plan. With strikethrough effect.
+- `unit`: The displayed unit of the pricing plan. Such as `/ month`, `/ year`, etc.
+- `is_featured`: Whether it is a recommended pricing plan. If set to `true`, it will be displayed by default in the pricing table.
+- `tip`: Order tip.
+- `button`: Order button. You can customize the display text `title` and icon `icon`. `url` is currently a placeholder and has no actual effect.
+- `product_id`: Unique identifier of the pricing plan. The backend interface locates the pricing plan based on this parameter when placing an order. Please ensure that the `product_id` of each pricing plan is unique.
+- `product_name`: Pricing plan name.
+- `credits`: The number of credits purchased. If it is not a scenario for purchasing credits, it can be set to 0.
+- `valid_days`: The validity period of the credits in days. Monthly credits can be set to `30`, and annual one-time credits can be set to `365`.
+- `group`: The group to which the pricing plan belongs. Associated with `name` in `pricing.groups`.
+
+Please refer to the default pricing table configuration, modify the corresponding field content, and design the pricing table according to your project requirements.
+
+> Note: If your project supports multiple languages, please modify the pricing table configuration corresponding to each locale.
+
+After selecting a pricing plan, the interface for requesting an order is `/api/payment/checkout`. Example request parameters:
+
+```json
+{
+  "product_id": "starter",
+  "currency": "USD",
+  "locale": "en",
+  "payment_provider": "stripe",
+  "metadata": {}
+}
+```
+
+- `product_id`: Unique identifier of the pricing plan. The order interface locates the pricing plan based on this parameter.
+- `currency`: Order currency. Can be selected by the user, default is `USD`.
+- `locale`: Order language. Pass the user's currently selected page `locale`. The order interface locates the pricing table configuration based on this parameter.
+- `payment_provider`: Payment provider.
+- `metadata`: Payment metadata. Custom parameters can be passed.
+
+> Note: After modifying the pricing table configuration, visit the `/pricing` page to view the new pricing table. Select a pricing plan to place an order. After successful payment, verify the payment record on the `/settings/payments` page, checking if the payment amount, currency, and billing cycle are consistent with the configured pricing plan.
+> Check the credit issuance record on the `/settings/credits` page, verifying if the credit amount and expiration time (payment time + valid days) are consistent with the configured pricing plan.
+
+## Configure Payment Callback
+
+After the user selects a pricing plan and successfully places an order on the pricing table page, they will be redirected to the Stripe payment page. After successful payment, they will be redirected to the project's callback interface: `/api/payment/callback`.
+
+In the callback interface, the order status will be updated based on the order number, and then redirected to the configured `callbackUrl`.
+
+This configured `callbackUrl` is specified in the order interface: `/api/payment/checkout`:
+
+```ts
+const callbackUrl =
+  paymentType === PaymentType.SUBSCRIPTION
+    ? `${callbackBaseUrl}/settings/billing`
+    : `${callbackBaseUrl}/settings/payments`;
+```
+
+According to the default configuration, if it is a one-time payment, it will eventually redirect to the `/settings/payments` page; if it is a subscription payment, it will eventually redirect to the `/settings/billing` page.
+
+You can modify the redirect address after user payment completion according to project requirements.
+
+> Note: Payment callback is a synchronous redirect. If the user confirms payment on the Stripe payment page but closes the browser before the page redirects, failing to redirect to the project callback interface normally, the order status cannot be updated, and the user cannot see the paid order in the personal center. This situation is called: `Lost Order`.
+
+To avoid the `Lost Order` situation in payment callbacks, it is recommended to configure payment notifications in the Stripe backend when the project is online.
+
+## Configure Payment Notification
+
+<Steps>
+<Step>Add Payment Notification Address</Step>
+
+In the Stripe merchant backend, go to the `Developers -> Webhooks` page, click the `Add destination` button, and add a payment notification address.
+
+- `Events from` select `Your account`
+- `API version` select `2025-10-29.clover`, which is the latest version tested so far.
+
+- `Events` filter by keywords and check the following items:
+
+```toml
+# Checkout completed
+checkout.session.completed
+# Payment succeeded
+invoice.payment_succeeded
+# Payment failed
+invoice.payment_failed
+# Subscription updated
+customer.subscription.updated
+# Subscription cancelled
+customer.subscription.deleted
+```
+
+- `Destination type` select `Webhook endpoint`
+
+- `Destination name` enter a configuration name, for your own reference, fill in anything.
+- `Endpoint URL` enter the address to receive notifications. It must be a publicly accessible `https` address. The format is:
+
+```txt
+https://{your-domain.com}/api/payment/notify/stripe
+```
+
+Replace `{your-domain.com}` with your project domain name, which can be a root domain or a subdomain.
+
+- `Description` enter a description, for your own reference, fill in anything.
+
+After filling in the configuration, click the `Create destination` button to add the payment notification address.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/set-stripe-webhook.png)
+
+<Step>Copy Payment Notification Signing Secret</Step>
+
+After creating the payment notification address, it will automatically jump to the details page of the payment notification address. Click the copy icon under `Signing secret` to copy the payment notification signing secret starting with `whsec_`.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/stripe-sign-secret.png)
+
+<Step>Configure Payment Notification Signing Secret</Step>
+
+In the project management dashboard, go to the `Settings -> Payment -> Stripe` panel, and enter the payment notification signing secret copied in the previous step into the `Stripe Signing Secret` field.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/set-stripe-configs.png)
+
+</Steps>
+
+## Local Debugging of Payment Notification
+
+When configuring payment notifications in the previous step, the filled `Endpoint URL` must be a publicly accessible `https` address.
+
+Before the project is deployed online, it is necessary to debug locally first, receive payment notification content, and make necessary modifications and verifications.
+
+Through `Intranet Penetration`, a public network address can be mapped to a local development machine. The following steps mainly demonstrate using [ngrok](https://ngrok.com/) to implement `Intranet Penetration`.
+
+<Steps>
+<Step>Configure ngrok</Step>
+
+1. Visit the [ngrok](https://ngrok.com/) official website, register an account, and log in to the management backend.
+
+2. On the [Setup & Installation](https://dashboard.ngrok.com/get-started/setup) page of the management backend, select your operating system type and follow the instructions to install the `ngrok` command-line tool.
+
+For example, the installation command for `MacOS` is:
+
+```shell
+brew install ngrok
+```
+
+3. Configure `authtoken` to complete authentication
+
+```shell
+ngrok config add-authtoken {your-authtoken}
+```
+
+<Step>Start Project Development Server</Step>
+
+Execute the following command to start the project's development server on the specified port.
+
+```shell
+pnpm dev --port 8080
+```
+
+<Step>Start ngrok Proxy</Step>
+
+Execute the following command to start the ngrok proxy.
+
+```shell
+ngrok http 8080
+```
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/ngrok-proxy.png)
+
+<Step>Configure Payment Notification Address</Step>
+
+Return to the [Configure Payment Notification](#configure-payment-notification) step, copy the proxy address of ngrok, and fill in the `Endpoint URL`.
+
+Example of configured `Endpoint URL`:
+
+```txt
+https://9d897275dabf.ngrok-free.app/api/payment/notify/stripe
+```
+
+> Note: Every time the `ngrok http {port}` command is executed, a new proxy address will be generated, and the `Endpoint URL` needs to be reconfigured in the Stripe backend. Please ensure that it is only configured during development and debugging, and do not use the `ngrok` proxy address in the online environment.
+
+</Steps>
+
+After configuring the payment notification according to the above steps, select a pricing plan on the pricing table page to place an order, and you can receive Stripe payment notifications locally.
+
+The default payment notification processing logic is in the `src/app/api/payment/notify/[provider]/route.ts` file. You can modify the corresponding logic according to project requirements.
+
+## Custom Payment Options
+
+You can customize payment options according to project requirements based on the examples listed below.
+
+### Multi-currency Payment
+
+When [Designing Pricing Table](#design-pricing-table), use the `currency` field in the pricing plan to specify the order currency. For example, `Original price 199 USD, marked price 99 USD`, the corresponding pricing plan configuration is:
+
+```json
+{
+  "amount": 9900,
+  "currency": "USD",
+  "price": "$99",
+  "original_price": "$199"
+}
+```
+
+If you want to allow users to select different currencies for ordering on the pricing table page, you can refer to the following configuration:
+
+```json
+{
+  "amount": 9900,
+  "currency": "usd",
+  "price": "$99",
+  "original_price": "$199",
+  "currencies": [
+    {
+      "currency": "cny",
+      "amount": 69900,
+      "price": "¥699",
+      "original_price": "¥1399"
+    }
+  ]
+}
+```
+
+After configuration, you can see that the pricing plan has an option to switch currencies. In the pricing plan configuration, the outer `currency` is the default currency, and the `currency` inside `currencies` is the switchable currency.
+
+> Note: The `currency` field is case-insensitive, and the `amount` unit is: cents.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/currencies.png)
+
+### `WeChat / Alipay` Payment
+
+Follow these steps to enable `WeChat / Alipay` payment in your project.
+
+<Steps>
+
+<Step>Apply to Activate `WeChat / Alipay` Payment</Step>
+
+In the Stripe merchant backend, go to `Settings -> Payments -> Payment methods -> Default` to apply for `WeChat Pay` and `Alipay`. It needs to be submitted for review and can only be enabled after approval.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/stripe-payment-methods.png)
+
+<Step>Modify Pricing Plan Configuration</Step>
+
+If you want to support `WeChat / Alipay` payment, the `currency` field in the pricing plan configuration must be `cny`.
+
+For example, defaulting to RMB ordering, configuration reference:
+
+```json
+{
+  "amount": 69900,
+  "currency": "cny",
+  "price": "¥699",
+  "original_price": "¥1399"
+}
+```
+
+Defaulting to USD ordering, allowing switching to RMB payment, configuration reference:
+
+```json
+{
+  "amount": 9900,
+  "currency": "usd",
+  "price": "$99",
+  "original_price": "$199",
+  "currencies": [
+    {
+      "currency": "cny",
+      "amount": 69900,
+      "price": "¥699",
+      "original_price": "¥1399"
+    }
+  ]
+}
+```
+
+<Step>Configure Payment Options</Step>
+
+After modifying the pricing plan configuration, you need to adjust the `Stripe Payment Methods` configuration in the management backend.
+
+Check the payment options you want users to see when entering the Stripe payment page.
+
+For example, if you only allow users to use WeChat Pay, check `Wechat Pay` and uncheck `Card` and `Alipay`.
+
+> Note: The payment methods checked here must be in the `Enabled` state in the Stripe merchant backend, otherwise an error will occur when placing an order.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/payment-config.png)
+
+</Steps>

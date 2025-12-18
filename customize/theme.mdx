@@ -1,0 +1,99 @@
+---
+title: Customize Theme
+---
+
+## Set Theme Style
+
+In the [Quick Start](/docs/quick-start) document, initialize the project and start the development server. Open the preview address in the browser, and you can see the default theme page.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/preview.png)
+
+ShipAny implements theme style switching based on [shadcn/ui](https://ui.shadcn.com/themes). You can choose any shadcn style generator to generate theme styles, customize `Theme Colors` and `Font Effects`, and make your website project more personalized.
+
+It is recommended to use [tweakcn](https://tweakcn.com/) as the theme style generator.
+
+1. Switch preview in the upper left corner of the [tweakcn style design panel](https://tweakcn.com/editor/theme?p=dashboard), and select a theme style you like. Click the `Code` button in the upper right corner to open the `Theme Code` panel.
+
+![](https://cdn.shipany.ai/imgs/1a86ad4cf948fb51a46137ed2e7b6aa6.png)
+
+2. In the `Theme Code` panel, select `Tailwind v4` + `oklcn`, click the `Copy` button on the right, and copy the theme style code.
+
+![](https://cdn.shipany.ai/imgs/40e3ced7ec16f8079ac5440a1682be15.png)
+
+3. Paste the theme style code into the `src/config/style/theme.css` file of the ShipAny project, replacing the default style code.
+
+4. Open the project preview address again, and you can see the new style effect.
+
+![](https://cdn.shipany.ai/imgs/98241262b52bb2d8ce55be11c80b6598.png)
+
+The theme style of the admin dashboard is also updated synchronously.
+
+![](https://cdn.shipany.ai/imgs/c4973c4649c323e587a984dfc5564908.png)
+
+## Set Appearance
+
+The ShipAny project uses the `NEXT_PUBLIC_APPEARANCE` variable in the `.env*` file to control the default appearance displayed by the project. The default value of this variable is `system`, which will automatically switch between `light` or `dark` mode according to the system theme set by the user's computer.
+
+If you want to display the dark theme by default, you can set
+
+```toml
+NEXT_PUBLIC_APPEARANCE = "dark"
+```
+
+In this way, when users visit your website for the first time, they will see the dark theme.
+
+![](https://cdn.shipany.ai/imgs/6af46eeaf2efddc3844413552a70a0b3.png)
+
+## Set Theme Folder
+
+ShipAny supports a multi-theme system. Based on this, you can customize your own theme to achieve more personalized page effects.
+
+The default theme is implemented based on [shadcn](https://ui.shadcn.com/) + [tailark](https://tailark.com/), and the corresponding theme folder is `src/themes/default`.
+
+Take [ShipAny Official Website](https://shipany.ai) as an example to demonstrate how to set up a theme folder to achieve a custom theme effect.
+
+1. First modify the configuration file to enable the custom theme
+
+```toml
+NEXT_PUBLIC_THEME = "shipany"
+```
+
+2. Create a theme folder
+
+In the `src/themes` folder, create a theme folder based on the configured custom theme name.
+
+For example, the theme folder to be created here is `src/themes/shipany`
+
+3. Implement theme content
+
+Refer to the theme file content in the `src/themes/default` folder to implement custom theme file content.
+
+You don't need to completely copy the default theme folder. You only need to create a file with the same name as the default theme folder in the custom theme folder to achieve incremental coverage of the default theme file.
+
+Example of file structure for custom theme `shipany`.
+
+![](https://cdn.shipany.ai/imgs/ef323831467af69b33bbe54743f688a1.png)
+
+4. Preview custom theme
+
+Visit [ShipAny Official Website](https://shipany.ai), you can see the effect of the custom theme.
+
+light mode:
+
+![](https://cdn.shipany.ai/imgs/03e9e4d332090e7aac5b059d7dc6259b.png)
+
+dark mode:
+
+![](https://cdn.shipany.ai/imgs/f19bfd56a28124ec22740f5660261f77.png)
+
+Refer to the above custom theme process, you can choose any UI component library you like, customize your project theme according to your business characteristics, and make your project more high-end and atmospheric.
+
+Recommended popular component libraries:
+
+- [Shadcn UI](https://ui.shadcn.com/)
+- [TailLark](https://tailark.com/hero-section)
+- [ShadcnBlocks](https://www.shadcnblocks.com/)
+- [Magic UI](https://magicui.design/)
+- [Hero UI](https://www.heroui.com/)
+
+- [Page UI](https://pageui.shipixen.com/)

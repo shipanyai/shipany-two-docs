@@ -1,0 +1,40 @@
+---
+title: Adsense
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny 集成了 [Adsense](https://adsense.google.com/) 作为广告服务提供商，只需简单配置即可接入使用。
+
+## 快速开始
+
+参考以下步骤，在你的项目快速接入 Adsense 广告服务。
+
+<Steps>
+<Step>创建 Adsense 账户</Step>
+
+访问 [Adsense 官网](https://adsense.google.com/)，注册一个账户。
+
+<Step>新增网站</Step>
+
+在 Adsense 控制台，进入 `Sites` 页面，点击 `New site` 按钮，在 `Add site` 弹窗中，输入你的网站域名，比如：`shipany.site`，点击 `Save` 按钮，添加网站。
+
+在验证页面，复制 `ca-pub-xxx` 格式的一段代码。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/adsense-verify.png)
+
+<Step>设置 Adsense 广告代码</Step>
+
+在项目管理后台，进入 `Settings -> Ads -> Adsense` 面板，在 `Adsense Code` 字段填入上一步复制的代码。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/adsense-settings.png)
+
+<Step>验证 Adsense 广告</Step>
+
+回到第二步在 `Adsense` 控制台的网站验证页面，勾选 `I've placed the code` 选项，点击 `Verify` 按钮，完成网站验证。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/adsense-verify.png)
+
+> 如果选择 `AdSense code snippet` 不能验证通过，请切换 `Ads.txt snippet`，`Meta tag` 两种方式重试验证。直接访问 `{your-domain}/ads.txt` 页面，查看输出内容是否与 `Ads.txt snippet` 中的内容一致。
+
+</Steps>

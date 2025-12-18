@@ -1,0 +1,90 @@
+---
+title: Prerequisites
+---
+
+To ensure you can successfully use ShipAny to develop your project, please make sure you have completed the following prerequisites.
+
+## Network Environment
+
+Please ensure your network environment can normally access third-party services such as [Github](https://github.com/) and [Google](https://www.google.com/).
+
+You can execute the following command in the terminal to check your network exit IP:
+
+```shell
+curl https://ipinfo.io
+```
+
+Test network connectivity with the following command:
+
+```shell
+curl https://google.com
+```
+
+If the network environment is poor, it may cause issues such as inability to install required `npm` dependencies, inability to connect to cloud databases, and inability to use AI image generation features.
+
+## Set Up Local Development Environment
+
+Please set up your local development environment and install necessary development tools according to your operating system. Using `Mac OS` as an example:
+
+1. Install [fnm](https://github.com/Schniz/fnm) for NodeJS version management
+
+It is recommended to use the following or higher versions of `NodeJS` and `npm`:
+
+```bash
+$ node -v
+v22.2.0
+
+$ npm -v
+10.7.0
+```
+
+2. Install [pnpm](https://pnpm.io/installation) for package management
+
+Install `pnpm` globally:
+
+```bash
+$ npm install -g pnpm
+```
+
+It is recommended to use the following or higher version of `pnpm`:
+
+```bash
+$ pnpm -v
+9.15.0
+```
+
+3. Install [git](https://git-scm.com/downloads) for version control
+
+It is recommended to use the following or higher version of `git`:
+
+```bash
+$ git --version
+git version 2.39.3 (Apple Git-146)
+```
+
+4. Configure [ssh key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) to ensure you can access your Github repository
+
+```bash
+$ ssh -T git@github.com
+```
+
+## AI-Assisted Programming Tools
+
+To better understand the ShipAny framework and develop projects more efficiently, it is recommended to use the following AI tools to assist development:
+
+| Name                                                      | Description             |
+| --------------------------------------------------------- | ----------------------- |
+| [Cursor](https://www.cursor.com/)                         | AI Editor               |
+| [Antigravity](https://antigravity.google/)                | AI Editor               |
+| [Claude Code](https://www.claude.com/product/claude-code) | AI Programming CLI Tool |
+| [CodeX](https://openai.com/codex/)                        | AI Programming CLI Tool |
+
+Installing the following plugins in AI editors can better assist development:
+
+- [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) API debugging
+- [Prettier - Code formatter](https://marketplace.cursorapi.com/items?itemName=esbenp.prettier-vscode) Code formatting
+
+## Other Tools
+
+- [Use Nano Banana Pro to generate images](https://aistudio.google.com/prompts/new_chat?model=models%2Fgemini-3-pro-image-preview)
+- [Use v0 to generate UI components](https://v0.dev/)

@@ -1,0 +1,129 @@
+---
+title: 自定义多语言
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny 基于 [next-intl](https://next-intl.dev/) 实现多语言系统。
+
+你可以参考以下内容，为你的项目自定义多语言展示。
+
+## 设置多语言切换
+
+在 `src/config/locale/index.ts` 配置文件中，设置项目支持显示的语言。
+
+你可以根据需求，自行添加或删除支持显示的语言。
+
+```ts
+export const localeNames: any = {
+  en: 'English',
+  zh: '中文',
+  ja: '日本語',
+};
+
+export const locales = ['en', 'zh', 'ja'];
+```
+
+在 `src/config/locale/messages/{locale}/landing.json` 文件中，通过 `header` 区块和 `footer` 区块的 `show_locale` 字段，控制是否显示语言切换按钮。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/locale-selector.png)
+
+> 注意：请根据启用的语言列表，修改每种语言对应的 `src/config/locale/messages/{locale}/` 文件夹里面的配置内容，确保每种语言的页面内容都能正常显示。
+
+如果项目第一版上线，不需要支持多语言，可以设置：
+
+```ts
+export const localeNames: any = {
+  en: 'English',
+};
+
+export const locales = ['en'];
+```
+
+并把 `src/config/locale/messages/en/landing.json` 文件中的 `show_locale` 字段设置为 `false`。
+
+## 设置默认显示的语言
+
+项目默认显示的语言是英文，如果你希望默认显示其他语言，比如中文，可以通过环境变量来配置默认语言。
+
+```toml
+NEXT_PUBLIC_DEFAULT_LOCALE = "zh"
+```
+
+默认语言访问，不会在 URL 中显示对应的语言代码。非默认语言访问，会在 URL 中显示对应的语言代码。
+
+比如按照上述配置，访问中文价格表，路由是：`/pricing`，访问英文价格表，路由是：`/en/pricing`。
+
+## 自定义多语言页面
+
+比如你希望在项目中新增一个 `/about` 页面，并支持多语言展示。
+
+你可以按照以下步骤进行多语言页面配置：
+
+<Steps>
+<Step>创建多语言文件</Step>
+
+在 `src/config/locale/messages/{locale}` 文件夹下面，创建对应的页面文件，支持二级目录。
+
+比如新建英文显示的页面文件：`src/config/locale/messages/en/pages/about.json`。
+
+写入页面内容：
+
+```json
+{
+  "metadata": {
+    "title": "About",
+    "description": "Nano Banana Pro is an AI image generator based on the Nano Banana Pro model, powered by Gemini 3 Pro image generation technology. Create stunning images with advanced AI capabilities."
+  }
+}
+```
+
+> 注意：根据配置的语言列表，为每种语言都创建对应的页面文件。
+
+<Step>配置多语言文件</Step>
+
+在 `src/config/locale/index.ts` 文件导出的 `localeMessagesPaths` 数组中，添加新创建的多语言文件：
+
+```ts
+export const localeMessagesPaths = [
+  // ... 其他多语言文件列表
+  'pages/about',
+];
+```
+
+<Step>创建多语言页面路由</Step>
+
+在 `src/app/[locale]` 文件夹下面，创建支持多语言访问的页面路由文件。
+
+比如 `/about` 页面对应的路由文件是：`src/app/[locale]/about/page.tsx`。
+
+> 注意：如果你希望复用着陆页的布局，创建的页面路由文件应该是： `src/app/[locale]/(landing)/about/page.tsx`。
+
+写入页面路由文件内容：
+
+```tsx
+import { getTranslations } from 'next-intl/server';
+
+import { Hero } from '@/themes/default/blocks';
+
+export default async function AboutPage() {
+  const t = await getTranslations('pages.about');
+
+  return (
+    <Hero
+      hero={{
+        title: t('metadata.title'),
+        description: t('metadata.description'),
+      }}
+    />
+  );
+}
+```
+
+<Step>预览多语言页面</Step>
+
+访问 `/about` 页面时，看到的效果如下：
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/about-page.png)
+
+</Steps>

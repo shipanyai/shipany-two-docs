@@ -1,0 +1,258 @@
+---
+title: Deploy to Cloudflare Workers
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+Projects developed based on ShipAny support deployment to [Cloudflare Workers](https://workers.cloudflare.com/). Utilizing the Serverless features of Cloudflare Workers, you can achieve high availability and low-cost deployment.
+
+Follow the steps below to complete the adaptation and deployment for Cloudflare Workers.
+
+## Project Adaptation
+
+To make your project run normally on Cloudflare Workers, you need to adapt the project. There are generally three situations.
+
+<Steps>
+<Step>New project, create with adapted branch</Step>
+
+When initializing the project by referring to [Quick Start](/docs/quick-start), choose to pull the code of the `cf` branch. This branch code has been adapted for Cloudflare Workers. Projects developed on this basis can be deployed to Cloudflare Workers with one click.
+
+```shell
+git clone -b cf git@github.com:shipanyai/shipany-template-two my-shipany-project
+```
+
+<Step>Existing project, merge adapted branch code</Step>
+
+If your project was created based on the `main` branch or `dev` branch, and was initially deployed to platforms like `Vercel`, but later needs to be redeployed to Cloudflare Workers, you can choose to merge the adapted branch code to complete the project adaptation.
+
+```shell
+# Create a new branch for your project
+git checkout -b cf
+# Set the ShipAny repository code as upstream
+git remote add upstream git@github.com:shipanyai/shipany-template-two.git
+# Fetch updates from the upstream repository
+git fetch upstream
+# Merge updates from the specified branch of the upstream repository
+git merge upstream/cf
+```
+
+> Note: Merging upstream branch code directly may encounter conflicts, which need to be resolved manually.
+
+<Step>Existing project, self-adaptation</Step>
+
+If your existing project has significant changes compared to the upstream project and is not suitable for directly merging upstream repository code, you can refer to the [OpenNext Documentation](https://opennext.js.org/cloudflare/get-started#existing-nextjs-apps) to adapt it yourself.
+
+Follow the steps in the documentation example to complete the project adaptation step by step.
+
+> Note: OpenNext currently does not support `Next.js 16`. Please downgrade the project to `Next.js 15.5.5` before adaptation.
+
+</Steps>
+
+## Project Deployment
+
+After completing the above project adaptation process, you can follow the steps below to deploy your project to Cloudflare Workers.
+
+<Steps>
+<Step>Set online environment variables</Step>
+
+Create a `.env.production` file in the project root directory. You can create it manually or by using the following command.
+
+```shell
+cp .env.example .env.production
+```
+
+Change the environment variable values in the `.env.production` file to the online environment configuration.
+
+```toml
+# app
+NEXT_PUBLIC_APP_URL = "https://your-domain.com"
+NEXT_PUBLIC_APP_NAME = "Your App Name"
+
+# theme
+NEXT_PUBLIC_THEME = "default"
+
+# appearance
+NEXT_PUBLIC_APPEARANCE = "dark"
+
+# database
+DATABASE_URL = "postgresql://user:password@domain:port/database"
+DATABASE_PROVIDER = "postgresql"
+DB_SINGLETON_ENABLED = "false"
+
+# auth secret
+# openssl rand -base64 32
+AUTH_SECRET = "your-secret-key"
+```
+
+<Step>Set deployment file</Step>
+
+Create a `wrangler.toml` file in the project root directory. You can create it manually or by using the following command.
+
+```shell
+cp wrangler.toml.example wrangler.toml
+```
+
+Then modify the content in the `wrangler.toml` file. Modify the corresponding variable values according to your project's online deployment situation.
+
+Copy the content of the `.env.production` file set in the previous step and replace the content under `[vars]` in the `wrangler.toml` file.
+
+```toml
+name = "your-app-name"
+main = ".open-next/worker.js"
+compatibility_date = "2025-03-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+binding = "ASSETS"
+directory = ".open-next/assets"
+
+# [[hyperdrive]]
+# binding = "HYPERDRIVE"
+# id = ""
+# localConnectionString = ""
+
+[observability]
+enabled = true
+
+[vars]
+# app
+NEXT_PUBLIC_APP_URL = "https://your-domain.com"
+NEXT_PUBLIC_APP_NAME = "Your App Name"
+
+# theme
+NEXT_PUBLIC_THEME = "default"
+
+# appearance
+NEXT_PUBLIC_APPEARANCE = "dark"
+
+# database
+DATABASE_URL = "postgresql://user:password@domain:port/database"
+DATABASE_PROVIDER = "postgresql"
+DB_SINGLETON_ENABLED = "false"
+
+# auth secret
+# openssl rand -base64 32
+AUTH_SECRET = "your-secret-key"
+```
+
+> Note: For the first deployment, we comment out the `[[hyperdrive]]` configuration in the `wrangler.toml` file and set it after the deployment is complete. Cloudflare Workers is a Serverless platform and does not support database singleton mode, so ensure `DB_SINGLETON_ENABLED = "false"` is set.
+
+<Step>Deploy project via command line</Step>
+
+Execute the following command in the project root directory to install project dependencies.
+
+```shell
+pnpm install
+```
+
+After the dependencies are installed, the `wrangler` command-line tool will be automatically installed.
+
+Then execute the following command in the project root directory to deploy the project to Cloudflare Workers.
+
+```shell
+pnpm cf:deploy
+```
+
+If it is the first time deploying a project to Cloudflare Workers, the command line will output a Cloudflare authorization address. You need to click to open the link, log in to your Cloudflare account in the browser, and complete the authorization for the project.
+
+After authorization is complete, the deployment command will continue to execute, compile the project code, upload deployment files, and finally publish your project to Cloudflare Workers and output a preview address.
+
+![](https://cdn.shipany.ai/imgs/753ff3376df75c5c321bc3ba1824b986.png)
+
+At this point, the project has been successfully deployed to Cloudflare Workers. Open the output preview address to see the project page.
+
+Next, you can let the project officially go online by binding a custom domain, configuring Hyperdrive, etc.
+
+</Steps>
+
+## Bind Custom Domain
+
+<Steps>
+<Step>Add custom domain in Cloudflare</Step>
+
+If your domain is registered with other domain registrars (Godaddy, Namecheap, etc.), you can choose to add a custom domain in Cloudflare.
+
+![](https://cdn.shipany.ai/imgs/b4fc1a95e481d5edb5bba3997b989c43.png)
+
+Then go to your domain management background and set the domain's NAMESERVER to the Nameservers provided by Cloudflare.
+
+```text
+graham.ns.cloudflare.com
+ullis.ns.cloudflare.com
+```
+
+After the domain is hosted on Cloudflare, you can use DNS resolution, SSL certificates, CDN acceleration and other functions provided by Cloudflare.
+
+<Step>Add custom domain in Cloudflare Workers</Step>
+
+Enter the project management page deployed on Cloudflare Workers, go to the `Settings -> Domains & Routers` page, click the `Add` button, select `Custom Domain`, enter your custom domain (can be a root domain hosted on Cloudflare, or a subdomain), and click the `Add Domain` button to add the custom domain.
+
+![](https://cdn.shipany.ai/imgs/7ca1531627064693ff52ca2324898cb7.png)
+
+<Step>Access project</Step>
+
+After adding the custom domain in the previous step, Cloudflare will automatically add a DNS resolution record for the domain to Cloudflare Workers. Wait for the DNS resolution to take effect (usually within half an hour, but it may take up to 48 hours), and you can access your project through the custom domain.
+
+![](https://cdn.shipany.ai/imgs/f57f6f4f1848e0a8ed29d08616561fed.png)
+
+</Steps>
+
+## Configure Hyperdrive
+
+[Hyperdrive](https://developers.cloudflare.com/hyperdrive/) is a service provided by Cloudflare to accelerate global user access to existing databases.
+
+Configure Hyperdrive through the following steps to speed up access to external databases for projects deployed on Cloudflare Workers.
+
+<Steps>
+<Step>Configure Hyperdrive</Step>
+
+Enter the Cloudflare console, click the `Create configuration` button on the `Storage & databases -> Hyperdrive` page to create a Hyperdrive configuration.
+
+On the create Hyperdrive configuration page, select `Connect to public database`, and then fill in the database configuration information.
+
+![](https://cdn.shipany.ai/imgs/9e896a6b08192b1fb8935d9b7799bc26.png)
+
+`Configuration name` is the configuration name for your own reference, fill in whatever you want.
+
+`Connection String` should be filled with the database connection address of the project's online environment.
+
+<Step>Copy Hyperdrive Configuration ID</Step>
+
+On the Hyperdrive configuration management page, copy the Hyperdrive Configuration ID.
+
+![](https://cdn.shipany.ai/imgs/8c7f1cee51fb8a87af23469945645ba0.png)
+
+<Step>Modify project configuration file</Step>
+
+Modify the `wrangler.toml` file in the project root directory, enable the `[[hyperdrive]]` configuration, and fill in the Hyperdrive Configuration ID and the database connection address of the online environment.
+
+```toml
+[[hyperdrive]]
+binding = "HYPERDRIVE" # Fixed value, do not modify
+id = "your-hyperdrive-config-id" # Fill in the Hyperdrive Configuration ID copied in the previous step
+localConnectionString = "postgresql://user:password@domain:port/database" # Fill in the database connection address of the online environment
+```
+
+<Step>Redeploy project</Step>
+
+Execute the following command in the project root directory to redeploy the project.
+
+```shell
+pnpm cf:deploy
+```
+
+After redeploying the project, the project will automatically use Hyperdrive to accelerate database access. You can see the statistics of data query requests on the Hyperdrive management page.
+
+</Steps>
+
+## View Project Running Logs
+
+In the Cloudflare console, enter the `Workers & Pages` page, select the project deployed on Cloudflare Workers, and enter the project management page.
+
+Click the `Observability` tab to enter the project running log page. You can view the system logs and debugging content output during the project operation here.
+
+![](https://cdn.shipany.ai/imgs/06a5c2e2a3c79ac1773fde60a33e691b.png)
+
+If you want to troubleshoot problems through logs, you can print debug logs through `console.log` in the project code and redeploy it online.
+
+Then click the `Live` button on the `Observability` page to listen to the real-time output log content. Refresh the online access address, view the log output, and locate the specific problem based on the log content.

@@ -1,0 +1,5 @@
+{
+  "title": "Customize",
+  "icon": "Code",
+  "pages": ["appinfo", "theme", "page"]
+}

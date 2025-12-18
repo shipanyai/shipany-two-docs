@@ -1,0 +1,185 @@
+---
+title: 可视化配置
+---
+
+ShipAny 支持通过管理后台可视化修改项目中用到的配置项。
+
+## 快速开始
+
+登录项目管理后台，进入 `Admin -> Settings` 面板，找到对应的配置项，填入配置值，即可动态更新项目配置。
+
+![](https://cdn.shipany.ai/imgs/09c2b434b01834e4456940ea958562b4.png)
+
+## 配置项
+
+支持在项目管理后台可视化修改的配置项，分为以下几大部分。
+
+### 通用项
+
+_应用信息_
+
+- `app_name`: 应用名称
+- `app_description`: 应用描述
+- `app_logo`: 应用 Logo。
+- `app_preview_image`: 应用预览图片
+
+目前仅在管理后台显示自定义的应用信息。
+
+_积分配置_
+
+- `initial_credits_enabled`: 赠送积分开关。如果开启，新注册的用户会赠送积分。
+- `initial_credits_amount`: 新注册用户赠送的积分数额。
+- `initial_credits_valid_days`: 新注册用户赠送积分的有效期，单位：天。
+- `initial_credits_description`: 新注册用户赠送积分的描述。
+
+### 登录鉴权
+
+_邮箱认证_
+
+- `email_auth_enabled`: 邮箱认证开关。如果开启，用户可以使用邮箱登录。
+
+系统初始化后，默认开启邮箱登录，你可以在配置其他登录方式后，可选择关闭邮箱登录。
+
+_Google 登录_
+
+- `google_auth_enabled`: Google 登录开关。如果开启，用户可以使用 Google 账号登录。
+- `google_one_tap_enabled`: Google 一键登录开关。如果开启，用户可以使用 Google 快捷登录。
+- `google_client_id`: Google 登录客户端 ID。
+- `google_client_secret`: Google 登录客户端密钥。
+
+_Github 登录_
+
+- `github_auth_enabled`: Github 登录开关。如果开启，用户可以使用 Github 账号登录。
+- `github_client_id`: Github 登录客户端 ID。
+- `github_client_secret`: Github 登录客户端密钥。
+
+### 支付
+
+_基础支付_
+
+- `select_payment_enabled`: 选择支付方式开关。如果开启，用户可以在支付时选择支付方式。
+- `default_payment_provider`: 默认支付方式。如果不允许用户选择支付方式，则使用默认支付方式。
+
+_Stripe 支付_
+
+- `stripe_enabled`: Stripe 支付开关。如果开启，用户可以使用 Stripe 支付。
+- `stripe_publishable_key`: Stripe 支付公钥。
+- `stripe_secret_key`: Stripe 支付密钥。
+- `stripe_signing_secret`: Stripe 支付签名密钥。
+- `stripe_payment_methods`: Stripe 允许用户选择的支付方式。
+- `stripe_promotion_codes`: Stripe 促销码。
+- `stripe_allow_promotion_codes`: 是否允许用户输入促销码。
+
+_Creem 支付_
+
+- `creem_enabled`: Creem 支付开关。如果开启，用户可以使用 Creem 支付。
+- `creem_environment`: Creem 支付环境。
+- `creem_api_key`: Creem 支付 API 密钥。
+- `creem_signing_secret`: Creem 支付签名密钥。
+- `creem_product_ids`: Creem 支付产品 ID 映射。
+
+_Paypal 支付_
+
+- `paypal_enabled`: Paypal 支付开关。如果开启，用户可以使用 Paypal 支付。
+- `paypal_environment`: Paypal 支付环境。
+- `paypal_client_id`: Paypal 支付客户端 ID。
+- `paypal_client_secret`: Paypal 支付客户端密钥。
+
+### 邮件
+
+_Resend_
+
+- `resend_api_key`: Resend API 密钥。
+- `resend_sender_email`: Resend 发送邮件的邮箱地址。
+
+### 存储
+
+_Cloudflare R2_
+
+- `r2_access_key`: R2 访问 ID
+- `r2_secret_key`: R2 访问密钥
+- `r2_bucket_name`: R2 存储桶名称
+- `r2_upload_path`: R2 自定义上传路径
+- `r2_endpoint`: R2 上传端点地址
+- `r2_domain`: R2 自定义访问域名
+
+### AI
+
+_OpenRouter_
+
+- `openrouter_api_key`: OpenRouter API 密钥
+- `openrouter_base_url`: OpenRouter 基础 URL
+
+_Replicate_
+
+- `replicate_api_token`: Replicate API 密钥
+- `replicate_custom_storage`: Replicate 自定义存储开关。如果开启，Replicate 会使用自定义存储。
+
+_Fal_
+
+- `fal_api_key`: Fal API 密钥
+- `fal_custom_storage`: Fal 自定义存储开关。如果开启，Fal 会使用自定义存储。
+
+_Gemini_
+
+- `gemini_api_key`: Gemini API 密钥
+
+_Kie_
+
+- `kie_api_key`: Kie API 密钥
+- `kie_custom_storage`: Kie 自定义存储开关。如果开启，Kie 会使用自定义存储。
+
+### 数据统计
+
+_Google Analytics_
+
+- `google_analytics_id`: 谷歌统计 ID。
+
+_Clarity_
+
+- `clarity_id`: Clarity 统计 ID。
+
+_Plausible_
+
+- `plausible_domain`: Plausible 统计域名。
+- `plausible_src`: Plausible 统计脚本地址。
+
+_OpenPanel_
+
+- `openpanel_client_id`: OpenPanel 统计客户端 ID。
+
+_Vercel Analytics_
+
+- `vercel_analytics_enabled`: Vercel Analytics 开关。如果开启，项目会使用 Vercel Analytics 统计数据。
+
+### 广告
+
+_Adsense_
+
+- `adsense_code`: Adsense 代码。
+
+### 联盟营销
+
+_Affonso_
+
+- `affonso_enabled`: Affonso 开关。如果开启，项目会使用 Affonso 联盟营销。
+- `affonso_id`: Affonso 联盟营销程序 ID。
+- `affonso_cookie_duration`: Affonso 联盟营销 Cookie 持续时间，单位：天，默认是 30 天。
+
+_PromoteKit_
+
+- `promotekit_enabled`: PromoteKit 开关。如果开启，项目会使用 PromoteKit 联盟营销。
+- `promotekit_id`: PromoteKit 联盟营销程序 ID。
+
+### 客服
+
+_Crisp_
+
+- `crisp_enabled`: Crisp 开关。如果开启，项目会使用 Crisp 客服。
+- `crisp_website_id`: Crisp 网站 ID。
+
+_Tawk_
+
+- `tawk_enabled`: Tawk 开关。如果开启，项目会使用 Tawk 客服。
+- `tawk_property_id`: Tawk 属性 ID。
+- `tawk_website_id`: Tawk 网站 ID。

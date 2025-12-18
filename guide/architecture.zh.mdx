@@ -1,0 +1,125 @@
+---
+title: 系统架构
+---
+
+`ShipAny Two` 基于最新的 `Next.js 16`，在编译性能方面有很大提升，本地开发更快、内存占用更小。
+
+在框架设计层面，分为核心系统、核心模块、扩展模块、主题系统、配置系统、内容管理系统六大件。
+
+## 1. 核心系统（app）
+
+ShipAny Two 内置 Landing、Admin、User Console 三套核心系统，对应三套独立的页面布局，用于实现网站着陆页、后台管理、用户中心三类常见业务功能。
+
+- 着陆页系统（Landing）
+
+通过 json 文件控制页面内容，方便 AI 修改，支持多语言；页面按区块（blocks）拆分，可自由组装，灵活度高；通过 theme.css 调整配色和字体，个性化程度高
+
+- 后台管理系统（Admin）
+
+集成用户管理、订单管理、积分管理功能；集成配置中心，可视化开启/关闭各类功能；集成 CURD 操作，通过自定义的 PageBuilder 做到几行代码渲染数据管理页面（table、form）
+
+- 用户控制台系统（User Console）
+
+用户在 Settings 面板管理自己的账单、订阅、支付、积分流水，修改头像昵称；用户在 Activity 面板查看AI 生成任务和 AI 对话记录
+
+三套核心系统在 src/app 目录实现，按功能划分文件夹，开发者很容易新增自己的功能。
+
+## 2. 核心模块（core）
+
+ShipAny 把框架全局支持的功能归为核心模块，包括 db、auth、i18n、rbac 几类
+
+- 数据库（db）
+
+基于 drizzle orm 集成数据库功能，支持 postgres、mysql、sqlite 等数据库类型；通过 schema 定义数据表，支持增量迁移；CURD 数据操作层面用同一套 sql 语法，抹平各类数据库的差异
+
+- 登录鉴权（auth）
+
+基于 better-auth 实现登录鉴权功能，可以在管理后台一键开启常用的登录方式
+
+- 权限控制（rbac）
+
+基于权限的管理控制，通过自定义的角色和权限节点控制后台管理系统的访问
+
+- 国际化（i18n）
+
+基于 next-intl 实现国际化功能，通过 json 文件控制多语言显示
+
+ShipAny 的核心模块定义在 src/core 下面
+
+## 3. 扩展模块（extensions）
+
+ShipAny 利用 extensions 支持可插拔架构，每一类扩展定义一个统一的 interface，每个扩展按接口实现具体的功能逻辑。目前支持的 extensions 包括
+
+- ads
+
+广告。集成 adsense
+
+- affiliate
+
+联盟营销。集成 affonso、promotekit
+
+- ai
+
+AI 供应商。集成 OpenRouter、Fal、Replicate、Kie
+
+- analytics
+
+数据统计。集成 ga、clarity、plausible、open-panel、vercel-analytics
+
+- customer-service
+
+客服。集成 crisp、tawk
+
+- email
+
+邮箱。集成 resend
+
+- payment
+
+支付。集成 Stripe、Creem、PayPal
+
+- storage
+
+存储。集成 aws s3，cloudflare r2
+
+ShipAny 的扩展模块定义在 src/extentions 目录下，每一类扩展要新增一个选项，只需要写很少的代码
+
+## 4. 主题系统（themes）
+
+ShipAny 支持多主题系统，让开发者可以自定义主题实现个性化的页面展示。
+
+包括三类自定义主题方式
+
+- 自定义主题色 / 字体
+- 切换亮色（light）/ 暗色（dark）
+- 自定义主题文件夹
+
+主题系统定义在 src/themes 下面
+
+## 5. 配置系统（config）
+
+ShipAny 支持三类配置的定义
+
+- 在 .env 文件通过环境变量定义配置
+- 在 src/config 目录下通过文件定义配置
+- 在 /admin/settings 可视化管理配置
+
+组合管理配置项，实现低代码的功能，不是很懂代码的用户也能方便地使用 ShipAny
+
+## 6. 内容管理系统（cms）
+
+ShipAny 实现的内容管理系统包括三个层面的内容管理
+
+- 博客（blog）
+
+通过管理后台写入博客内容，也可以在 content/posts 目录用 markdown 写博客。博客可以给你的网站增加 SEO 权重，也能通过 guest post 接商单。
+
+- 文档（docs）
+
+基于 fumadocs 实现文档系统，在 content/docs 目录写内容，几分钟为你的网站渲染一个 /docs 文档
+
+- 页面（pages）
+
+在 content/pages 目录写内容动态创建页面，比如常用的网站协议页面 /privacy-policy 和/terms-of-service
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/architecture.png)

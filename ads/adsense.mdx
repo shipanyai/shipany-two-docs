@@ -1,0 +1,40 @@
+---
+title: Adsense
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny integrates [Adsense](https://adsense.google.com/) as an advertising service provider. You can easily set it up with simple configuration.
+
+## Quick Start
+
+Follow the steps below to quickly integrate Adsense advertising service into your project.
+
+<Steps>
+<Step>Create an Adsense Account</Step>
+
+Visit the [Adsense website](https://adsense.google.com/) and register an account.
+
+<Step>Add a Site</Step>
+
+In the Adsense console, go to the `Sites` page, click the `New site` button, enter your website domain (e.g., `shipany.site`) in the `Add site` popup, and click the `Save` button to add the site.
+
+On the verification page, copy the code in the format `ca-pub-xxx`.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/adsense-verify.png)
+
+<Step>Configure Adsense Ad Code</Step>
+
+In the project management backend, go to the `Settings -> Ads -> Adsense` panel, and paste the code copied in the previous step into the `Adsense Code` field.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/adsense-settings.png)
+
+<Step>Verify Adsense Ads</Step>
+
+Return to the website verification page in the `Adsense` console from step 2, check the `I've placed the code` option, and click the `Verify` button to complete the website verification.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/adsense-verify.png)
+
+> If verification fails with the `AdSense code snippet`, try switching to `Ads.txt snippet` or `Meta tag` methods. Visit `{your-domain}/ads.txt` directly and check if the output content matches the content in the `Ads.txt snippet`.
+
+</Steps>

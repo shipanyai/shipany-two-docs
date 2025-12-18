@@ -1,0 +1,155 @@
+---
+title: 自定义应用信息
+---
+
+## 设置应用基本信息
+
+应用基本信息影响网站文本显示、版权主体显示、授权登录后回调、支付后跳转等功能。
+
+请在项目部署上线前，根据项目实际情况，设置应用基本信息。
+
+在环境变量文件设置项目名称和部署地址。
+
+本地开发环境，在 `.env.development` 中设置：
+
+```toml
+# app
+NEXT_PUBLIC_APP_URL = "http://localhost:3000"
+NEXT_PUBLIC_APP_NAME = "My ShipAny Project"
+```
+
+线上生产环境，在 `.env.production` 中设置：
+
+```toml
+# app
+NEXT_PUBLIC_APP_URL = "https://your-domain.com"
+NEXT_PUBLIC_APP_NAME = "My ShipAny Project"
+```
+
+## 设置应用图标
+
+应用图标包括 Logo、Favicon 等，应该符合品牌形象。
+
+- 默认显示的网站 Logo 文件在： `public/logo.png`
+- 默认显示的 favicon 图标文件在： `public/favicon.ico`
+
+请为你的项目设计这两个图标，并替换默认的图标文件。
+
+推荐的设计工具：
+
+- [Logo Maker](https://www.design.com/logo-maker)
+- [LogoFast](https://shipfa.st/tools/logo-fast)
+- [Photopea](https://www.photopea.com/)
+
+或者使用 `Nano Banana Pro`，`ChatGPT` 等 AI 辅助设计工具。
+
+替换掉默认的图标文件后，打开项目首页刷新，可以看到顶部的 Logo 和浏览器标签页的图标已经更新为你设置的图标。
+
+## 设置站点地图
+
+站点地图是搜索引擎索引网站的文件，用于告诉搜索引擎哪些页面需要索引。
+
+网站部署上线前，请设置 `public/sitemap.xml` 文件，更新为你网站的页面列表。
+
+```xml
+<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://your-domain.com/</loc>
+    <lastmod>2025-11-15T10:00:00+00:00</lastmod>
+  </url>
+  <url>
+    <loc>https://your-domain.com/blog</loc>
+    <lastmod>2025-11-15T10:00:00+00:00</lastmod>
+  </url>
+  <url>
+    <loc>https://your-domain.com/showcases</loc>
+    <lastmod>2025-11-15T10:00:00+00:00</lastmod>
+  </url>
+</urlset>
+```
+
+## 设置爬虫访问规则
+
+`robots.txt` 是搜索引擎爬虫访问网站的规则文件，用于告诉搜索引擎哪些页面需要索引，哪些页面不需要索引。
+
+网站部署上线前，请设置 `public/robots.txt` 文件，更新为你网站的爬虫访问规则。
+
+默认的 robots.txt 文件内容如下：
+
+```txt
+User-agent: *
+Disallow: /*?*q=
+Disallow: /privacy-policy
+Disallow: /terms-of-service
+Disallow: /settings/*
+Disallow: /activity/*
+Disallow: /admin/*
+```
+
+> v1.6.0 版本开始，在框架层面动态生成 `robots.txt` 的内容，无需在 public 目录下创建 `robots.txt` 文件。
+> 而是在 `src/app/robots.ts` 文件中配置爬虫访问规则。
+
+默认的 `src/app/robots.ts` 文件内容如下：
+
+```ts
+import { MetadataRoute } from 'next';
+
+import { envConfigs } from '@/config';
+
+export default function robots(): MetadataRoute.Robots {
+  const appUrl = envConfigs.app_url;
+
+  return {
+    rules: {
+      userAgent: '*',
+      allow: '/',
+      disallow: [
+        '/*?*q=',
+        '/privacy-policy',
+        '/terms-of-service',
+        '/settings/*',
+        '/activity/*',
+        '/admin/*',
+        '/api/*',
+      ],
+    },
+    sitemap: `${appUrl}/sitemap.xml`,
+  };
+}
+```
+
+你可以根据项目实际情况修改。访问路径与原来一致，都是 `/robots.txt`。
+
+## 设置网站协议
+
+网站协议包括隐私政策、服务条款等，应该跟你的项目定位和业务相匹配。
+
+协议文件内容在 `content/pages` 目录下，包括：
+
+- `privacy-policy.mdx`
+- `terms-of-service.mdx`
+
+如果你的项目支持多语言，在 `content/pages` 目录下，还会有对应的语言版本协议文件，比如：
+
+- `privacy-policy.zh.mdx`
+- `terms-of-service.zh.mdx`
+
+请根据你的项目实际情况，修改协议文件内容。
+
+可以利用 AI 辅助生成协议文件内容，参考的提示词：
+
+```txt
+The project I am developing is a code template that can quickly build AI SaaS,
+please refer to the content on the webpage: https://shipany.ai/docs,
+help me modify the protocol file under content/pages.
+My project name is: ShipAny Two,
+domain is: https://cf-two.shipany.site,
+the copyright holder is: ShipAny.AI,
+contact email is: support@shipany.ai
+```
+
+协议文件内容修改后，打开对应的协议文件页面，检查内容是否正确。
+
+- 隐私政策页面：`/privacy-policy`
+- 服务条款页面：`/terms-of-service`

@@ -1,0 +1,75 @@
+---
+title: Cloudflare R2
+created_at: 2025-11-25
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny projects require file storage service configuration to enable image upload functionality, which affects features like user avatar editing and AI-generated image storage.
+
+## Quick Start
+
+Follow these steps to configure [Cloudflare R2](https://developers.cloudflare.com/r2/) file storage for your project.
+
+<Steps>
+<Step>Create a Bucket</Step>
+
+Navigate to the `Storage & databases -> R2 object storage -> Overview` page in the Cloudflare dashboard, and click the `Create bucket` button to create a bucket.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/r2-create.png)
+
+Fill in the bucket name, select the bucket region (or use the default region), and click the `Create` button to create the bucket.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/r2-create-bucket.png)
+
+<Step>Configure Bucket Access Domain</Step>
+
+Go to the bucket settings page, and click the `Enable` button next to `Public Development URL` to enable the default access domain for the bucket.
+
+The access domain you get after enabling will look like:
+
+```shell
+https://pub-xxx.r2.dev
+```
+
+The default access domain for the bucket has rate limits and can be used during development and debugging. For production deployments, it's recommended to configure a custom domain.
+
+Click the `Add` button next to `Custom Domains` to add a custom domain. Enter your custom domain in the popup input box, for example: `r2.shipany.ai`
+
+You may need to configure DNS resolution for your custom domain. If your domain is hosted on Cloudflare, DNS records will be automatically added after adding the domain.
+
+The final bucket access domain you get will look like:
+
+```shell
+https://r2.shipany.ai
+```
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/r2-domain.png)
+
+<Step>Set Up API Credentials</Step>
+
+Return to the `R2 object storage` page from the first step, click the `Manage` button next to `Account Details -> API Tokens` in the bottom right corner to access the API credentials management page.
+
+Click the `Create User API token` button next to `User API Tokens` to create API credentials.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/r2-create-token.png)
+
+Click the `Create User API Token` button to create API credentials for accessing the bucket.
+
+On the credentials display page, copy the `Access Key ID`, `Secret Access Key`, and the three values under `Default`.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/r2-config.png)
+
+<Step>Configure Project Storage</Step>
+
+In the project admin panel, navigate to the `Settings -> Storage -> Cloudflare R2` panel, fill in the Cloudflare R2 bucket configuration, and click the `Save` button to save the configuration.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/r2-settings.png)
+
+<Step>Test Storage</Step>
+
+Go to the `/settings/profile` page of your project, click to upload an avatar. If the image uploads successfully, right-click and select `Open image in new tab`. If the image access URL matches the custom domain configured in your bucket, it means the Cloudflare R2 storage configuration is successful.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/r2-test.png)
+
+</Steps>

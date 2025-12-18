@@ -1,0 +1,276 @@
+---
+title: Deploy using Dokploy
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny can be built as a Docker image, supporting deployment to any platform that supports Docker.
+
+[Dokploy](https://dokploy.com/) is an open-source deployment panel that allows you to set up a project deployment platform similar to Vercel using your own server.
+
+You can follow the steps below to set up the Dokploy deployment panel and use Dokploy to deploy ShipAny projects.
+
+## Set up Dokploy Deployment Panel
+
+<Steps>
+<Step>Purchase a server</Step>
+
+You need to purchase a server first to set up the Dokploy deployment panel.
+
+There are many platforms to purchase servers, such as: `AWS Lightsail`, `DigitalOcean`, `LightNode`, `Hostinger`, etc., or you can purchase from any cloud server provider.
+
+Recommended configuration: 4 cores, 8G memory, 100G hard drive, operating system `Ubuntu 24.04`.
+
+<Step>Install Dokploy</Step>
+
+Use the script provided by [Dokploy](https://dokploy.com/) official to install the Dokploy deployment panel with one click.
+
+```shell
+curl -sSL https://dokploy.com/install.sh | sh
+```
+
+Follow the steps one by one until the installation is prompted to be complete.
+
+<Step>Access Dokploy</Step>
+
+Access the Dokploy deployment panel via `http://your-server-ip:3000`.
+
+![](https://cdn.shipany.ai/imgs/38f4cce02c675b99bce0bc60da8632e7.png)
+
+Bind a domain name on the `Web Server` page, and then you can access the Dokploy deployment panel via the domain name.
+
+</Steps>
+
+## Build Docker Image
+
+Projects created based on ShipAny have a `Dockerfile` file in the project root directory. You can build a Docker image based on the project code.
+
+There are two ways to build an image for the project.
+
+<Steps>
+<Step>Build image locally</Step>
+
+Enter the project created according to [Quick Start](/docs/quick-start), and execute the following command in the project root directory to build the Docker image.
+
+```shell
+docker build -t my-shipany-project .
+```
+
+There are two points to note:
+
+1. Before building the image, please ensure that Docker is installed in the environment where you execute the build command. If it is a `MacOS` system, [OrbStack](https://orbstack.dev/) is recommended. For other operating systems, please search for the installation method of Docker yourself.
+
+2. The `cf` branch of the ShipAny project does not support Docker. Please ensure that your project is created based on the `main` branch or `dev` branch.
+
+After the image build is complete, execute the following command in the project root directory to start the project based on the Docker image.
+
+```shell
+docker run -p 8080:3000 my-shipany-project:latest
+```
+
+Then access `http://localhost:8080` to preview the project.
+
+> This step is to verify whether the Docker image build is normal. If you do not want to install Docker locally, you can skip this step and push the code to Github for remote build.
+
+<Step>Remote build image</Step>
+
+Projects created based on ShipAny have a `.github/workflows/docker-build.yaml` file in the root directory, which defines the process of using Github Actions to remotely build Docker images.
+
+By default, when the `main` branch code is updated, the Docker image will be automatically built and pushed to the `ghcr.io` image registry. You can modify the content of the `docker-build.yaml` file according to your needs.
+
+```yaml
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  SVR_NAME: ${{ github.event.repository.name }}
+```
+
+</Steps>
+
+## Deploy Project using Dokploy
+
+After ensuring that the above steps of using Github Actions to remotely build the Docker image are successful, we can create a project in the Dokploy deployment panel and pull the remote Docker image for deployment.
+
+<Steps>
+<Step>Create Project</Step>
+
+In the Dokploy deployment panel, go to the `Projects` page, click the `Create Project` button, and create a new project.
+
+<Step>Create Application</Step>
+
+Click to enter the project created in the previous step, click the `Create Service` button, select `Application`, and create a new application.
+
+<Step>Set Github Access Token</Step>
+
+Refer to [ghcr registry settings](https://docs.dokploy.com/docs/core/registry/ghcr), enter the [Github Settings](https://github.com/settings/tokens) page, and create a new Token for accessing the `ghcr.io` image registry.
+
+![](https://cdn.shipany.ai/imgs/1b148feb851e0ba26dcfd1c9eafa9ac1.png)
+
+<Step>Configure Docker Deployment</Step>
+
+Enter the application created in step 2, select `Provider -> Docker` in the `General` tab, and configure Docker deployment.
+
+![](https://cdn.shipany.ai/imgs/c905251d8f86b39fdc332efe9125b2c2.png)
+
+- `Docker Image`: Fill in your project's image registry address, in the format `ghcr.io/your-org/your-repo:tag`
+- `Registry URL`: Fixed fill `ghcr.io`
+- `Username`: Fill in your project's Github organization name
+- `Password`: Fill in the Github Access Token created in the previous step
+
+After configuring Docker deployment, click the `Deploy` button to start deploying the application.
+
+<Step>View Deployment Progress</Step>
+
+In the `Deployments` tab, you can view the deployment records. Click the `View` button to see the deployment progress and status.
+
+![](https://cdn.shipany.ai/imgs/73cf48832716b828dbe484b50c28b861.png)
+
+It can be seen that the method of pulling the remotely built image to Dokploy for deployment took only a dozen seconds to complete the deployment, which is very fast.
+
+At this point, we have completed the process of deploying the ShipAny project via Dokploy. Next, you can let the new project officially go online by binding a custom domain, setting environment variables, configuring access statistics, etc.
+
+</Steps>
+
+## Bind Custom Domain
+
+<Steps>
+<Step>Add Custom Domain</Step>
+
+Enter the project's `Domains` page, click the `Add Domain` button, and add a custom domain.
+
+![](https://cdn.shipany.ai/imgs/53d0ad6f02543d5010bc515e17a2ec2a.png)
+
+Enter the custom domain you want to bind, which can be a root domain or a subdomain. Use the root directory for the deployment path and the default `3000` for the container port.
+Turn on the `HTTPS` option to let Dokploy automatically generate an SSL certificate for your domain. Click the `Create` button to add the custom domain.
+
+<Step>Configure DNS Resolution</Step>
+
+Log in to your domain registrar's DNS resolution page and configure an `A` record for the domain you added, resolving to the server IP address where the Dokploy deployment panel is located.
+
+> Note: The IP address of the server where the Dokploy deployment panel is located must be accessible from the public network. Adjust the firewall to open access to ports 80, 443, 3000, etc.
+
+<Step>Access Project</Step>
+
+Wait for the DNS resolution to take effect (usually within half an hour, but it may take up to 48 hours), and access your custom domain in the browser to preview the project.
+
+![](https://cdn.shipany.ai/imgs/df2d4f8b6519c28bf39ac42a057a05d1.png)
+
+</Steps>
+
+## Set Environment Variables
+
+Before the project officially goes online, please modify the environment variables to ensure that the project uses the correct configuration when running online.
+
+<Steps>
+<Step>Set Environment Variable Content</Step>
+
+First set the `.env.production` file in the local project root directory, fill in the configuration for the project running online, and fill in the custom domain added in the previous step for `NEXT_PUBLIC_APP_URL`.
+
+```toml
+# app
+NEXT_PUBLIC_APP_URL = "https://your-domain.com"
+NEXT_PUBLIC_APP_NAME = "Your App Name"
+
+# theme
+NEXT_PUBLIC_THEME = "default"
+
+# appearance
+NEXT_PUBLIC_APPEARANCE = "dark"
+
+# database
+DATABASE_URL = "postgresql://user:password@domain:port/database"
+DATABASE_PROVIDER = "postgresql"
+DB_SINGLETON_ENABLED = "false"
+
+# auth secret
+# openssl rand -base64 32
+AUTH_SECRET = "your-secret-key"
+```
+
+<Step>Set Environment Variables in Dokploy</Step>
+
+Enter the `Environment` tab of the Dokploy project, paste the environment variable content from the local `.env.production` file, and click the `Save` button to set the environment variables.
+
+![](https://cdn.shipany.ai/imgs/7bd7af7f44a805092571e344ae1537b3.png)
+
+<Step>Reload Application</Step>
+
+Enter the `General` tab of the Dokploy project, click the `Reload` button to reload the application and load the newly set environment variables.
+
+Access your custom domain again, and the new version has used the latest set environment variable content.
+
+</Steps>
+
+## Configure Access Statistics
+
+[Plausible](https://github.com/plausible/analytics) is an open-source access statistics system. You can install `Plausible` with one click through the Dokploy panel to build your own access statistics system.
+
+<Steps>
+<Step>Install Plausible</Step>
+
+1. Enter the Dokploy project management page you created, click the `Create Service` button, select `Template`, find the `Plausible` template by searching for the keyword `Plausible`, and click the `Create` button to install `Plausible`.
+
+![](https://cdn.shipany.ai/imgs/4f784b728d4cf5a2745bdc85e75fb561.png)
+
+2. Bind Custom Domain
+
+After `Plausible` is installed, click the `Domains` tab, and you can see the default domain assigned by Dokploy, like: `xxx.traefik.me`. You can directly use the default assigned domain for access statistics, or you can add your own domain.
+
+Select `plausible` for Service Name, fill in `8000` for the container port, check the `HTTPS` option, and click the `Create` button to bind the custom domain.
+
+![](https://cdn.shipany.ai/imgs/b8715f9034f93a60e24b2a8665a74f9c.png)
+
+You also need to go to the domain registrar to do DNS resolution, add an `A` record for the custom domain, and resolve it to the server IP address where the Dokploy deployment panel is located.
+
+3. Configure Environment Variables
+
+Enter the `Environment` tab, modify `BASE_URL` to your custom domain, and keep the other two parameters as default.
+
+![](https://cdn.shipany.ai/imgs/df4a498aca184049527ab1ae3af6b1cf.png)
+
+4. Reload Application
+
+Enter the `General` tab of the `Plausible` application, click the `Reload` button to reload the application and load the newly set environment variables.
+
+5. Access Application
+
+Access the `Plausible` application through the custom domain, and set the administrator account and login password.
+
+At this point, the `Plausible` access statistics system has been successfully installed in the Dokploy panel. Next, you can add websites to do access statistics.
+
+<Step>Add Statistical Website</Step>
+
+Access the `Plausible` application through the custom domain, click the `Add website` button, and add the website domain you want to count.
+
+![](https://cdn.shipany.ai/imgs/b3c029a24c765a9fe31eacda803f6bc0.png)
+
+Follow the instructions all the way down, and finally you will be prompted to add a script like this to your website:
+
+```html
+<script
+  defer
+  data-domain="your-domain.com"
+  src="https://your-plausible-domain.com/js/script.js"
+></script>
+```
+
+<Step>Configure Access Statistics</Step>
+
+Log in to your ShipAny project management background, find the `Plausible` panel on the `Settings -> Analytics` page, fill in the values of `data-domain` and `src` from the previous step, and click the `Save` button to configure `Plausible` access statistics.
+
+![](https://cdn.shipany.ai/imgs/e484de333f952eb5b3d9de77b3ca9597.png)
+
+<Step>View Access Statistics</Step>
+
+After the configuration is complete, wait for the project to officially go online, and you can see the project's access statistics data in the `Plausible` system background.
+
+![](https://cdn.shipany.ai/imgs/b3cf605a32f8b159e232a8f55077285f.png)
+
+</Steps>

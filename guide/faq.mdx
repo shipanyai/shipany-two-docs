@@ -1,0 +1,110 @@
+---
+title: Frequently Asked Questions
+---
+
+## What is the difference between ShipAny Two and ShipAny One?
+
+ShipAny Two is the second version of ShipAny. Compared to ShipAny One, it has greatly improved in architecture design, functional richness, performance optimization, etc.
+Including the following aspects:
+
+- ShipAny Two supports `Next.js 16`, local development is faster, and memory usage is smaller.
+- ShipAny Two uses `Better-Auth` to replace `NextAuth`, supporting more authentication methods.
+- ShipAny Two supports visual configuration functions in the admin backend, which is more flexible.
+- ShipAny Two supports RBAC to control access to the backend management system.
+- ShipAny Two supports pluggable extensions, including payment, storage, email, data statistics, advertising, affiliate marketing, customer service, etc.
+- ShipAny Two has built-in a large number of AI functions, including AI conversation, AI image generation, AI video generation, etc.
+
+For more details, please refer to [ShipAny Two System Architecture](/docs/guide/architecture).
+
+## Do I need to purchase ShipAny Two separately?
+
+Check if there is a ShipAny Two template in [Personal Center -> Activity -> Purchased Templates](https://shipany.ai/activity/templates). If not, refer to the following process to purchase.
+
+Existing ShipAny Premium users can pay 0 yuan on the [ShipAny Two Template Details Page](https://shipany.ai/templates/shipany-template-two) and then bind their Github username to activate.
+
+New users purchase ShipAny Premium on the [Pricing Page](https://shipany.ai/pricing), automatically get the ShipAny Two template, and then bind their Github username to activate.
+
+## How to start using ShipAny Two?
+
+Refer to [Get ShipAny](/docs/guide/get-shipany) to get access to the ShipAny Two code repository.
+
+Refer to [Quick Start](/docs/quick-start) to start your project with ShipAny Two.
+
+## How to get technical support
+
+You can get technical support in the following three ways:
+
+- Submit an issue on [Github issues](https://github.com/shipanyai/shipany-template-two/issues).
+- Join the [ShipAny Discord Group](https://discord.com/invite/x9usYqTaaj) to ask questions.
+- Send an email to [support@shipany.ai](mailto:support@shipany.ai) for help.
+
+> For general issues such as environment configuration, Next.js, React, etc., it is recommended to solve them by yourself through searching + AI Q&A first. For ShipAny framework related issues, you can submit an issue in the code repository or communicate in Discord.
+
+## Can I refund the purchased template?
+
+Check the purchased template in [Personal Center -> Activity -> Purchased Templates](https://shipany.ai/activity/templates). If it is inactive, you can apply for a refund.
+
+Copy the order number and apply for a refund through technical support channels.
+
+> If the template has been activated, refunds are not supported.
+
+## Can't ShipAny Two code repository be forked?
+
+Private repositories do not support forking. You need to create your own private Github repository to save your project code.
+
+## How to sync ShipAny Two updates?
+
+1. Clone the ShipAny Two code repository first to initialize your own project
+
+```shell
+git clone git@github.com:shipanyai/shipany-template-two my-shipany-project
+```
+
+2. Create a private Github repository for your project
+
+For example, you created a private repository on Github to save your project code, the repository address is: `github.com/idoubi/my-shipany-project`
+
+3. Push the project code to your private Github repository
+
+```shell
+# Enter project root directory
+cd my-shipany-project
+# Modify code hosting address
+git remote set-url origin git@github.com:idoubi/my-shipany-project.git
+# Push code
+git push origin main
+```
+
+4. Set the ShipAny Two code repository as your project's upstream repository
+
+```shell
+git remote add upstream git@github.com:shipanyai/shipany-template-two.git
+```
+
+5. Sync ShipAny Two updates
+
+```shell
+# Fetch updates from upstream repository
+git fetch upstream
+# Merge updates from upstream repository
+git merge upstream/main
+# Push code to your private Github repository
+git push origin main
+```
+
+You can update the latest ShipAny Two code as needed. If the upstream code conflicts with your project code, you need to resolve the conflict manually.
+
+After updating the code, remember to install project dependencies.
+
+```shell
+pnpm install
+```
+
+## How to update database table structures?
+
+After synchronizing the upstream code, remember to update the database table structures to ensure that your project can synchronize the data table changes of the upstream.
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```

@@ -1,0 +1,276 @@
+---
+title: 使用 Dokploy 部署
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny 可以构建成 Docker 镜像，支持部署到任意支持 Docker 的平台。
+
+[Dokploy](https://dokploy.com/) 是一款开源的部署面板，可以让你用自己的服务器搭建类似 Vercel 一样的项目部署平台。
+
+你可以按照下面的步骤，搭建 Dokploy 部署面板，使用 Dokploy 部署 ShipAny 项目。
+
+## 搭建 Dokploy 部署面板
+
+<Steps>
+<Step>购买服务器</Step>
+
+你需要先购买一台服务器，用于搭建 Dokploy 部署面板。
+
+购买服务器的平台有很多，比如：`AWS Lightsail`、`DigitalOcean`、`LightNode`、`Hostinger` 等，也可以在任意的云服务器厂商购买。
+
+推荐配置：4 核 8G 内存 100G 硬盘，操作系统选择 `Ubuntu 24.04`。
+
+<Step>安装 Dokploy</Step>
+
+使用 [Dokploy](https://dokploy.com/) 官方提供的脚本，一键安装 Dokploy 部署面板。
+
+```shell
+curl -sSL https://dokploy.com/install.sh | sh
+```
+
+按照步骤一步步操作，直到提示安装完成。
+
+<Step>访问 Dokploy</Step>
+
+通过 `http://your-server-ip:3000` 访问 Dokploy 部署面板。
+
+![](https://cdn.shipany.ai/imgs/38f4cce02c675b99bce0bc60da8632e7.png)
+
+在 `Web Server` 页面绑定域名，后面就可以通过域名来访问 Dokploy 部署面板。
+
+</Steps>
+
+## 构建 Docker 镜像
+
+基于 ShipAny 创建的项目，在项目根目录下有一个 `Dockerfile` 文件，你可以基于项目代码构建 Docker 镜像。
+
+以下有两种为项目构建镜像的方式。
+
+<Steps>
+<Step>本地构建镜像</Step>
+
+进入按照 [快速开始](/zh/docs/quick-start) 创建的项目，在项目根目录下执行以下命令，构建 Docker 镜像。
+
+```shell
+docker build -t my-shipany-project .
+```
+
+有两点需要注意：
+
+1. 在构建镜像前，请确保你执行构建命令的环境安装了 Docker。如果是 `MacOS` 系统，推荐 [OrbStack](https://orbstack.dev/)，其他操作系统请自行搜索 Docker 的安装方式。
+
+2. ShipAny 项目的 `cf` 分支不支持 Docker，请确保你是基于 `main` 分支或 `dev` 分支创建的项目。
+
+构建镜像完成后，在项目根目录下执行以下命令，基于 Docker 镜像启动项目。
+
+```shell
+docker run -p 8080:3000 my-shipany-project:latest
+```
+
+然后访问 `http://localhost:8080`，就可以预览项目了。
+
+> 此步骤是为了验证 Docker 镜像构建是否正常。如果你不想本地安装 Docker，可以跳过此步骤，把代码推送到 Github 走远程构建。
+
+<Step>远程构建镜像</Step>
+
+基于 ShipAny 创建的项目，在根目录下有一个 `.github/workflows/docker-build.yaml` 文件，定义了使用 Github Actions 远程构建 Docker 镜像的流程。
+
+默认情况下，会在 `main` 分支代码有更新时，自动构建 Docker 镜像，并推送到 `ghcr.io` 镜像仓库。你可以根据自己的需求，修改 `docker-build.yaml` 文件的内容。
+
+```yaml
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  SVR_NAME: ${{ github.event.repository.name }}
+```
+
+</Steps>
+
+## 使用 Dokploy 部署项目
+
+在确保上面的步骤，使用 Github Actions 远程构建 Docker 镜像成功后。我们可以在 Dokploy 部署面板创建项目，拉取远程的 Docker 镜像进行部署。
+
+<Steps>
+<Step>创建项目</Step>
+
+在 Dokploy 部署面板，进入 `Projects` 页面，点击 `Create Project` 按钮，创建一个新项目。
+
+<Step>创建应用</Step>
+
+点击进入上一步创建的项目，点击 `Create Service` 按钮，选择 `Application`，创建一个新应用。
+
+<Step>设置 Github Access Token</Step>
+
+参考 [ghcr 镜像仓库设置](https://docs.dokploy.com/docs/core/registry/ghcr)，进入 [Github Settings](https://github.com/settings/tokens) 页面，创建一个新 Token，用于访问 `ghcr.io` 镜像仓库。
+
+![](https://cdn.shipany.ai/imgs/1b148feb851e0ba26dcfd1c9eafa9ac1.png)
+
+<Step>配置 Docker 部署</Step>
+
+进入第 2 步创建的应用，在 `General` 标签页，选择 `Provider -> Docker`，配置 Docker 部署。
+
+![](https://cdn.shipany.ai/imgs/c905251d8f86b39fdc332efe9125b2c2.png)
+
+- `Docker Image`：填你项目的镜像仓库地址，格式为 `ghcr.io/your-org/your-repo:tag`
+- `Registry URL`：固定填 `ghcr.io`
+- `Username`：填你项目的 Github 组织名
+- `Password`：填上一步创建的 Github Access Token
+
+配置好 Docker 部署后，点击 `Deploy` 按钮，开始部署应用。
+
+<Step>查看部署进度</Step>
+
+在 `Deployments` 标签页，可以查看部署记录，点击 `View` 按钮，可以看到部署的进度和状态。
+
+![](https://cdn.shipany.ai/imgs/73cf48832716b828dbe484b50c28b861.png)
+
+可以看到，拉取远程构建好的镜像到 Dokploy 部署的方式，只花了十几秒就完成了部署，非常快速。
+
+至此，我们已经完成了通过 Dokploy 部署 ShipAny 项目的流程。接下来，可以通过 绑定自定义域名、设置环境变量、配置访问统计 等操作，让新项目正式上线运营。
+
+</Steps>
+
+## 绑定自定义域名
+
+<Steps>
+<Step>添加自定义域名</Step>
+
+进入项目的 `Domains` 页面，点击 `Add Domain` 按钮，添加自定义域名。
+
+![](https://cdn.shipany.ai/imgs/53d0ad6f02543d5010bc515e17a2ec2a.png)
+
+输入你想绑定的自定义域名，可以是根域名，也可以是子域名。部署路径使用根目录，容器端口使用默认的 `3000`。
+开启 `HTTPS` 选项，让 Dokploy 自动为你的域名生成 SSL 证书。点击 `Create` 按钮，添加自定义域名。
+
+<Step>配置 DNS 解析</Step>
+
+登录你的域名服务商的 DNS 解析页面，为你添加的域名配置一条 `A` 记录，解析到 Dokploy 部署面板所在的服务器 IP 地址。
+
+> 请注意：Dokploy 部署面板所在服务器的 IP 地址必须可公网访问。调整防火墙，开启 80、443、3000 等端口的访问。
+
+<Step>访问项目</Step>
+
+等 DNS 解析生效（一般半小时内生效，最多可能需要 48 小时），在浏览器访问你的自定义域名，就可以预览项目了。
+
+![](https://cdn.shipany.ai/imgs/df2d4f8b6519c28bf39ac42a057a05d1.png)
+
+</Steps>
+
+## 设置环境变量
+
+在项目正式上线运行前，请修改环境变量，确保项目在线上运行时，使用正确的配置。
+
+<Steps>
+<Step>设置环境变量内容</Step>
+
+先在本地项目根目录下设置 `.env.production` 文件，填入项目在线上运行的配置，`NEXT_PUBLIC_APP_URL` 填入上一步添加的自定义域名。
+
+```toml
+# app
+NEXT_PUBLIC_APP_URL = "https://your-domain.com"
+NEXT_PUBLIC_APP_NAME = "Your App Name"
+
+# theme
+NEXT_PUBLIC_THEME = "default"
+
+# appearance
+NEXT_PUBLIC_APPEARANCE = "dark"
+
+# database
+DATABASE_URL = "postgresql://user:password@domain:port/database"
+DATABASE_PROVIDER = "postgresql"
+DB_SINGLETON_ENABLED = "false"
+
+# auth secret
+# openssl rand -base64 32
+AUTH_SECRET = "your-secret-key"
+```
+
+<Step>在 Dokploy 设置环境变量</Step>
+
+进入 Dokploy 项目的 `Environment` 标签页，粘贴本地 `.env.production` 文件中的环境变量内容，点击 `Save` 按钮，设置环境变量。
+
+![](https://cdn.shipany.ai/imgs/7bd7af7f44a805092571e344ae1537b3.png)
+
+<Step>重载应用</Step>
+
+进入 Dokploy 项目的 `General` 标签页，点击 `Reload` 按钮，重载应用，加载最新设置的环境变量。
+
+再次访问你的自定义域名，新版本已经使用了最新设置的环境变量内容。
+
+</Steps>
+
+## 配置访问统计
+
+[Plausible](https://github.com/plausible/analytics) 是一套开源的访问统计系统。你可以通过 Dokploy 面板一键安装 `Plausible`，搭建自己的访问统计系统。
+
+<Steps>
+<Step>安装 Plausible</Step>
+
+1. 进入你创建的 Dokploy 项目管理页面，点击 `Create Service` 按钮，选择 `Template`，通过搜索关键词 `Plausible` 找到 `Plausible` 模板，点击 `Create` 按钮，安装 `Plausible`。
+
+![](https://cdn.shipany.ai/imgs/4f784b728d4cf5a2745bdc85e75fb561.png)
+
+2. 绑定自定义域名
+
+等 `Plausible` 安装完成后，点击 `Domains` 标签页，可以看到 Dokploy 默认分配的域名，类似：`xxx.traefik.me`。你可以直接使用默认分配的域名做访问统计，也可以添加自己的域名。
+
+Service Name 选择 `plausible`，容器端口填写 `8000`，勾选启用 `HTTPS` 选项，点击 `Create` 按钮，绑定自定义域名。
+
+![](https://cdn.shipany.ai/imgs/b8715f9034f93a60e24b2a8665a74f9c.png)
+
+同样需要去域名服务商做 DNS 解析，为自定义域名添加一条 `A` 记录，解析到 Dokploy 部署面板所在的服务器 IP 地址。
+
+3. 配置环境变量
+
+进入 `Environment` 标签页，修改 `BASE_URL`，改成你的自定义域名，另外两个参数保持默认。
+
+![](https://cdn.shipany.ai/imgs/df4a498aca184049527ab1ae3af6b1cf.png)
+
+4. 重载应用
+
+进入 `Plausible` 应用的 `General` 标签页，点击 `Reload` 按钮，重载应用，加载最新设置的环境变量。
+
+5. 访问应用
+
+通过自定义域名访问 `Plausible` 应用，设置管理员账号和登录密码。
+
+至此，在 Dokploy 面板已成功安装 `Plausible` 访问统计系统，接下来就可以添加网站做访问统计了。
+
+<Step>添加统计网站</Step>
+
+通过自定义域名访问 `Plausible` 应用，点击 `Add website` 按钮，添加你要统计的网站域名。
+
+![](https://cdn.shipany.ai/imgs/b3c029a24c765a9fe31eacda803f6bc0.png)
+
+按照指示一直往下走，最后会提示你在你的网站添加一段这样的脚本：
+
+```html
+<script
+  defer
+  data-domain="your-domain.com"
+  src="https://your-plausible-domain.com/js/script.js"
+></script>
+```
+
+<Step>配置访问统计</Step>
+
+登录你的 ShipAny 项目管理后台，在 `Settings -> Analytics` 页面，找到 `Plausible` 面板，填入上一步 `data-domain` 和 `src` 的值，点击 `Save` 按钮，配置 `Plausible` 访问统计。
+
+![](https://cdn.shipany.ai/imgs/e484de333f952eb5b3d9de77b3ca9597.png)
+
+<Step>查看访问统计</Step>
+
+配置完成后，等项目正式上线运营后，你就可以在 `Plausible` 系统后台看到项目的访问统计数据了。
+
+![](https://cdn.shipany.ai/imgs/b3cf605a32f8b159e232a8f55077285f.png)
+
+</Steps>

@@ -1,0 +1,54 @@
+---
+title: 'Supabase'
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+[Supabase](https://supabase.com/) is a cloud database development platform built around PostgreSQL. It provides backend services including database, authentication, real-time subscriptions, file storage, and edge functions, exposing PostgreSQL capabilities to developers through RESTful and GraphQL APIs without the need to build your own backend services.
+
+In ShipAny projects, you can use Supabase to store and manage your data.
+
+## Quick Start
+
+You can follow the steps below to integrate Supabase into your ShipAny project.
+
+<Steps>
+<Step>Register an Account</Step>
+
+Visit the [Supabase](https://supabase.com/) website and register a Supabase account.
+
+<Step>Create a Project</Step>
+
+Go to the [Supabase Dashboard](https://supabase.com/dashboard) and create a project.
+
+Enter the project name, click `Generate a password` to generate a random password, then click the `Copy` button to copy the password.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/create-supabase-project.png)
+
+<Step>Get Database Connection URL</Step>
+
+Go to the project management page created in the previous step, click the `Connect` button at the top, switch to the `ORMs -> Drizzle` tab, and copy the value of `DATABASE_URL`.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/supabase-database-url.png)
+
+Replace `[YOUR-PASSWORD]` with the random password generated in the previous step to get the database connection URL for your Supabase project. It should look like this:
+
+```shell
+postgresql://postgres.seilzcqsafesmugglqlk:xxxxxx@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres
+```
+
+<Step>Test Database Connection</Step>
+
+Use the `psql` tool to test if the database can connect normally.
+
+```shell
+psql "postgresql://postgres.seilzcqsafesmugglqlk:xxxxxx@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
+```
+
+> Please search for the installation method of the `psql` tool yourself. Generally, after installing `PostgreSQL` locally, the `psql` tool will be included.
+
+<Step>Configure Database</Step>
+
+Refer to the [Configure Database](/docs/quick-start#configure-database) documentation to configure the database for your ShipAny project.
+
+</Steps>

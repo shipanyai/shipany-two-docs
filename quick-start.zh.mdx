@@ -1,0 +1,347 @@
+---
+title: 快速开始
+icon: Zap
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+在开始使用 ShipAny 之前，请确保你已经 [获取 ShipAny](/zh/docs/guide/get-shipany) 并已获得 ShipAny Two 代码仓库访问权限。
+并且确保你已经完成了 [前置要求](/zh/docs/guide/prerequisites)。
+
+## 本地开发
+
+### 初始化项目
+
+1. 拉取 ShipAny Two 源代码
+
+```shell
+git clone git@github.com:shipanyai/shipany-template-two my-shipany-project
+```
+
+默认拉取的是 `dev` 分支的代码，基于 [Next.js 16](https://nextjs.org/blog/next-16)，可部署在 Vercel，或通过 VPS + Dokploy 部署。
+
+`dev` 分支是开发分支，更新迭代快，包含最新的功能特性。如果你追求版本稳定性，可以选择拉取 `main` 分支的代码。
+
+```shell
+git clone -b main git@github.com:shipanyai/shipany-template-two my-shipany-project
+```
+
+如果你需要部署在 Cloudflare Workers，请拉取 `cf` 分支的代码，此分支基于 [Next.js 15.5.5](https://nextjs.org/docs/15/app/getting-started/project-structure)，暂不支持 Next.js 16。
+
+```shell
+git clone -b cf git@github.com:shipanyai/shipany-template-two my-shipany-project
+```
+
+拉取完代码之后，进入项目根目录，后续的命令行操作都在项目根目录下执行。
+
+```shell
+cd my-shipany-project
+```
+
+2. 安装依赖
+
+执行以下命令，安装项目依赖。
+
+```shell
+pnpm install
+```
+
+3. 启动开发服务器
+
+执行以下命令，启动开发服务器。
+
+```shell
+pnpm dev
+```
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/pnpm-dev.png)
+
+点击输出的 Local 地址，在浏览器打开网页：`http://localhost:3000`，即可预览项目。
+
+启动的开发服务器默认监听 `3000` 端口，如果你希望使用其他端口，可以在启动开发服务器时指定端口。
+
+```shell
+pnpm dev --port 8080
+```
+
+新的项目预览地址就是：`http://localhost:8080`。
+
+4. 预览项目
+
+打开项目预览地址，首次看到的页面是这样的：
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/project-preview.png)
+
+### 配置环境变量
+
+1. 创建配置文件
+
+通过下面的命令，复制一份配置文件，用于配置本地开发用到的环境变量。
+
+```shell
+cp .env.example .env.development
+```
+
+2. 修改环境变量值
+
+根据你的项目信息，自行修改配置文件中的内容。
+
+```toml
+# app
+NEXT_PUBLIC_APP_URL = "http://localhost:3000"
+NEXT_PUBLIC_APP_NAME = "ShipAny Two"
+
+# theme
+NEXT_PUBLIC_THEME = "default"
+
+# appearance
+NEXT_PUBLIC_APPEARANCE = "system"
+
+# database
+DATABASE_URL = ""
+DATABASE_PROVIDER = "postgresql"
+DB_SINGLETON_ENABLED = "true"
+DB_MAX_CONNECTIONS = "1"
+
+# auth secret
+# openssl rand -base64 32
+AUTH_SECRET = ""
+```
+
+必填项：
+
+- `NEXT_PUBLIC_APP_URL`：项目主页地址。复制项目预览地址填入
+- `NEXT_PUBLIC_APP_NAME`：应用名称。改成你的项目名称
+
+选填项：
+
+- `NEXT_PUBLIC_THEME`：项目主题。默认是 `default`，对应的主题文件夹是： `src/themes/default`。如果你有自定义主题的需求，可以修改此选项。
+- `NEXT_PUBLIC_APPEARANCE`：项目外观。默认是 `system`，会根据用户电脑设置的系统主题自动切换。你可以改成 `light` 或 `dark`，来控制项目默认显示的外观。
+
+- `DATABASE_URL`：数据库连接地址。如果你需要用户登录、管理后台等功能，需要配置此项。
+- `DATABASE_PROVIDER`：数据库提供商。目前仅支持 `postgresql`。支持 `Supabase`, `Neon` 等云数据库和自建的 PostgreSQL 数据库。
+- `DB_SINGLETON_ENABLED`：数据库单例模式。默认是 `true`，会复用数据库连接。如果部署在 Cloudflare Workers 等 Serverless 平台，需要改为 `false`。
+- `DB_MAX_CONNECTIONS`：数据库连接池最大连接数。默认是 `1`，你可适当调大此值，提升数据库并发能力。
+
+- `AUTH_SECRET`：鉴权密钥。如果要开启用户登录功能，需要配置此项。
+
+可以通过以下命令生成随机密钥：
+
+```shell
+openssl rand -base64 32
+```
+
+### 配置数据库
+
+如果你的项目需要用户登录、管理后台等功能，必须按照以下步骤配置数据库。
+
+1. 创建数据库
+
+你可以在 `Supabase`、`Neon` 等云数据库平台创建数据库，得到云数据库的远程连接地址，类似这种：
+
+```shell
+postgresql://postgres.xxx:xxxxxx@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
+```
+
+你也可以使用自建的 PostgreSQL 数据库，得到数据库的连接地址，类似这种：
+
+```shell
+postgresql://user:password@127.0.0.1:5432/my_shipany_project
+```
+
+建议本地开发使用自建的 PostgreSQL 数据库，线上版本使用云数据库。
+
+常用数据库的创建和连接地址获取，可以参考：[数据库](/zh/docs/database) 部分的文档。
+
+2. 设置环境变量
+
+把上一步骤得到的数据库连接地址填入环境变量 `DATABASE_URL`。
+
+```toml
+DATABASE_URL = "postgresql://user:password@127.0.0.1:5432/my_shipany_project"
+DATABASE_PROVIDER = "postgresql"
+DB_SINGLETON_ENABLED = "true"
+DB_MAX_CONNECTIONS = "1"
+```
+
+3. 迁移数据表
+
+执行以下命令，迁移数据表
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+迁移数据表命令，在连接数据库时，读取的是 `.env.development` 文件中的 `DATABASE_URL` 变量。
+
+如果在执行迁移命令：`pnpm db:migrate` 时遇到 `Timeout` 超时问题，或者长时间无响应。你需要通过以下命令检查你的数据库能否被正常连接。
+
+```shell
+psql "postgresql://user:password@address:port/database" # YOUR-DATABASE-URL
+```
+
+如果通过命令直接连接数据库也无法连上，你需要检查你的数据库地址是否有误，或者是否存在网络问题（比如防火墙、代理等）。
+
+正常执行 `pnpm db:migrate` 迁移数据表成功后，你可以再次执行上述命令，验证数据表是否成功创建。
+
+你可以在本地开发时，把 `DATABASE_URL` 设置成本地数据库地址。部署上线前，把 `DATABASE_URL` 设置成线上数据库地址，执行完迁移数据表命令，再改回本地数据库地址。
+
+在 `.env.development` 文件中，通过注释来切换数据库地址。
+
+```toml
+# local database
+DATABASE_URL = "postgresql://user:password@127.0.0.1:5432/my_shipany_project"
+
+# remote database
+# DATABASE_URL = "postgresql://postgres.xxx:xxxxxx@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
+
+DATABASE_PROVIDER = "postgresql"
+DB_SINGLETON_ENABLED = "true"
+DB_MAX_CONNECTIONS = "1"
+```
+
+### 配置登录鉴权
+
+ShipAny 使用了 [Better Auth](https://better-auth.com/) 实现用户登录鉴权功能。
+
+如果你的网站只使用 Landing Page 实现静态网站功能，可以不配置登录鉴权。
+
+如果你的网站需要用户登录、支付、管理后台等功能，必须配置登录鉴权。
+
+1. 生成鉴权密钥
+
+通过以下命令生成随机的鉴权密钥。
+
+```shell
+openssl rand -base64 32
+```
+
+2. 设置环境变量
+
+把上一步骤生成的鉴权密钥填入 `.env.development` 文件中的 `AUTH_SECRET` 变量。
+
+```toml
+AUTH_SECRET = "your-secret-key"
+```
+
+配置了 `AUTH_SECRET` 后，默认开启邮箱登录，用户访问你的网站时，会请求 `/api/auth/get-session` 接口检查登录状态。未配置 `AUTH_SECRET` 时，不会检查登录状态。
+
+### 配置管理后台访问
+
+ShipAny 内置了后台管理系统和基于权限的访问控制（RBAC），你需要先完成上面的 配置数据库 和 配置登录鉴权 步骤，再按照下面的步骤配置管理后台访问。
+
+1. 初始化权限
+
+执行以下命令，初始化权限配置。
+
+```shell
+pnpm rbac:init
+```
+
+此步骤会往数据库写入默认的角色和权限列表，连接的是 `.env.development` 文件中 `DATABASE_URL` 对应的数据库。
+
+如果连接的是远程数据库，此步骤可能会遇到 `Timeout` 超时问题，重试即可。
+
+可以配置 `DB_SINGLETON_ENABLED = "true"`，启用数据库单例模式，复用连接，提升初始化速度。
+
+2. 注册管理员账户
+
+访问 `http://your-domain/admin` 进入后台管理系统，第一次会遇到登录拦截，重定向到 `/sign-in` 登录页面。你需要先通过邮箱注册一个管理员账户，比如 `admin@xxx.com`
+
+3. 分配超级管理员权限
+
+执行以下命令，给新注册的账户分配超级管理员权限
+
+```shell
+pnpm rbac:assign -- --email=admin@xxx.com --role=super_admin
+```
+
+4. 访问管理后台
+
+再次访问 `http://your-domain/admin`，使用管理员账户登录，即可进入管理后台。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/project-admin.png)
+
+## 自定义配置
+
+请参考以下步骤，自定义你的项目。
+
+<Steps>
+<Step>修改项目信息</Step>
+
+- 修改文件：`.env.development` 和 `.env.production`。
+- 修改内容：项目名称、部署 URL。
+
+参考：[设置应用基本信息](/zh/docs/customize/appinfo#设置应用基本信息)。
+
+<Step>修改项目图标</Step>
+
+- 修改文件：`public/logo.png` 和 `public/favicon.ico`。
+- 修改内容：为你的项目设计 Logo 和 Favicon，替换默认的图标文件。
+
+参考：[设置应用图标](/zh/docs/customize/appinfo#设置应用图标)。
+
+<Step>修改站点地图</Step>
+
+- 修改文件：`public/sitemap.xml`。
+- 修改内容：更新为你网站的页面列表。
+
+参考：[设置站点地图](/zh/docs/customize/appinfo#设置站点地图)。
+
+<Step>修改网站协议</Step>
+
+- 修改文件：`content/pages/privacy-policy.mdx` 和 `content/pages/terms-of-service.mdx`。
+- 修改内容：更新为你网站的隐私政策和服务条款。
+
+参考：[设置网站协议](/zh/docs/customize/appinfo#设置网站协议)。
+
+<Step>修改网站通用展示内容</Step>
+
+- 修改文件：`src/config/locale/messages/{locale}/common.json`。
+- 修改内容：更新为你网站的通用展示内容。
+
+参考：[设置通用展示内容](/zh/docs/customize/page#设置通用展示内容)。
+
+<Step>修改着陆页展示内容</Step>
+
+- 修改文件：`src/config/locale/messages/{locale}/landing.json`。
+- 修改内容：更新为你网站的着陆页展示内容。
+
+参考：[设置着陆页内容](/zh/docs/customize/page#设置着陆页内容)。
+
+<Step>修改网站主题样式</Step>
+
+- 修改文件：`src/config/style/theme.css`。
+- 修改内容：更新为你网站的主题样式。
+
+参考：[设置主题样式](/zh/docs/customize/theme#设置主题样式)。
+
+<Step>修改多语言配置</Step>
+
+- 修改文件：`src/config/locale/index.ts`。
+- 修改内容：设置项目支持显示的语言。
+
+参考：[设置多语言切换](/zh/docs/customize/locale#设置多语言切换)。
+
+</Steps>
+
+项目最小化改动参考：
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/min-changer.png)
+
+## 发布上线
+
+在完成本地开发和自定义配置之后，你可以选择一种部署方案，将你的项目发布上线。
+
+- [部署到 Vercel](/zh/docs/deploy/vercel)
+- [部署到 Cloudflare Workers](/zh/docs/deploy/cloudflare)
+- [使用 Dokploy 部署](/zh/docs/deploy/dokploy)
+
+## 功能配置
+
+项目发布上线后，通过 `https://your-domain/admin` 进入管理后台，按需配置所需的功能。
+
+- [配置谷歌登录](/zh/docs/auth/google)
+- [配置 Stripe 支付](/zh/docs/payment/stripe)
+- [配置文件存储](/zh/docs/storage/cloudflare-r2)

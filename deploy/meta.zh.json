@@ -1,0 +1,5 @@
+{
+  "title": "部署上线",
+  "icon": "Cloud",
+  "pages": ["vercel", "cloudflare", "dokploy"]
+}

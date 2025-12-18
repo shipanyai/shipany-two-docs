@@ -1,0 +1,347 @@
+---
+title: Quick Start
+icon: Zap
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+Before you start using ShipAny, please make sure you have [Get ShipAny](/docs/guide/get-shipany) and have access to the ShipAny Two code repository.
+
+Also ensure you have completed the [Prerequisites](/docs/guide/prerequisites).
+
+## Local Development
+
+### Initialize Project
+
+1. Pull ShipAny Two source code
+
+```shell
+git clone git@github.com:shipanyai/shipany-template-two my-shipany-project
+```
+
+By default, the code of the `dev` branch is pulled, based on [Next.js 16](https://nextjs.org/blog/next-16), which can be deployed on Vercel, or deployed via VPS + Dokploy.
+
+The `dev` branch is a development branch with fast updates and iterations, containing the latest features. If you pursue version stability, you can choose to pull the code of the `main` branch.
+
+```shell
+git clone -b main git@github.com:shipanyai/shipany-template-two my-shipany-project
+```
+
+If you need to deploy on Cloudflare Workers, please pull the code of the `cf` branch. This branch is based on [Next.js 15.5.5](https://nextjs.org/docs/15/app/getting-started/project-structure) and does not currently support Next.js 16.
+
+```shell
+git clone -b cf git@github.com:shipanyai/shipany-template-two my-shipany-project
+```
+
+After pulling the code, enter the project root directory. Subsequent command line operations are performed in the project root directory.
+
+```shell
+cd my-shipany-project
+```
+
+2. Install dependencies
+
+Execute the following command to install project dependencies.
+
+```shell
+pnpm install
+```
+
+3. Start development server
+
+Execute the following command to start the development server.
+
+```shell
+pnpm dev
+```
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/pnpm-dev.png)
+
+Click the output Local address and open the webpage in the browser: `http://localhost:3000` to preview the project.
+
+The started development server listens to port `3000` by default. If you want to use other ports, you can specify the port when starting the development server.
+
+```shell
+pnpm dev --port 8080
+```
+
+The new project preview address is: `http://localhost:8080`.
+
+4. Preview Project
+
+Open the project preview address, and the page you see for the first time is like this:
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/project-preview.png)
+
+### Configure Environment Variables
+
+1. Create configuration file
+
+Copy a configuration file through the following command to configure the environment variables used for local development.
+
+```shell
+cp .env.example .env.development
+```
+
+2. Modify environment variable values
+
+Modify the content in the configuration file according to your project information.
+
+```toml
+# app
+NEXT_PUBLIC_APP_URL = "http://localhost:3000"
+NEXT_PUBLIC_APP_NAME = "ShipAny Two"
+
+# theme
+NEXT_PUBLIC_THEME = "default"
+
+# appearance
+NEXT_PUBLIC_APPEARANCE = "system"
+
+# database
+DATABASE_URL = ""
+DATABASE_PROVIDER = "postgresql"
+DB_SINGLETON_ENABLED = "true"
+DB_MAX_CONNECTIONS = "1"
+
+# auth secret
+# openssl rand -base64 32
+AUTH_SECRET = ""
+```
+
+Required items:
+
+- `NEXT_PUBLIC_APP_URL`: Project homepage address. Copy the project preview address and fill it in.
+- `NEXT_PUBLIC_APP_NAME`: Application name. Change to your project name.
+
+Optional items:
+
+- `NEXT_PUBLIC_THEME`: Project theme. The default is `default`, and the corresponding theme folder is: `src/themes/default`. If you have custom theme requirements, you can modify this option.
+- `NEXT_PUBLIC_APPEARANCE`: Project appearance. The default is `system`, which will automatically switch according to the system theme set by the user's computer. You can change it to `light` or `dark` to control the default appearance of the project.
+
+- `DATABASE_URL`: Database connection address. If you need user login, management background and other functions, you need to configure this item.
+- `DATABASE_PROVIDER`: Database provider. Currently only supports `postgresql`. Supports cloud databases such as `Supabase`, `Neon` and self-built PostgreSQL databases.
+- `DB_SINGLETON_ENABLED`: Database singleton mode. The default is `true`, which will reuse database connections. If deployed on Serverless platforms such as Cloudflare Workers, it needs to be changed to `false`.
+- `DB_MAX_CONNECTIONS`: Database connection pool maximum connection count. The default is `1`, you can increase this value appropriately to improve the database concurrency.
+- `AUTH_SECRET`: Authentication key. If you want to enable the user login function, you need to configure this item.
+
+You can generate a random key via the following command:
+
+```shell
+openssl rand -base64 32
+```
+
+### Configure Database
+
+If your project requires user login, management background and other functions, you must configure the database according to the following steps.
+
+1. Create Database
+
+You can create a database on cloud database platforms such as `Supabase` and `Neon` to get the remote connection address of the cloud database, similar to this:
+
+```shell
+postgresql://postgres.xxx:xxxxxx@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
+```
+
+You can also use a self-built PostgreSQL database to get the database connection address, similar to this:
+
+```shell
+postgresql://user:password@127.0.0.1:5432/my_shipany_project
+```
+
+It is recommended to use a self-built PostgreSQL database for local development and a cloud database for the online version.
+
+For the creation and connection address acquisition of common databases, please refer to the documentation in the [Database](/docs/database) section.
+
+2. Set Environment Variables
+
+Fill in the database connection address obtained in the previous step into the environment variable `DATABASE_URL`.
+
+```toml
+DATABASE_URL = "postgresql://user:password@127.0.0.1:5432/my_shipany_project"
+DATABASE_PROVIDER = "postgresql"
+DB_SINGLETON_ENABLED = "true"
+DB_MAX_CONNECTIONS = "1"
+```
+
+3. Migrate Data Tables
+
+Execute the following command to migrate data tables
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+The migrate data table command reads the `DATABASE_URL` variable in the `.env.development` file when connecting to the database.
+
+If you encounter a `Timeout` problem or no response for a long time when executing the migration command: `pnpm db:migrate`. You need to check whether your database can be connected normally through the following command.
+
+```shell
+psql "postgresql://user:password@address:port/database" # YOUR-DATABASE-URL
+```
+
+If you cannot connect to the database directly through the command, you need to check whether your database address is incorrect or whether there are network problems (such as firewalls, proxies, etc.).
+
+After successfully executing `pnpm db:migrate` to migrate the data table, you can execute the above command again to verify whether the data table is successfully created.
+
+You can set `DATABASE_URL` to the local database address during local development. Before deploying online, set `DATABASE_URL` to the online database address, execute the migrate data table command, and then change it back to the local database address.
+
+In the `.env.development` file, switch the database address through comments.
+
+```toml
+# local database
+DATABASE_URL = "postgresql://user:password@127.0.0.1:5432/my_shipany_project"
+
+# remote database
+# DATABASE_URL = "postgresql://postgres.xxx:xxxxxx@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
+
+DATABASE_PROVIDER = "postgresql"
+DB_SINGLETON_ENABLED = "true"
+DB_MAX_CONNECTIONS = "1"
+```
+
+### Configure Authentication
+
+ShipAny uses [Better Auth](https://better-auth.com/) to implement user login and authentication functions.
+
+If your website only uses Landing Page to implement static website functions, you do not need to configure login authentication.
+
+If your website requires user login, payment, management background and other functions, you must configure login authentication.
+
+1. Generate Authentication Key
+
+Generate a random authentication key via the following command.
+
+```shell
+openssl rand -base64 32
+```
+
+2. Set Environment Variables
+
+Fill in the authentication key generated in the previous step into the `AUTH_SECRET` variable in the `.env.development` file.
+
+```toml
+AUTH_SECRET = "your-secret-key"
+```
+
+After configuring `AUTH_SECRET`, email login is enabled by default. When users visit your website, they will request the `/api/auth/get-session` interface to check the login status. When `AUTH_SECRET` is not configured, the login status will not be checked.
+
+### Configure Admin Access
+
+ShipAny has a built-in background management system and role-based access control (RBAC). You need to complete the Configure Database and Configure Authentication steps above first, and then follow the steps below to configure management background access.
+
+1. Initialize Permissions
+
+Execute the following command to initialize permission configuration.
+
+```shell
+pnpm rbac:init
+```
+
+This step will write the default roles and permission lists to the database, connecting to the database corresponding to `DATABASE_URL` in the `.env.development` file.
+
+If connecting to a remote database, this step may encounter a `Timeout` problem, just retry.
+
+You can configure `DB_SINGLETON_ENABLED = "true"` to enable database singleton mode, reuse connections, and improve initialization speed.
+
+2. Register Administrator Account
+
+Visit `http://your-domain/admin` to enter the background management system. The first time you will encounter a login interception and redirect to the `/sign-in` login page. You need to register an administrator account via email first, such as `admin@xxx.com`.
+
+3. Assign Super Administrator Permissions
+
+Execute the following command to assign super administrator permissions to the newly registered account.
+
+```shell
+pnpm rbac:assign -- --email=admin@xxx.com --role=super_admin
+```
+
+4. Access Admin Dashboard
+
+Visit `http://your-domain/admin` again and log in with the administrator account to enter the management background.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/project-admin.png)
+
+## Customize Configuration
+
+Please refer to the following steps to customize your project.
+
+<Steps>
+<Step>Modify Project Information</Step>
+
+- Files to modify: `.env.development` and `.env.production`.
+- Content to modify: Project name, deployment URL.
+
+Reference: [Set Application Basic Information](/docs/customize/appinfo#set-application-basic-information).
+
+<Step>Modify Project Icons</Step>
+
+- Files to modify: `public/logo.png` and `public/favicon.ico`.
+- Content to modify: Design Logo and Favicon for your project, replace the default icon files.
+
+Reference: [Set Application Icons](/docs/customize/appinfo#set-application-icons).
+
+<Step>Modify Sitemap</Step>
+
+- Files to modify: `public/sitemap.xml`.
+- Content to modify: Update to your website's page list.
+
+Reference: [Set Sitemap](/docs/customize/appinfo#set-sitemap).
+
+<Step>Modify Website Policies</Step>
+
+- Files to modify: `content/pages/privacy-policy.mdx` and `content/pages/terms-of-service.mdx`.
+- Content to modify: Update to your website's privacy policy and terms of service.
+
+Reference: [Set Website Policies](/docs/customize/appinfo#set-website-policies).
+
+<Step>Modify Website Common Display Content</Step>
+
+- Files to modify: `src/config/locale/messages/{locale}/common.json`.
+- Content to modify: Update to your website's common display content.
+
+Reference: [Set Common Display Content](/docs/customize/page#set-common-display-content).
+
+<Step>Modify Landing Page Display Content</Step>
+
+- Files to modify: `src/config/locale/messages/{locale}/landing.json`.
+- Content to modify: Update to your website's landing page display content.
+
+Reference: [Set Landing Page Content](/docs/customize/page#set-landing-page-content).
+
+<Step>Modify Website Theme Styles</Step>
+
+- Files to modify: `src/config/style/theme.css`.
+- Content to modify: Update to your website's theme styles.
+
+Reference: [Set Theme Styles](/docs/customize/theme#set-theme-styles).
+
+<Step>Modify Locale Configuration</Step>
+
+- Files to modify: `src/config/locale/index.ts`.
+- Content to modify: Set the languages that your project supports for display.
+
+Reference: [Configure Locale Switching](/docs/customize/locale#configure-locale-switching).
+
+</Steps>
+
+Minimal project changes reference:
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/min-changer.png)
+
+## Deploy to Production
+
+After completing local development and custom configuration, you can choose a deployment solution to publish your project.
+
+- [Deploy to Vercel](/docs/deploy/vercel)
+- [Deploy to Cloudflare Workers](/docs/deploy/cloudflare)
+- [Deploy with Dokploy](/docs/deploy/dokploy)
+
+## Feature Configuration
+
+After the project is deployed, access the admin dashboard at `https://your-domain/admin` to configure the required features as needed.
+
+- [Configure Google Login](/docs/auth/google)
+- [Configure Stripe Payment](/docs/payment/stripe)
+- [Configure File Storage](/docs/storage/cloudflare-r2)

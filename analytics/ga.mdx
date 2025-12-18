@@ -1,0 +1,42 @@
+---
+title: Google Analytics
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny integrates [Google Analytics](https://analytics.google.com/) as an analytics service provider. You can easily set it up with simple configuration.
+
+## Quick Start
+
+Follow the steps below to quickly integrate Google Analytics into your project.
+
+<Steps>
+<Step>Create a Google Analytics account</Step>
+
+Visit the [Google Analytics website](https://analytics.google.com/) and create an account.
+
+<Step>Add your website</Step>
+
+In the Google Analytics console, go to the `Admin` page, click the `Create -> Property` button, follow the instructions to enter the property name and your website domain, then proceed to the `Set up a Google tag` page.
+
+Copy the property ID in the `G-xxx` format.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/ga-set-tag.png)
+
+<Step>Configure the tracking code</Step>
+
+In your project management dashboard, go to the `Settings -> Analytics` page, find the `Google Analytics` panel, enter the property ID copied in the previous step into the `Google Analytics ID` field, and click the `Save` button.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/ga-settings.png)
+
+<Step>Verify the integration</Step>
+
+Return to the `Set up a Google tag` page in the Google Analytics console, click the `Test installation` button to verify that the Google Analytics integration is successful.
+
+<Step>View analytics data</Step>
+
+After configuration is complete and your project is officially launched, you can view the project's analytics data in the Google Analytics console.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/ga-overview.png)
+
+</Steps>

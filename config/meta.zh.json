@@ -1,0 +1,5 @@
+{
+  "title": "配置",
+  "icon": "Settings",
+  "pages": ["admin-settings", "env-variables"]
+}

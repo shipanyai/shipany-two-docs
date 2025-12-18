@@ -1,0 +1,61 @@
+---
+title: Google Login
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Quick Start
+
+Follow these steps to configure Google Login for your project.
+
+<Steps>
+<Step>Select Google Cloud Project</Step>
+
+Go to the Google Cloud Console and enter the [API & Services -> Credentials](https://console.cloud.google.com/apis/credentials) page.
+
+Click the project selector in the upper left corner to select a project or create a new one.
+
+<Step>Create OAuth Client</Step>
+
+On the [API & Services -> Credentials](https://console.cloud.google.com/apis/credentials) page, click the `Create Credentials` button, select `OAuth client ID`, and start creating an OAuth client.
+
+- `Application type` select `Web application`.
+- `Name` fill in your project name.
+
+Add your project domain under `Authorized javascript origins`, for example:
+
+```shell
+https://your-domain.com
+```
+
+Add your project callback address under `Authorized redirect URIs` in the format:
+
+```shell
+https://your-domain.com/api/auth/callback/google
+```
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/google-auth-config.png)
+
+Click the `Create` button, and in the pop-up window, copy the `Client ID` and `Client secret`.
+
+> Note: If you are creating an OAuth client for a new project, you need to complete the `OAuth consent screen` configuration first. Just follow the prompts step by step. Remember not to upload `App logo`, otherwise verification will be triggered.
+
+<Step>Configure Google Login</Step>
+
+In the project management dashboard, go to the `Settings -> Auth -> Google Auth` panel, and fill in the `Client ID` and `Client secret` copied in the previous step.
+
+Turn on the `Auth Enabled` switch to enable the Google redirect login function, and turn on the `OneTap Enabled` switch to enable the Google One Tap login function.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/google-auth-settings.png)
+
+<Step>Verify Google Login</Step>
+
+Go to the project homepage and refresh the page. You can see the `Google One Tap Login` pop-up window in the upper right corner. Users can log in to your website with one click using their Google account.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/google-auth-tap.png)
+
+Click the `Sign In` button in the upper right corner of the page to display the login pop-up window, which contains the `Google Login` button at the bottom. Users click to jump to `Google OAuth Login`.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/google-auth-modal.png)
+
+</Steps>

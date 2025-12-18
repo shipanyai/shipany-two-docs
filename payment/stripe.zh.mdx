@@ -1,0 +1,417 @@
+---
+title: Stripe
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny 集成了 [Stripe](https://stripe.com/) 作为支付服务供应商，只需简单配置即可接入使用。
+
+## 接入 Stripe 支付
+
+按照以下步骤为你的项目接入 Stripe 支付。
+
+<Steps>
+<Step>开通 Stripe 商户</Step>
+
+参考 [Stripe 商家入驻指南](https://stripe.com/resources/more/merchant-onboarding-explained) 开通 Stripe 商户。
+
+你可以以个人身份或企业身份开通 Stripe 商户，绑定你的提现账户，设置商户基本信息。
+
+<Step>创建 API 密钥</Step>
+
+在 Stripe 管理后台进入你的商户页面，依次选择 `Developers -> API keys -> Standard keys -> Create secret key` 创建 API 密钥。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/create-stripe-keys.png)
+
+复制得到 `Publishable key` 和 `Secret key`。
+
+> 注意：`Secret key` 仅在创建时可以复制，为敏感信息，谨防泄露。
+
+你可以在 Stripe 控制台左上角切换商户的地方，依次点击 `Switch to sanbox -> Test mode` 进入测试环境，创建测试用的 API 密钥。
+
+<Step>配置 Stripe 支付</Step>
+
+在项目管理后台，进入 `Settings -> Payment -> Stripe` 面板，在 `Stripe Publishable Key` 和 `Stripe Secret Key` 字段分别填入上一步设置的 `Publishable key` 和 `Secret key`。
+
+`Stripe Signing Secret` 是验证支付通知的签名密钥，可以先留空，等在后续步骤配置了支付通知后再填入。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/set-stripe-configs.png)
+
+> 注意：本地开发时，你可以填入上一步设置的测试 API 密钥，等部署上线时，再填入正式的 API 密钥。
+
+<Step>支付验证</Step>
+
+访问项目的 `/pricing` 页面，查看默认的价格表，选择一个价格方案，点击下单按钮。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/pricing-page.png)
+
+如果能正常跳转到 Stripe 支付页面，说明支付配置成功。
+
+如果上一步填入的是测试 API 密钥，可以复制一个 [Stripe 测试卡号](https://docs.stripe.com/testing#cards) 进行支付验证。
+
+</Steps>
+
+## 设计价格表
+
+默认的价格表配置在 `src/config/locale/messages/{locale}/pricing.json` 文件中，支持多语言，每个 `locale` 对应一个独立的价格表配置。
+
+`pricing.groups` 字段定义了价格方案分组，默认值如下
+
+```json
+{
+  "pricing": {
+    "groups": [
+      {
+        "name": "one-time",
+        "title": "Pay as you go"
+      },
+      {
+        "name": "monthly",
+        "title": "Monthly",
+        "is_featured": true,
+        "label": "save 15%"
+      },
+      {
+        "name": "yearly",
+        "title": "Annually"
+      }
+    ]
+  }
+}
+```
+
+- `name`: 分组的唯一标识。在 `pricing.items` 中，每个价格方案通过 `group` 字段与分组 `name` 关联。
+- `title`: 分组的显示名称。
+- `is_featured`: 是否为推荐分组。如果为 `true`，则会默认展示此分组及其包含的推荐价格方案。
+- `label`: 分组的标签。在显示名称的右上方以徽标的形式显示。
+
+`pricing.items` 字段定义了价格方案列表，默认的其中一个价格方案数据结构如下：
+
+```json
+{
+  "pricing": {
+    "items": [
+      {
+        "title": "Starter",
+        "description": "Get started with your first SaaS startup.",
+        "features_title": "Includes",
+        "features": [
+          "100 credits, valid for 1 month",
+          "NextJS boilerplate",
+          "SEO-friendly structure",
+          "Payment with Stripe",
+          "Data storage with Supabase",
+          "Google Oauth & One-Tap Login",
+          "i18n support"
+        ],
+        "interval": "one-time",
+        "amount": 9900,
+        "currency": "USD",
+        "price": "$99",
+        "original_price": "$199",
+        "unit": "",
+        "is_featured": false,
+        "tip": "Pay once. Build unlimited projects!",
+        "button": {
+          "title": "Get ShipAny",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "starter",
+        "product_name": "ShipAny Boilerplate Starter",
+        "credits": 100,
+        "valid_days": 30,
+        "group": "one-time"
+      }
+    ]
+  }
+}
+```
+
+- `title`: 价格方案标题。
+- `description`: 价格方案描述。
+- `features_title`: 价格方案特性列表标题。
+- `features`: 价格方案特性列表。
+- `interval`: 价格方案计费周期。可设置的值为 `one-time`（一次性支付）、`month`（按月订阅）、`year`（按年订阅）。
+- `amount`: 价格方案金额。这个值用于请求 Stripe 下单，单位：分。
+- `currency`: 价格方案货币。可设置的值为 `USD`（美元）、`CNY`（人民币）等。
+- `price`: 价格方案显示的售价。
+- `original_price`: 价格方案显示的原价。带下划线效果。
+- `unit`: 价格方案显示的单位。比如 `/ month`，`/ year` 等。
+- `is_featured`: 是否为推荐价格方案。设置为 `true` 则会在价格表中默认显示。
+- `tip`: 下单提示。
+- `button`: 下单按钮。可自定义显示文本 `title` 和图标 `icon`，`url` 目前为占位符，无实际作用。
+- `product_id`: 价格方案唯一标识。下单时后台接口根据此参数定位价格方案，请确保每个价格方案的 `product_id` 唯一。
+- `product_name`: 价格方案名称。
+- `credits`: 购买的积分数量。如果不是购买积分的场景，可以设置为 0.
+- `valid_days`: 积分的有效天数。按月发放积分可以设置为 `30`，按年一次性发放积分可以设置为 `365`。
+- `group`: 价格方案所属分组。跟 `pricing.groups` 中的 `name` 关联。
+
+请根据你的项目需求，参考默认的价格表配置，修改对应的字段内容，设计价格表。
+
+> 注意：如果你的项目支持多语言，请修改每个 locale 对应的价格表配置。
+
+选择价格方案后，请求下单的接口是 `/api/payment/checkout`，请求参数示例：
+
+```json
+{
+  "product_id": "starter",
+  "currency": "USD",
+  "locale": "en",
+  "payment_provider": "stripe",
+  "metadata": {}
+}
+```
+
+- `product_id`: 价格方案唯一标识。下单接口根据此参数定位价格方案。
+- `currency`: 下单币种。可以由用户自行选择，默认 `USD`。
+- `locale`: 下单语言。传递用户当前选择的页面 `locale`，下单接口根据此参数定位价格表配置。
+- `payment_provider`: 支付提供商。
+- `metadata`: 支付元数据。可以传递自定义参数。
+
+> 注意：修改完价格表配置后，访问 `/pricing` 页面查看新的价格表。选择一个价格方案下单，支付成功后，在 `/settings/payments` 页面查看支付记录，检查支付金额、币种、付费周期，是否与配置的价格方案一致。
+> 在 `/settings/credits` 页面查看积分发放记录，检查积分数量、过期时间（支付时间 + 有效天数），是否与配置的价格方案一致。
+
+## 配置支付回调
+
+用户在价格表页面选择价格方案下单成功后，会跳转到 Stripe 支付页面，支付成功后，会跳转到项目的回调接口：`/api/payment/callback`。
+
+在回调接口中，会根据订单号更新订单状态，再跳转到配置的 `callbackUrl`。
+
+这个配置的 `callbackUrl` 是在下单接口：`/api/payment/checkout` 中指定的：
+
+```ts
+const callbackUrl =
+  paymentType === PaymentType.SUBSCRIPTION
+    ? `${callbackBaseUrl}/settings/billing`
+    : `${callbackBaseUrl}/settings/payments`;
+```
+
+按照默认配置，如果是一次性支付，最终会跳转到 `/settings/payments` 页面；如果是订阅支付，最终会跳转到 `/settings/billing` 页面。
+
+你可以根据项目需求，自行修改用户支付完成后的跳转地址。
+
+> 注意：支付回调是同步跳转的，如果用户在 Stripe 支付页面确认支付，在页面跳转前关闭了浏览器，未能正常跳转到项目回调接口，订单状态无法更新，用户在个人中心无法看到已支付的订单。此类情况叫做：`丢单`。
+
+为了避免支付回调的 `丢单` 情况，建议项目上线运营时，在 Stripe 后台配置支付通知。
+
+## 配置支付通知
+
+<Steps>
+<Step>添加支付通知地址</Step>
+
+在 Stripe 商户后台，进入 `Developers -> Webhooks` 页面，点击 `Add destination` 按钮，添加支付通知地址。
+
+- `Events from` 选择 `Your account`
+- `API version` 选择 `2025-10-29.clover`，这是目前调试过的最新版本。
+
+- `Events` 通过关键词搜索过滤，勾选以下几项：
+
+```toml
+# 下单完成
+checkout.session.completed
+# 支付成功
+invoice.payment_succeeded
+# 支付失败
+invoice.payment_failed
+# 订阅更新
+customer.subscription.updated
+# 订阅取消
+customer.subscription.deleted
+```
+
+- `Destination type` 选择 `Webhook endpoint`
+
+- `Destination name` 输入配置名称，给自己看的，随便填。
+- `Endpoint URL` 输入接收通知的地址。必须是可以公网访问的 `https` 地址。格式为：
+
+```txt
+https://{your-domain.com}/api/payment/notify/stripe
+```
+
+把 `{your-domain.com}` 替换为你的项目域名，可以是根域名，也可以是子域名。
+
+- `Description` 输入描述，给自己看的，随便填。
+
+填写完配置后，点击 `Create destination` 按钮，添加支付通知地址。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/set-stripe-webhook.png)
+
+<Step>复制支付通知签名密钥</Step>
+
+创建完支付通知地址后，会自动跳转到支付通知地址的详情页面，点击 `Signing secret` 下方的复制图标，复制 `whsec_` 开头的支付通知的签名密钥。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/stripe-sign-secret.png)
+
+<Step>配置支付通知签名密钥</Step>
+
+在项目管理后台，进入 `Settings -> Payment -> Stripe` 面板，在 `Stripe Signing Secret` 字段填入上一步复制的支付通知签名密钥。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/set-stripe-configs.png)
+
+</Steps>
+
+## 本地调试支付通知
+
+在上一步配置支付通知时，填写的 `Endpoint URL` 必须是一个可以公网访问的 `https` 地址。
+
+项目部署上线前，需要先在本地调试，接收支付通知内容，进行必要的修改和验证。
+
+通过 `内网穿透`，可以把一个公网地址映射到本地开发机，下面的步骤主要演示使用 [ngrok](https://ngrok.com/) 实现 `内网穿透`。
+
+<Steps>
+<Step>配置 ngrok</Step>
+
+1. 访问 [ngrok](https://ngrok.com/) 官网，注册账号，登录管理后台。
+
+2. 在管理后台的 [Setup & Instalation](https://dashboard.ngrok.com/get-started/setup) 页面，选择你的操作系统类型，按照指示步骤安装 `ngrok` 命令行工具。
+
+比如 `MacOS` 的安装指令是：
+
+```shell
+brew install ngrok
+```
+
+3. 配置 `authtoken` 完成鉴权
+
+```shell
+ngrok config add-authtoken {your-authtoken}
+```
+
+<Step>启动项目开发服务器</Step>
+
+执行以下命令，在指定端口启动项目的开发服务器。
+
+```shell
+pnpm dev --port 8080
+```
+
+<Step>启动 ngrok 代理</Step>
+
+执行以下命令，启动 ngrok 代理。
+
+```shell
+ngrok http 8080
+```
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/ngrok-proxy.png)
+
+<Step>配置支付通知地址</Step>
+
+回到 [配置支付通知](#配置支付通知) 步骤，复制 ngrok 的代理地址，填入 `Endpoint URL`。
+
+配置的 `Endpoint URL` 示例：
+
+```txt
+https://9d897275dabf.ngrok-free.app/api/payment/notify/stripe
+```
+
+> 注意：每次执行 `ngrok http {port}` 命令，都会生成一个新的代理地址，需要在 Stripe 后台重新配置 `Endpoint URL`。请确保仅在开发调试时配置，不要在线上环境使用 `ngrok` 的代理地址。
+
+</Steps>
+
+在按照以上步骤配置支付通知后，在价格表页面选择一个价格方案下单，就可以在本地接收 Stripe 的支付通知了。
+
+默认的支付通知处理逻辑在 `src/app/api/payment/notify/[provider]/route.ts` 文件中。你可以根据项目需求，自行修改相应的逻辑。
+
+## 自定义支付选项
+
+你可以根据项目需求，根据以下列举的例子，自定义支付选项。
+
+### 多币种支付
+
+[设计价格表](#设计价格表) 时，在价格方案中使用 `currency` 字段指定下单的币种。比如 `原价 199 美元，标价 99 美元`，对应的价格方案配置是：
+
+```json
+{
+  "amount": 9900,
+  "currency": "USD",
+  "price": "$99",
+  "original_price": "$199"
+}
+```
+
+如果要在价格表页面，允许用户选择不同的币种下单，可以参考以下配置：
+
+```json
+{
+  "amount": 9900,
+  "currency": "usd",
+  "price": "$99",
+  "original_price": "$199",
+  "currencies": [
+    {
+      "currency": "cny",
+      "amount": 69900,
+      "price": "¥699",
+      "original_price": "¥1399"
+    }
+  ]
+}
+```
+
+配置之后，可以看到价格方案多了一个切换币种的选项。价格方案配置中，外层的 `currency` 是默认币种，`currencies` 里面的 `currency` 是可切换的币种。
+
+> 注意：`currency` 字段不区分大小写，`amount` 单位是：分。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/currencies.png)
+
+### `微信 / 支付宝` 支付
+
+按照以下步骤，在你的项目启用 `微信 / 支付宝` 支付。
+
+<Steps>
+
+<Step>申请开通 `微信 / 支付宝` 支付</Step>
+
+在 Stripe 商户后台，进入 `Settings -> Payments -> Payment methods -> Default`，申请开通 `WeChat Pay` 和 `Alipay`。需要提交审核，等审批通过后才能启用。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/stripe-payment-methods.png)
+
+<Step>修改价格方案配置</Step>
+
+如果要支持 `微信 / 支付宝` 支付，在价格方案配置中，`currency` 字段必须是 `cny`。
+
+比如，默认使用人民币下单，配置参考：
+
+```json
+{
+  "amount": 69900,
+  "currency": "cny",
+  "price": "¥699",
+  "original_price": "¥1399"
+}
+```
+
+默认美元下单，允许切换人民币支付，配置参考：
+
+```json
+{
+  "amount": 9900,
+  "currency": "usd",
+  "price": "$99",
+  "original_price": "$199",
+  "currencies": [
+    {
+      "currency": "cny",
+      "amount": 69900,
+      "price": "¥699",
+      "original_price": "¥1399"
+    }
+  ]
+}
+```
+
+<Step>配置支付选项</Step>
+
+在修改完价格方案配置后，需要在管理后台，调整 `Stripe Payment Methods` 的配置。
+
+勾选你希望用户进入 Stripe 支付页面看到的支付选项。
+
+比如，只允许用户使用微信支付，就勾选 `Wechat Pay`，取消勾选 `Card` 和 `Alipay`
+
+> 注意：此处勾选的支付方式，必须在 Stripe 商户后台是 `Enabled` 状态，否则下单会报错。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/payment-config.png)
+
+</Steps>

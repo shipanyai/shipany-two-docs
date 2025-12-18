@@ -1,0 +1,5 @@
+{
+  "title": "存储",
+  "icon": "DatabaseZap",
+  "pages": ["cloudflare-r2"]
+}

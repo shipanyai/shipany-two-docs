@@ -1,0 +1,164 @@
+---
+title: 'Deploy to Vercel'
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## New Project Deployment Process
+
+After completing the development of a new project based on ShipAny, you can refer to the following process to deploy your project to [Vercel](https://vercel.com) and start online operations.
+
+<Steps>
+<Step>Create Github Repository</Step>
+
+Select an organization in [Github](https://github.com/new), or create a code repository under your personal account to host the code of the new project.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/create-github-repo.png)
+
+> Note: Be sure to select `Private` to create a private code repository. Do not publicly publish project code developed based on ShipAny.
+
+<Step>Push Project Code</Step>
+
+Enter the project created according to [Quick Start](https://shipany.ai/docs/quick-start), and execute the following command in the project root directory to set the project code hosting address.
+
+```shell
+git remote set-url origin git@github.com:your-org/your-repo.git
+```
+
+Replace `your-org/your-repo` with the code repository address you created in the previous step.
+
+Then execute the following command to push the code to your code repository.
+
+```shell
+git add .
+git commit -m "first version"
+git push origin main
+```
+
+<Step>Deploy Project</Step>
+
+Create a new project in [Vercel](https://vercel.com/new) and connect to your Github account. Select the code repository created in the previous step and import the code to start deployment.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/create-vercel-project.png)
+
+> You can set the environment variables used online during the first deployment. You can also modify the environment variables after the project is deployed.
+
+Here, we do not set environment variables first, and directly click the `Deploy` button after importing the project to start deployment. The first deployment takes about 2 minutes.
+
+After the deployment is complete, click the `Continue to Dashboard` button to enter the project management page.
+
+<Step>View Project</Step>
+
+On the project management page, you can see the access domain assigned by Vercel to your project. Click the domain to access your project.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/vercel-project-review.png)
+
+At this point, your project has been successfully deployed via Vercel.
+
+Next, you can let the new project officially go online by binding a custom domain, setting environment variables, configuring access statistics, etc.
+
+</Steps>
+
+## Bind Custom Domain
+
+<Steps>
+<Step>Add Custom Domain</Step>
+
+Click the `Domains` button in the upper right corner of the project management page to enter the domain management page.
+
+Enter your custom domain and click the `Save` button to add the custom domain.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/vercel-add-domain.png)
+
+Here you can use a root domain or a subdomain.
+
+<Step>Configure DNS Resolution</Step>
+
+After adding the domain, click on the newly added domain to view the DNS resolution guide. Here you may be prompted to set a CNAME record or an A record.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/vercel-dns.png)
+
+Open the DNS resolution page of your domain registrar and add DNS resolution according to the above guide.
+
+<Step>Access Project</Step>
+
+Wait for the DNS resolution to take effect (usually within half an hour, but it may take up to 48 hours), and Vercel will generate an SSL certificate for the custom domain you added.
+
+Access your custom domain, and you can see the online version of the website.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/vercel-preview.png)
+
+</Steps>
+
+## Set Environment Variables
+
+You can set environment variables when creating a Vercel deployment for the first time, or modify environment variables after the project is deployed.
+
+<Steps>
+<Step>Fill in Environment Variable Content</Step>
+
+You can create a `.env.production` file in the local project root directory, and then fill in the project's production environment variables.
+
+```toml
+# app
+NEXT_PUBLIC_APP_URL = "https://your-domain.com"
+NEXT_PUBLIC_APP_NAME = "Your App Name"
+
+# theme
+NEXT_PUBLIC_THEME = "default"
+
+# appearance
+NEXT_PUBLIC_APPEARANCE = "dark"
+
+# database
+DATABASE_URL = "postgresql://user:password@domain:port/database"
+DATABASE_PROVIDER = "postgresql"
+DB_SINGLETON_ENABLED = "false"
+
+# auth
+AUTH_SECRET = "xxx"
+```
+
+Remember to modify the above environment variable values according to your project information.
+
+<Step>Set Environment Variables in Vercel</Step>
+
+In the `Setting -> Environment Variables` page of Vercel project management, paste the environment variable content from the local `.env.production` file, and click the `Save` button to set the environment variables.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/vercel-config.png)
+
+<Step>Redeploy</Step>
+
+After setting the environment variables each time, select the latest deployment on the `Deployments` page of project management, and click the `Redeploy` button to redeploy the project.
+
+After redeployment, the newly set environment variables will take effect.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/vercel-redeploy.png)
+
+</Steps>
+
+## Configure Access Statistics
+
+You can choose to use Vercel's built-in access statistics or use third-party access statistics services.
+
+You can configure Vercel's built-in access statistics by following these steps:
+
+<Steps>
+
+<Step>Enable Web Analytics</Step>
+
+On the `Analytics` page of project management, click the `Enable` button to enable Vercel's `Web Analytics` access statistics function.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/vercel-ana.png)
+
+> Note: Vercel's built-in access statistics function is a paid feature. Please evaluate whether to enable it yourself.
+
+<Step>Configure Vercel Statistics Function</Step>
+
+Enter the project management background, scroll to the `Vercel Analytics` panel on the `Settings -> Analytics` page, click the `Enabled` button to enable it, and then click the `Save` button to save the configuration.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/vercel-project-admin.png)
+
+> You need to [Configure Admin Access](https://shipany.ai/docs/quick-start#configure-admin-access) first to perform the above configuration.
+
+</Steps>

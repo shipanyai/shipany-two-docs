@@ -1,0 +1,160 @@
+---
+title: Environment Variables
+---
+
+ShipAny supports configuring various functions in the project through environment variables.
+
+## Overwrite Visual Configuration Items
+
+ShipAny supports visually modifying configuration items in the project through the project management background. However, this feature depends on the database.
+
+In the case where the database is not configured, you can overwrite the visual configuration items through environment variables.
+
+For example, in the first version of the project launch, you only made a landing page and did not configure the database yet, but you want to count the visits through `Plausible`. You can refer to the following steps for configuration.
+
+1. Through the introduction of [Configuration Items](/docs/config/admin-settings#configuration-items) in the visual configuration, find the configuration item variable corresponding to `Plausible` statistics.
+
+2. Modify the environment variable configuration file and fill in the corresponding configuration item variable value.
+
+- Development environment configuration file is: `.env.development`
+- Production environment configuration file is: `.env.production`
+- Configuration file deployed on Cloudflare Workers is: `wrangler.toml`
+
+```toml
+# plausible
+plausible_domain = "my-project.com"
+plausible_src = "https://plausible.io/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js"
+```
+
+Configuration variables can be all uppercase or all lowercase. For example, it can also be configured like this:
+
+```toml
+# plausible
+PLUASIBLE_DOMAIN = "my-project.com"
+PLUASIBLE_SRC = "https://plausible.io/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js"
+```
+
+> All configuration item variables listed in the visual configuration support incremental overwriting through environment variables.
+
+## Set Custom Configuration Items
+
+In addition to the built-in configuration items of ShipAny, you can also set custom configuration items through environment variables.
+
+1. Set configuration items
+
+In the environment variable file, you can set configuration items in the following format:
+
+```toml
+# api settings
+NEXT_PUBLIC_API_BASE_URL = "https://api.my-product.com"
+API_KEY = "xxxxxx"
+```
+
+2. Read configuration items
+
+In the project logic, read the configuration items through `process.env`.
+
+Configuration items starting with `NEXT_PUBLIC_` can be accessed in client and server components. Configuration items not starting with `NEXT_PUBLIC_` can only be accessed in server components.
+
+- For example, in the `src/app/api/ping/route.ts` file, read the configuration item:
+
+```ts
+export async function GET() {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const apiKey = process.env.API_KEY;
+
+  return new Response(`API Base URL: ${apiBaseUrl}, API Key: ${apiKey}`);
+}
+```
+
+- For example, in the `src/themes/default/blocks/hero.tsx` component, read the configuration item:
+
+```tsx
+'use client';
+
+export function Hero({ section }: { section: Section }) {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  return <div>API Base URL: {apiBaseUrl}</div>;
+}
+```
+
+3. Reload configuration items
+
+When running the project in the online environment, if the value of the configuration item in the environment variable is modified, the project generally needs to be restarted for the new configuration item to take effect.
+
+## Use envConfigs
+
+ShipAny defines the `envConfigs` object in the `src/config/index.ts` file, which has several commonly used configuration items built-in.
+
+```ts
+export const envConfigs = {
+  app_url: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+  app_name: process.env.NEXT_PUBLIC_APP_NAME ?? 'ShipAny App',
+  theme: process.env.NEXT_PUBLIC_THEME ?? 'default',
+  appearance: process.env.NEXT_PUBLIC_APPEARANCE ?? 'system',
+  locale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? 'en',
+  database_url: process.env.DATABASE_URL ?? '',
+  database_provider: process.env.DATABASE_PROVIDER ?? 'postgresql',
+  db_singleton_enabled: process.env.DB_SINGLETON_ENABLED || 'false',
+  db_max_connections: process.env.DB_MAX_CONNECTIONS || '1',
+  auth_url: process.env.AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || '',
+  auth_secret: process.env.AUTH_SECRET ?? '', // openssl rand -base64 32
+  version: packageJson.version,
+};
+```
+
+1. Read envConfigs configuration items
+
+You can read these configuration items through the `envConfigs` object in the project logic.
+
+> Configuration items not starting with `NEXT_PUBLIC_` can only be accessed in server components.
+
+- For example, in the `src/app/api/ping/route.ts` file, read the configuration item:
+
+```ts
+import { envConfigs } from '@/config';
+
+export async function GET() {
+  const authUrl = envConfigs.auth_url;
+  return new Response(`Auth URL: ${authUrl}`);
+}
+```
+
+- For example, in the `src/themes/default/blocks/hero.tsx` component, read the configuration item:
+
+```tsx
+'use client';
+
+import { envConfigs } from '@/config';
+
+export function Hero({ section }: { section: Section }) {
+  const appUrl = envConfigs.app_url;
+  return <div>App URL: {appUrl}</div>;
+}
+```
+
+2. Set envConfigs configuration items
+
+You can set the configuration items defined in the environment variable file to the envConfigs object to facilitate reading in the project logic.
+
+In the `src/config/index.ts` file, set envConfigs configuration items:
+
+```ts
+export const envConfigs = {
+  // ... other configs
+  api_base_url: process.env.NEXT_PUBLIC_API_BASE_URL ?? '',
+  api_key: process.env.API_KEY ?? '',
+};
+```
+
+Read envConfigs configuration items:
+
+```ts
+import { envConfigs } from '@/config';
+
+const apiBaseUrl = envConfigs.api_base_url;
+const apiKey = envConfigs.api_key;
+```
+
+Similarly, after the configuration items set in the environment variable file are configured into the envConfigs object, the project also needs to be restarted to take effect.

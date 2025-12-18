@@ -1,0 +1,155 @@
+---
+title: Customize App Info
+---
+
+## Set App Basic Info
+
+App basic info affects website text display, copyright holder display, callback after authorized login, redirect after payment, etc.
+
+Please set the app basic info according to the actual situation of the project before the project is deployed online.
+
+Set the project name and deployment address in the environment variable file.
+
+For local development environment, set in `.env.development`:
+
+```toml
+# app
+NEXT_PUBLIC_APP_URL = "http://localhost:3000"
+NEXT_PUBLIC_APP_NAME = "My ShipAny Project"
+```
+
+For online production environment, set in `.env.production`:
+
+```toml
+# app
+NEXT_PUBLIC_APP_URL = "https://your-domain.com"
+NEXT_PUBLIC_APP_NAME = "My ShipAny Project"
+```
+
+## Set App Icon
+
+App icons include Logo, Favicon, etc., which should conform to the brand image.
+
+- The default website Logo file is at: `public/logo.png`
+- The default favicon icon file is at: `public/favicon.ico`
+
+Please design these two icons for your project and replace the default icon files.
+
+Recommended design tools:
+
+- [Logo Maker](https://www.design.com/logo-maker)
+- [LogoFast](https://shipfa.st/tools/logo-fast)
+- [Photopea](https://www.photopea.com/)
+
+Or use AI-assisted design tools such as `Nano Banana Pro`, `ChatGPT`.
+
+After replacing the default icon files, open the project homepage and refresh it. You can see that the Logo at the top and the icon on the browser tab have been updated to the icons you set.
+
+## Set Sitemap
+
+A sitemap is a file used by search engines to index a website, telling search engines which pages need to be indexed.
+
+Before the website is deployed online, please set the `public/sitemap.xml` file and update it to your website's page list.
+
+```xml
+<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://your-domain.com/</loc>
+    <lastmod>2025-11-15T10:00:00+00:00</lastmod>
+  </url>
+  <url>
+    <loc>https://your-domain.com/blog</loc>
+    <lastmod>2025-11-15T10:00:00+00:00</lastmod>
+  </url>
+  <url>
+    <loc>https://your-domain.com/showcases</loc>
+    <lastmod>2025-11-15T10:00:00+00:00</lastmod>
+  </url>
+</urlset>
+```
+
+## Set Crawler Access Rules
+
+`robots.txt` is a rule file for search engine crawlers to visit websites, telling search engines which pages need to be indexed and which pages do not need to be indexed.
+
+Before the website is deployed online, please set the `public/robots.txt` file and update it to your website's crawler access rules.
+
+The default robots.txt file content is as follows:
+
+```txt
+User-agent: *
+Disallow: /*?*q=
+Disallow: /privacy-policy
+Disallow: /terms-of-service
+Disallow: /settings/*
+Disallow: /activity/*
+Disallow: /admin/*
+```
+
+> Starting from v1.6.0, the content of `robots.txt` is dynamically generated at the framework level, and there is no need to create a `robots.txt` file in the public directory.
+> Instead, configure the crawler access rules in the `src/app/robots.ts` file.
+
+The default `src/app/robots.ts` file content is as follows:
+
+```ts
+import { MetadataRoute } from 'next';
+
+import { envConfigs } from '@/config';
+
+export default function robots(): MetadataRoute.Robots {
+  const appUrl = envConfigs.app_url;
+
+  return {
+    rules: {
+      userAgent: '*',
+      allow: '/',
+      disallow: [
+        '/*?*q=',
+        '/privacy-policy',
+        '/terms-of-service',
+        '/settings/*',
+        '/activity/*',
+        '/admin/*',
+        '/api/*',
+      ],
+    },
+    sitemap: `${appUrl}/sitemap.xml`,
+  };
+}
+```
+
+You can modify it according to the actual situation of the project. The access path is consistent with the original one, which is `/robots.txt`.
+
+## Set Website Agreements
+
+Website agreements include privacy policies, terms of service, etc., which should match your project positioning and business.
+
+The protocol file content is in the `content/pages` directory, including:
+
+- `privacy-policy.mdx`
+- `terms-of-service.mdx`
+
+If your project supports multiple languages, there will be corresponding language version protocol files in the `content/pages` directory, such as:
+
+- `privacy-policy.zh.mdx`
+- `terms-of-service.zh.mdx`
+
+Please modify the content of the agreement file according to the actual situation of your project.
+
+You can use AI to assist in generating the content of the agreement file. Reference prompt words:
+
+```txt
+The project I am developing is a code template that can quickly build AI SaaS,
+please refer to the content on the webpage: https://shipany.ai/docs,
+help me modify the protocol file under content/pages.
+My project name is: ShipAny Two,
+domain is: https://cf-two.shipany.site,
+the copyright holder is: ShipAny.AI,
+contact email is: support@shipany.ai
+```
+
+After the content of the agreement file is modified, open the corresponding agreement file page and check whether the content is correct.
+
+- Privacy Policy Page: `/privacy-policy`
+- Terms of Service Page: `/terms-of-service`

@@ -1,0 +1,335 @@
+---
+title: 自定义页面展示
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## 设置通用展示内容
+
+项目的通用展示内容，对应的配置文件是 `src/config/locale/messages/{locale}/common.json`
+
+包括网站 `metadata` 信息，`sign` 登录注册文案，`locale_detector` 语言检测文案等。
+
+你可以根据项目实际情况，按需修改配置文件内容。
+
+其中 `metadata` 信息，是给搜索引擎收录的网站信息，在项目部署上线前，请一定要修改。
+
+默认内容是：
+
+```json
+{
+  "metadata": {
+    "title": "ShipAny Template Two",
+    "description": "ShipAny is a NextJS boilerplate for building AI SaaS startups. Ship Fast with a variety of templates and components.",
+    "keywords": "shipany, shipany-boilerplate, shipany-template-two-demo"
+  }
+}
+```
+
+你可以利用 AI 辅助生成配置文件内容，参考的提示词：
+
+```txt
+The project I am developing is an AI image generator based on Nano Banana Pro model,
+please refer to the content on the webpage: https://gemini.google/overview/image-generation/,
+help me modify the metadata information in the common configuration file under src/config/locale/messages/{locale}/common.json.
+My project name is: Nano Banana Pro,
+Keywords contains: nano banana pro, nano banana, nano banana 2, gemini 3 pro image.
+```
+
+修改完成后，刷新项目页面，通过 [AITDK 插件](https://aitdk.com/extension) 检测网站的 `metadata` 信息是否正确。
+
+你可以根据检测结果，继续手动调整配置文件中 `metadata` 的内容。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/aitdk-metadata.png)
+
+## 设置着陆页内容
+
+项目着陆页内容，对应的配置文件是 `src/config/locale/messages/{locale}/landing.json`
+
+默认的配置内容，定义了着陆页 `header` / `hero` / `features` / `testimonials` / `faq` / `cta` 等区块的显示内容。你可以根据项目情况，部分或全部替换默认内容。
+
+利用 AI 辅助生成配置文件内容，参考的提示词：
+
+```txt
+The project I am developing is an AI image generator based on Nano Banana Pro model,
+please refer to the content on the webpage: https://gemini.google/overview/image-generation/,
+help me modify the landing page content in the configuration file under src/config/locale/messages/{locale}/landing.json.
+My project title is: Nano Banana Pro,
+Keywords contains: nano banana pro, nano banana, nano banana 2, gemini 3 pro image.
+```
+
+修改完成后，刷新项目页面，通过 [AITDK 插件](https://aitdk.com/extension) 检测网站的着陆页内容是否正确。
+
+可以看到着陆页内容已经修改为你设置的内容，包含了指定的关键词。
+
+你可以根据项目情况，继续手动调整配置文件中着陆页内容。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/aitdk-h.png)
+
+## 自定义着陆页展示
+
+在通过 AI 辅助设置着陆页内容后，你可以手动调整配置文件内容，精细化控制着陆页展示。
+
+### 自定义 Header
+
+```json
+{
+  "header": {
+    "id": "header",
+    "brand": {
+      "title": "Nano Banana Pro",
+      "logo": {
+        "src": "/imgs/logos/banana.png",
+        "alt": "Nano Banana Pro"
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "Features",
+          "url": "/#features",
+          "icon": "Sparkles"
+        }
+      ]
+    },
+    "buttons": [
+      {
+        "title": "Quick Start",
+        "url": "/docs/quick-start",
+        "icon": "BookOpenText",
+        "target": "_self",
+        "variant": "outline"
+      }
+    ],
+    "user_nav": {},
+    "show_sign": false,
+    "show_theme": false,
+    "show_locale": false
+  }
+}
+```
+
+- `brand`: 显示的品牌信息。包括 Logo、名称、跳转链接等。
+- `nav`: 显示的顶部导航菜单。
+- `buttons`：顶部右侧显示的按钮。
+- `user_nav`: 用户登录后点头像下拉显示的导航菜单。
+- `show_sign`: 是否显示登录注册按钮。
+- `show_theme`: 是否显示 light / dark 主题切换按钮。
+- `show_locale`: 是否显示语言切换按钮。
+
+根据上述配置内容，看到的 `Header` 效果如下：
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/landing-header.png)
+
+> 其他区块，比如 `Hero` / `Footer` 等，自定义展示方式与 `Header` 类似，可以参考上述配置内容。
+
+### 自定义区块
+
+默认的着陆页配置，在网站首页，展示的区块包括：
+
+- `header`：顶部区块
+- `hero`：主区块
+- `logos`：Logo 列表区块
+- `introduce`：介绍信息区块
+- `benefits`：优势特点区块
+- `usage`：使用场景区块
+- `features`：功能特点区块
+- `stats`：统计数据区块
+- `testimonials`：用户评价区块
+- `faq`：常见问题区块
+- `cta`：行动号召区块
+- `subscribe`：订阅区块
+- `footer`：底部区块
+
+你可以按照以下步骤，自定义在网站首页展示的区块。
+
+<Steps>
+
+<Step>
+  在 `src/config/locale/messages/{locale}/landing.json`
+  配置文件中，删除不需要的区块，或者添加自定义区块。
+</Step>
+
+```json
+{
+  "header": {},
+  "hero": {},
+  "features": {},
+  "faq": {},
+  "cta": {},
+  "footer": {}
+}
+```
+
+<Step>
+  在 `src/app/[locale]/(landing)/page.tsx` 文件中，调整 `showSections`
+  数组，只包含需要显示的区块。
+</Step>
+
+```tsx
+const showSections = ['hero', 'features', 'faq', 'cta'];
+```
+
+<Step>
+  在 `src/themes/default/pages/dynamic-page.tsx`
+  文件中，为每种类型的区块，指定对应的展示组件。
+</Step>
+
+```tsx
+// block name
+const block = section.block || section.id || sectionKey;
+
+switch (block) {
+  case 'hero':
+    return <Hero key={sectionKey} section={section} />;
+  case 'features':
+    return <Features key={sectionKey} section={section} />;
+  case 'faq':
+    return <FAQ key={sectionKey} section={section} />;
+  case 'cta':
+    return <CTA key={sectionKey} section={section} />;
+
+  default:
+  // ...
+}
+```
+
+默认的页面区块，定义在 `src/themes/default/blocks` 目录下。如果默认的区块不满足你的需求，你可以参考 [自定义展示区块](/zh/docs/page-builder/dynamic-page#自定义展示区块) 文档，创建自定义区块文件。
+
+默认的页面布局文件，定义在 `src/themes/default/layouts/landing.tsx` 文件中。
+
+包含 `Header` 和 `Footer` 两个区块。
+
+```tsx
+import { ReactNode } from 'react';
+
+import {
+  Footer as FooterType,
+  Header as HeaderType,
+} from '@/shared/types/blocks/landing';
+import { Footer, Header } from '@/themes/default/blocks';
+
+export default async function LandingLayout({
+  children,
+  header,
+  footer,
+}: {
+  children: ReactNode;
+  header: HeaderType;
+  footer: FooterType;
+}) {
+  return (
+    <div className="h-screen w-screen">
+      <Header header={header} />
+      {children}
+      <Footer footer={footer} />
+    </div>
+  );
+}
+```
+
+> 如果你不想修改默认的主题，可以参考 [设置主题文件夹](/zh/docs/customize/theme#设置主题文件夹) 文档，通过自定义主题来定制页面的布局和展示。
+
+</Steps>
+
+## 自定义后台展示
+
+通过修改 `src/config/locale/messages/{locale}/admin/sidebar.json` 配置文件，可以自定义后台展示。
+
+比如改成如下的配置内容：
+
+```json
+{
+  "header": {
+    "brand": {
+      "title": "Nano Banana Pro",
+      "logo": {
+        "src": "/imgs/logos/banana.png",
+        "alt": "Nano Banana Pro"
+      },
+      "url": "/admin"
+    },
+    "show_trigger": true
+  },
+  "main_navs": [
+    {
+      "title": "System",
+      "items": [
+        {
+          "title": "Users & Permissions",
+          "icon": "User",
+          "is_expand": true,
+          "children": [
+            {
+              "title": "Users",
+              "url": "/admin/users",
+              "icon": "User"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Business",
+      "items": [
+        {
+          "title": "Images",
+          "url": "/admin/ai-tasks",
+          "icon": "Brain"
+        }
+      ]
+    }
+  ],
+  "bottom_nav": {
+    "items": [
+      {
+        "title": "Settings",
+        "url": "/admin/settings/auth",
+        "icon": "Settings"
+      }
+    ]
+  },
+  "user": {
+    "nav": {
+      "items": [
+        {
+          "title": "Profile",
+          "url": "/settings/profile",
+          "icon": "User",
+          "target": "_blank"
+        }
+      ]
+    },
+    "show_email": true,
+    "show_signout": true,
+    "signout_callback": "/"
+  },
+  "footer": {
+    "nav": {
+      "items": [
+        {
+          "title": "Home",
+          "url": "/",
+          "icon": "Home",
+          "target": "_blank"
+        }
+      ]
+    },
+    "show_theme": true,
+    "show_locale": true
+  },
+  "variant": "floating"
+}
+```
+
+- `header`: 侧边栏顶部品牌信息。
+- `main_navs`: 侧边栏主菜单。
+- `bottom_nav`: 侧边栏底部菜单
+- `user`: 用户登录设置。
+- `footer`: 侧边栏底部信息。
+- `variant`: 侧边栏布局方式。可选值为 `inset` / `sidebar` / `floating`。
+
+根据上述配置内容，看到的后台展示效果如下：
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/admin-sidebar.png)

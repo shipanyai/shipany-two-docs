@@ -1,0 +1,5 @@
+{
+  "title": "定制化",
+  "icon": "Code",
+  "pages": ["appinfo", "page", "theme", "locale"]
+}

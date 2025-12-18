@@ -1,0 +1,185 @@
+---
+title: Admin Settings
+---
+
+ShipAny supports visually modifying configuration items used in the project through the admin dashboard.
+
+## Quick Start
+
+Log in to the project management backend, enter the `Admin -> Settings` panel, find the corresponding configuration item, fill in the configuration value, and you can dynamically update the project configuration.
+
+![](https://cdn.shipany.ai/imgs/09c2b434b01834e4456940ea958562b4.png)
+
+## Configuration Items
+
+Configuration items that support visual modification in the project management backend are divided into the following major parts.
+
+### General
+
+_App Info_
+
+- `app_name`: App name
+- `app_description`: App description
+- `app_logo`: App Logo
+- `app_preview_image`: App preview image
+
+Currently, custom app information is only displayed in the admin dashboard.
+
+_Credits Config_
+
+- `initial_credits_enabled`: Initial credits switch. If enabled, newly registered users will be given credits.
+- `initial_credits_amount`: The amount of credits given to newly registered users.
+- `initial_credits_valid_days`: The validity period of credits given to newly registered users, unit: days.
+- `initial_credits_description`: Description of credits given to newly registered users.
+
+### Authentication
+
+_Email Auth_
+
+- `email_auth_enabled`: Email authentication switch. If enabled, users can log in using email.
+
+After the system is initialized, email login is enabled by default. You can choose to disable email login after configuring other login methods.
+
+_Google Auth_
+
+- `google_auth_enabled`: Google login switch. If enabled, users can log in using a Google account.
+- `google_one_tap_enabled`: Google One Tap login switch. If enabled, users can use Google quick login.
+- `google_client_id`: Google login Client ID.
+- `google_client_secret`: Google login Client Secret.
+
+_Github Auth_
+
+- `github_auth_enabled`: Github login switch. If enabled, users can log in using a Github account.
+- `github_client_id`: Github login Client ID.
+- `github_client_secret`: Github login Client Secret.
+
+### Payment
+
+_Basic Payment_
+
+- `select_payment_enabled`: Select payment method switch. If enabled, users can select a payment method when paying.
+- `default_payment_provider`: Default payment method. If users are not allowed to select a payment method, the default payment method is used.
+
+_Stripe Payment_
+
+- `stripe_enabled`: Stripe payment switch. If enabled, users can use Stripe for payment.
+- `stripe_publishable_key`: Stripe payment Publishable Key.
+- `stripe_secret_key`: Stripe payment Secret Key.
+- `stripe_signing_secret`: Stripe payment Signing Secret.
+- `stripe_payment_methods`: Payment methods allowed by Stripe for users to choose.
+- `stripe_promotion_codes`: Stripe promotion codes.
+- `stripe_allow_promotion_codes`: Whether to allow users to enter promotion codes.
+
+_Creem Payment_
+
+- `creem_enabled`: Creem payment switch. If enabled, users can use Creem for payment.
+- `creem_environment`: Creem payment environment.
+- `creem_api_key`: Creem payment API Key.
+- `creem_signing_secret`: Creem payment Signing Secret.
+- `creem_product_ids`: Creem payment Product ID mapping.
+
+_Paypal Payment_
+
+- `paypal_enabled`: Paypal payment switch. If enabled, users can use Paypal for payment.
+- `paypal_environment`: Paypal payment environment.
+- `paypal_client_id`: Paypal payment Client ID.
+- `paypal_client_secret`: Paypal payment Client Secret.
+
+### Email
+
+_Resend_
+
+- `resend_api_key`: Resend API Key.
+- `resend_sender_email`: Resend sender email address.
+
+### Storage
+
+_Cloudflare R2_
+
+- `r2_access_key`: R2 Access Key ID
+- `r2_secret_key`: R2 Secret Access Key
+- `r2_bucket_name`: R2 Bucket Name
+- `r2_upload_path`: R2 custom upload path
+- `r2_endpoint`: R2 upload endpoint address
+- `r2_domain`: R2 custom access domain
+
+### AI
+
+_OpenRouter_
+
+- `openrouter_api_key`: OpenRouter API Key
+- `openrouter_base_url`: OpenRouter Base URL
+
+_Replicate_
+
+- `replicate_api_token`: Replicate API Token
+- `replicate_custom_storage`: Replicate custom storage switch. If enabled, Replicate will use custom storage.
+
+_Fal_
+
+- `fal_api_key`: Fal API Key
+- `fal_custom_storage`: Fal custom storage switch. If enabled, Fal will use custom storage.
+
+_Gemini_
+
+- `gemini_api_key`: Gemini API Key
+
+_Kie_
+
+- `kie_api_key`: Kie API Key
+- `kie_custom_storage`: Kie custom storage switch. If enabled, Kie will use custom storage.
+
+### Analytics
+
+_Google Analytics_
+
+- `google_analytics_id`: Google Analytics ID.
+
+_Clarity_
+
+- `clarity_id`: Clarity Analytics ID.
+
+_Plausible_
+
+- `plausible_domain`: Plausible Analytics Domain.
+- `plausible_src`: Plausible Analytics Script Source.
+
+_OpenPanel_
+
+- `openpanel_client_id`: OpenPanel Analytics Client ID.
+
+_Vercel Analytics_
+
+- `vercel_analytics_enabled`: Vercel Analytics switch. If enabled, the project will use Vercel Analytics for statistics.
+
+### Ads
+
+_Adsense_
+
+- `adsense_code`: Adsense Code.
+
+### Affiliate
+
+_Affonso_
+
+- `affonso_enabled`: Affonso switch. If enabled, the project will use Affonso affiliate marketing.
+- `affonso_id`: Affonso Affiliate Program ID.
+- `affonso_cookie_duration`: Affonso Affiliate Cookie Duration, unit: days, default is 30 days.
+
+_PromoteKit_
+
+- `promotekit_enabled`: PromoteKit switch. If enabled, the project will use PromoteKit affiliate marketing.
+- `promotekit_id`: PromoteKit Affiliate Program ID.
+
+### Customer Service
+
+_Crisp_
+
+- `crisp_enabled`: Crisp switch. If enabled, the project will use Crisp customer service.
+- `crisp_website_id`: Crisp Website ID.
+
+_Tawk_
+
+- `tawk_enabled`: Tawk switch. If enabled, the project will use Tawk customer service.
+- `tawk_property_id`: Tawk Property ID.
+- `tawk_website_id`: Tawk Website ID.

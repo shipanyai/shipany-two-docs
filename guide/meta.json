@@ -1,0 +1,5 @@
+{
+  "title": "Guide",
+  "icon": "Sparkles",
+  "pages": ["get-shipany", "faq", "architecture", "prerequisites"]
+}

@@ -1,0 +1,221 @@
+---
+title: Resend
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny 集成了 [Resend](https://resend.com) 作为邮件服务提供商，可用于发送登录验证码、发送客户欢迎邮件、发送订阅通知等场景。
+
+## 快速开始
+
+参考以下步骤，在你的项目快速接入 Resend 邮件服务。
+
+<Steps>
+<Step>创建 Resend 账户</Step>
+
+访问 [Resend 官网](https://resend.com)，注册一个账户。
+
+<Step>添加邮件域名</Step>
+
+在 Resend 控制台，进入 [Domains](https://resend.com/domains) 页面，点击 `Add Domain` 按钮，添加一个邮件域名。
+
+可以是子域名或主域名。比如：`mail.shipany.codes`
+
+按照指示，完成邮件域名的 DNS 解析和验证。
+
+<Step>创建 API 密钥</Step>
+
+在 Resend 控制台，进入 [API Keys](https://resend.com/api-keys) 页面，点击 `Create API Key` 按钮，创建一个 API 密钥。
+
+<Step>配置 Resend 邮件服务</Step>
+
+在项目管理后台，进入 `Settings -> Email -> Resend` 面板，
+
+在 `Resend API Key` 字段填入上一步创建的 API 密钥。
+
+在 `Resend Sender Email` 字段填入一个用于发送邮件的邮箱地址，域名需要与在 `Resend` 控制台添加的邮件域名一致，`@` 符号前面的邮箱别名可以任意指定，比如：`no-reply@mail.shipany.codes`。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/resend-settings.png)
+
+<Step>测试发送邮件</Step>
+
+通过 `curl` 命令，请求项目的邮件发送接口，测试邮件发送能力：
+
+```shell
+curl -X POST https://{your-domain}/api/email/send-email \
+  -H "Content-Type: application/json" \
+  -d '{
+    "emails":["support@xxx.com"],
+    "subject":"Test Email"
+  }'
+```
+
+请求成功后，`curl` 命令会返回邮件发送结果：
+
+```json
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "success": true,
+    "messageId": "xxx",
+    "provider": "resend"
+  }
+}
+```
+
+邮件接收方，登录自己的邮箱，看到邮件内容如下：
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/email-test.png)
+
+至此，`Resend` 邮件服务配置成功，后面就可以在项目中使用 `Resend` 发送邮件了。
+
+</Steps>
+
+## 自定义发送邮件
+
+你可以在项目中，根据具体的业务需求，自定义发送邮件的方式和内容。
+
+### 发送纯文本邮件
+
+```ts
+import { getEmailService } from '@/shared/services/email';
+
+const emails = ['support@xxx.com'];
+const subject = 'Test Email';
+
+const emailService = await getEmailService();
+const emailProvider = emailService.getProvider('resend');
+
+const result = await emailProvider.sendEmail({
+  to: emails,
+  subject: subject,
+  text: 'Hello World.',
+});
+
+console.log('send email result', result);
+```
+
+### 发送 HTML 富文本邮件
+
+```ts
+import { getEmailService } from '@/shared/services/email';
+
+const emails = ['support@xxx.com'];
+const subject = 'Test Email';
+
+const emailService = await getEmailService();
+const emailProvider = emailService.getProvider('resend');
+
+const result = await emailProvider.sendEmail({
+  to: emails,
+  subject: subject,
+  html: '<p style="color: red;">Hello from <a href="https://shipany.ai">ShipAny</a>.</p>',
+});
+
+console.log('send email result', result);
+```
+
+### 发送模板邮件
+
+<Steps>
+
+<Step>定义邮件模板</Step>
+
+先在项目文件中，使用 React 组件定义邮件模板。
+
+比如，在 `src/shared/blocks/email/verification-code.tsx` 文件中，定义一个验证码邮件模板：
+
+```tsx
+export function VerificationCode({ code }: { code: string }) {
+  return (
+    <div>
+      <h1>Verification Code</h1>
+      <p style={{ color: 'red' }}>Your verification code is: {code}</p>
+    </div>
+  );
+}
+```
+
+<Step>使用模板发送邮件</Step>
+
+```ts
+import { VerificationCode } from '@/shared/blocks/email/verification-code';
+import { getEmailService } from '@/shared/services/email';
+
+const emails = ['support@xxx.com'];
+const subject = 'Test Email';
+
+const emailService = await getEmailService();
+const emailProvider = emailService.getProvider('resend');
+
+const result = await emailProvider.sendEmail({
+  to: emails,
+  subject: subject,
+  react: VerificationCode({ code: '123455' }),
+});
+
+console.log('send email result', result);
+```
+
+</Steps>
+
+### 使用 React Email 构建邮件模板
+
+[React Email](https://react.email/) 是一个用于构建邮件模板的库，可以用于构建复杂的邮件模板。
+
+你需要在项目中安装 `react-email` 库
+
+```shell
+pnpm add @react-email/components
+```
+
+使用 [React Email 组件库](https://react.email/components)，构建邮件模板。
+
+<Steps>
+
+<Step>定义邮件模板</Step>
+
+比如，在 `src/shared/blocks/email/react-email.tsx` 文件中，定义一个邮件模板：
+
+```tsx
+import * as React from 'react';
+import { Button, Html } from '@react-email/components';
+
+export function ReactEmail(props: { url: string }) {
+  const { url } = props;
+
+  return (
+    <Html lang="en">
+      <Button href={url}>Click me</Button>
+    </Html>
+  );
+}
+```
+
+<Step>使用模板发送邮件</Step>
+
+```ts
+import { ReactEmail } from '@/shared/blocks/email/react-email';
+import { getEmailService } from '@/shared/services/email';
+
+const emails = ['support@xxx.com'];
+const subject = 'Test Email';
+
+const emailService = await getEmailService();
+const emailProvider = emailService.getProvider('resend');
+
+const result = await emailProvider.sendEmail({
+  to: emails,
+  subject: subject,
+  react: ReactEmail({ url: 'https://shipany.ai' }),
+});
+
+console.log('send email result', result);
+```
+
+</Steps>
+
+你可以在 [React Email 模板市场](https://demo.react.email/preview/notifications/github-access-token?view=source&width=600&height=645) 中，找到一些常用的邮件模板，
+
+复制到项目文件中，直接引入使用。

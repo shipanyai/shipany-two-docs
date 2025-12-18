@@ -1,0 +1,54 @@
+---
+title: 'Supabase'
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+[Supabase](https://supabase.com/) 是一个以 PostgreSQL 为核心的云数据库开发平台，它围绕 PostgreSQL 构建，提供包括数据库、身份认证、实时订阅、文件存储和边缘函数等后端服务，并通过 RESTful 和 GraphQL API 将 PostgreSQL 的能力暴露给开发者，无需自己搭建后端服务。
+
+在 ShipAny 项目中，你可以使用 Supabase 来存储和管理你的数据。
+
+## 快速开始
+
+你可以按照以下步骤，在 ShipAny 项目中接入 Supabase。
+
+<Steps>
+<Step>注册账号</Step>
+
+访问 [Supabase](https://supabase.com/) 官网，注册一个 Supabase 账号。
+
+<Step>创建项目</Step>
+
+进入 [Supabase 控制台](https://supabase.com/dashboard)，创建一个项目。
+
+输入项目名称，点击 `Generate a password`，生成随机密码，点击 `Copy` 按钮，复制密码。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/create-supabase-project.png)
+
+<Step>获取数据库连接地址</Step>
+
+进入上一步创建的项目管理页面，点击顶部的 `Connect` 按钮，切换到 `ORMs -> Drizzle` 标签页，复制 `DATABASE_URL` 的值。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/supabase-database-url.png)
+
+把 `[YOUR-PASSWORD]` 替换成上一步生成的随机密码，得到 Supabase 项目的数据库连接地址。类似这种：
+
+```shell
+postgresql://postgres.seilzcqsafesmugglqlk:xxxxxx@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres
+```
+
+<Step>测试数据库连接</Step>
+
+使用 `psql` 工具，测试数据库是否能正常连接。
+
+```shell
+psql "postgresql://postgres.seilzcqsafesmugglqlk:xxxxxx@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
+```
+
+> 请自行搜索 `psql` 工具的安装方法。一般情况，在本地安装 `PostgreSQL` 后，会自带 `psql` 工具。
+
+<Step>配置数据库</Step>
+
+参考 [配置数据库](/zh/docs/quick-start#配置数据库) 文档，为 ShipAny 项目配置数据库。
+
+</Steps>

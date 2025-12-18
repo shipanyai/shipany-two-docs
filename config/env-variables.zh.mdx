@@ -1,0 +1,160 @@
+---
+title: 环境变量
+---
+
+ShipAny 支持通过环境变量来配置项目中的各种功能。
+
+## 覆盖可视化配置项
+
+ShipAny 支持通过项目管理后台可视化修改项目中的配置项。但是此功能依赖数据库。
+
+在未配置数据库的情况下，你可以通过环境变量来覆盖可视化配置项。
+
+比如，项目上线的第一个版本，你只做了着陆页，暂未配置数据库，但是希望通过 `Plausible` 统计访问量，你可以参考如下步骤进行配置。
+
+1. 通过可视化配置的 [配置项](/zh/docs/config/admin-settings#配置项) 介绍，找到 `Plausible` 统计对应的配置项变量。
+
+2. 修改环境变量配置文件，填写对应的配置项变量值。
+
+- 开发环境配置文件是：`.env.development`
+- 生产环境配置文件是：`.env.production`
+- 部署在 Cloudflare Workers 的配置文件是：`wrangler.toml`
+
+```toml
+# plausible
+plausible_domain = "my-project.com"
+plausible_src = "https://plausible.io/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js"
+```
+
+配置变量可以是全大写，或者全小写。比如也可以配置成这样：
+
+```toml
+# plausible
+PLUASIBLE_DOMAIN = "my-project.com"
+PLUASIBLE_SRC = "https://plausible.io/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js"
+```
+
+> 可视化配置中列举的所有配置项变量，都支持通过环境变量进行增量覆盖。
+
+## 设置自定义配置项
+
+除了 ShipAny 内置的配置项，你也可以通过环境变量设置自定义配置项。
+
+1. 设置配置项
+
+在环境变量文件中，可以设置以下格式的配置项：
+
+```toml
+# api settings
+NEXT_PUBLIC_API_BASE_URL = "https://api.my-product.com"
+API_KEY = "xxxxxx"
+```
+
+2. 读取配置项
+
+在项目逻辑中，通过 `process.env` 读取配置项。
+
+`NEXT_PUBLIC_` 开头的配置项，可以在客户端和服务端组件中访问。非 `NEXT_PUBLIC_` 开头的配置项，只能在服务端组件访问。
+
+- 比如，在 `src/app/api/ping/route.ts` 文件中，读取配置项：
+
+```ts
+export async function GET() {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const apiKey = process.env.API_KEY;
+
+  return new Response(`API Base URL: ${apiBaseUrl}, API Key: ${apiKey}`);
+}
+```
+
+- 比如，在 `src/themes/default/blocks/hero.tsx` 组件中，读取配置项：
+
+```tsx
+'use client';
+
+export function Hero({ section }: { section: Section }) {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  return <div>API Base URL: {apiBaseUrl}</div>;
+}
+```
+
+3. 重载配置项
+
+在线上环境运行项目时，如果修改了环境变量中的配置项的值，一般需要重启项目，新的配置项才会生效。
+
+## 使用 envConfigs
+
+ShipAny 在 `src/config/index.ts` 文件中，定义了 `envConfigs` 对象，内置了常用的几个配置项。
+
+```ts
+export const envConfigs = {
+  app_url: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+  app_name: process.env.NEXT_PUBLIC_APP_NAME ?? 'ShipAny App',
+  theme: process.env.NEXT_PUBLIC_THEME ?? 'default',
+  appearance: process.env.NEXT_PUBLIC_APPEARANCE ?? 'system',
+  locale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? 'en',
+  database_url: process.env.DATABASE_URL ?? '',
+  database_provider: process.env.DATABASE_PROVIDER ?? 'postgresql',
+  db_singleton_enabled: process.env.DB_SINGLETON_ENABLED || 'false',
+  db_max_connections: process.env.DB_MAX_CONNECTIONS || '1',
+  auth_url: process.env.AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || '',
+  auth_secret: process.env.AUTH_SECRET ?? '', // openssl rand -base64 32
+  version: packageJson.version,
+};
+```
+
+1. 读取 envConfigs 配置项
+
+你可以在项目逻辑中，通过 `envConfigs` 对象读取这些配置项。
+
+> 非 `NEXT_PUBLIC_` 开头的配置项，只能在服务端组件访问。
+
+- 比如，在 `src/app/api/ping/route.ts` 文件中，读取配置项：
+
+```ts
+import { envConfigs } from '@/config';
+
+export async function GET() {
+  const authUrl = envConfigs.auth_url;
+  return new Response(`Auth URL: ${authUrl}`);
+}
+```
+
+- 比如，在 `src/themes/default/blocks/hero.tsx` 组件中，读取配置项：
+
+```tsx
+'use client';
+
+import { envConfigs } from '@/config';
+
+export function Hero({ section }: { section: Section }) {
+  const appUrl = envConfigs.app_url;
+  return <div>App URL: {appUrl}</div>;
+}
+```
+
+2. 设置 envConfigs 配置项
+
+你可以把在环境变量文件中定义的配置项，设置到 envConfigs 对象中，方便在项目逻辑中读取。
+
+在 `src/config/index.ts` 文件中，设置 envConfigs 配置项：
+
+```ts
+export const envConfigs = {
+  // ... other configs
+  api_base_url: process.env.NEXT_PUBLIC_API_BASE_URL ?? '',
+  api_key: process.env.API_KEY ?? '',
+};
+```
+
+读取 envConfigs 配置项：
+
+```ts
+import { envConfigs } from '@/config';
+
+const apiBaseUrl = envConfigs.api_base_url;
+const apiKey = envConfigs.api_key;
+```
+
+同样，在环境变量文件中设置的配置项，配置到 envConfigs 对象中后，也需要重启项目后才会生效。

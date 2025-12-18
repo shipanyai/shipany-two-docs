@@ -1,0 +1,5 @@
+{
+  "title": "Deploy",
+  "icon": "Cloud",
+  "pages": ["vercel", "cloudflare", "dokploy"]
+}

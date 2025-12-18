@@ -1,0 +1,5 @@
+{
+  "title": "邮件",
+  "icon": "Mail",
+  "pages": ["resend"]
+}

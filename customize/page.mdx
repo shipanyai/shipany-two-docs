@@ -1,0 +1,335 @@
+---
+title: Customize Page Display
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Set General Display Content
+
+The general display content of the project corresponds to the configuration file `src/config/locale/messages/{locale}/common.json`
+
+Including website `metadata` information, `sign` login and registration text, `locale_detector` language detection text, etc.
+
+You can modify the configuration file content according to the actual situation of the project.
+
+Among them, `metadata` information is the website information included by search engines. Please be sure to modify it before the project is deployed online.
+
+The default content is:
+
+```json
+{
+  "metadata": {
+    "title": "ShipAny Template Two",
+    "description": "ShipAny is a NextJS boilerplate for building AI SaaS startups. Ship Fast with a variety of templates and components.",
+    "keywords": "shipany, shipany-boilerplate, shipany-template-two-demo"
+  }
+}
+```
+
+You can use AI to assist in generating configuration file content. Reference prompt words:
+
+```txt
+The project I am developing is an AI image generator based on Nano Banana Pro model,
+please refer to the content on the webpage: https://gemini.google/overview/image-generation/,
+help me modify the metadata information in the common configuration file under src/config/locale/messages/{locale}/common.json.
+My project name is: Nano Banana Pro,
+Keywords contains: nano banana pro, nano banana, nano banana 2, gemini 3 pro image.
+```
+
+After the modification is completed, refresh the project page and check whether the website's `metadata` information is correct through the [AITDK Extension](https://aitdk.com/extension).
+
+You can continue to manually adjust the content of `metadata` in the configuration file based on the detection results.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/aitdk-metadata.png)
+
+## Set Landing Page Content
+
+Project landing page content corresponds to the configuration file `src/config/locale/messages/{locale}/landing.json`
+
+The default configuration content defines the display content of the landing page `header` / `hero` / `features` / `testimonials` / `faq` / `cta` and other blocks. You can replace the default content partially or completely according to the project situation.
+
+Use AI to assist in generating configuration file content. Reference prompt words:
+
+```txt
+The project I am developing is an AI image generator based on Nano Banana Pro model,
+please refer to the content on the webpage: https://gemini.google/overview/image-generation/,
+help me modify the landing page content in the configuration file under src/config/locale/messages/{locale}/landing.json.
+My project title is: Nano Banana Pro,
+Keywords contains: nano banana pro, nano banana, nano banana 2, gemini 3 pro image.
+```
+
+After the modification is completed, refresh the project page and use the [AITDK Extension](https://aitdk.com/extension) to check whether the landing page content of the website is correct.
+
+You can see that the landing page content has been modified to the content you set, including the specified keywords.
+
+You can continue to manually adjust the landing page content in the configuration file according to the project situation.
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/aitdk-h.png)
+
+## Customize Landing Page Display
+
+After setting the landing page content with AI assistance, you can manually adjust the configuration file content to finely control the landing page display.
+
+### Customize Header
+
+```json
+{
+  "header": {
+    "id": "header",
+    "brand": {
+      "title": "Nano Banana Pro",
+      "logo": {
+        "src": "/imgs/logos/banana.png",
+        "alt": "Nano Banana Pro"
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "Features",
+          "url": "/#features",
+          "icon": "Sparkles"
+        }
+      ]
+    },
+    "buttons": [
+      {
+        "title": "Quick Start",
+        "url": "/docs/quick-start",
+        "icon": "BookOpenText",
+        "target": "_self",
+        "variant": "outline"
+      }
+    ],
+    "user_nav": {},
+    "show_sign": false,
+    "show_theme": false,
+    "show_locale": false
+  }
+}
+```
+
+- `brand`: Displayed brand information. Including Logo, name, jump link, etc.
+- `nav`: Displayed top navigation menu.
+- `buttons`: Buttons displayed on the right side of the top.
+- `user_nav`: Navigation menu displayed in the dropdown after user login and clicking avatar.
+- `show_sign`: Whether to display the login/register button.
+- `show_theme`: Whether to display the light/dark theme switch button.
+- `show_locale`: Whether to display the language switch button.
+
+According to the above configuration content, the seen `Header` effect is as follows:
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/landing-header.png)
+
+> Other blocks, such as `Hero` / `Footer`, etc., custom display methods are similar to `Header`, you can refer to the above configuration content.
+
+### Customize Block
+
+The default landing page configuration, on the website homepage, displays the following blocks:
+
+- `header`: Top block
+- `hero`: Hero block
+- `logos`: Logo list block
+- `introduce`: Introduction information block
+- `benefits`: Benefits block
+- `usage`: Usage scenario block
+- `features`: Function features block
+- `stats`: Statistics data block
+- `testimonials`: User evaluation block
+- `faq`: FAQ block
+- `cta`: Call to action block
+- `subscribe`: Subscribe block
+- `footer`: Bottom block
+
+You can customize the blocks displayed on the website homepage by following these steps.
+
+<Steps>
+
+<Step>
+  In the `src/config/locale/messages/{locale}/landing.json` configuration file,
+  delete unnecessary blocks or add custom blocks.
+</Step>
+
+```json
+{
+  "header": {},
+  "hero": {},
+  "features": {},
+  "faq": {},
+  "cta": {},
+  "footer": {}
+}
+```
+
+<Step>
+  In the `src/app/[locale]/(landing)/page.tsx` file, adjust the `showSections`
+  array to only include the blocks that need to be displayed.
+</Step>
+
+```tsx
+const showSections = ['hero', 'features', 'faq', 'cta'];
+```
+
+<Step>
+  In the `src/themes/default/pages/dynamic-page.tsx` file, specify the
+  corresponding display component for each type of block.
+</Step>
+
+```tsx
+// block name
+const block = section.block || section.id || sectionKey;
+
+switch (block) {
+  case 'hero':
+    return <Hero key={sectionKey} section={section} />;
+  case 'features':
+    return <Features key={sectionKey} section={section} />;
+  case 'faq':
+    return <FAQ key={sectionKey} section={section} />;
+  case 'cta':
+    return <CTA key={sectionKey} section={section} />;
+
+  default:
+  // ...
+}
+```
+
+Default page blocks are defined in the `src/themes/default/blocks` directory. If the default blocks do not meet your needs, you can refer to the [Customize Display Block](/docs/page-builder/dynamic-page#Customize Display Block) document to create custom block files.
+
+The default page layout file is defined in the `src/themes/default/layouts/landing.tsx` file.
+
+Contains two blocks: `Header` and `Footer`.
+
+```tsx
+import { ReactNode } from 'react';
+
+import {
+  Footer as FooterType,
+  Header as HeaderType,
+} from '@/shared/types/blocks/landing';
+import { Footer, Header } from '@/themes/default/blocks';
+
+export default async function LandingLayout({
+  children,
+  header,
+  footer,
+}: {
+  children: ReactNode;
+  header: HeaderType;
+  footer: FooterType;
+}) {
+  return (
+    <div className="h-screen w-screen">
+      <Header header={header} />
+      {children}
+      <Footer footer={footer} />
+    </div>
+  );
+}
+```
+
+> If you don't want to modify the default theme, you can refer to the [Set Theme Folder](/docs/customize/theme#Set Theme Folder) document to customize the layout and display of the page through a custom theme.
+
+</Steps>
+
+## Customize Admin Display
+
+By modifying the `src/config/locale/messages/{locale}/admin/sidebar.json` configuration file, you can customize the admin display.
+
+For example, change it to the following configuration content:
+
+```json
+{
+  "header": {
+    "brand": {
+      "title": "Nano Banana Pro",
+      "logo": {
+        "src": "/imgs/logos/banana.png",
+        "alt": "Nano Banana Pro"
+      },
+      "url": "/admin"
+    },
+    "show_trigger": true
+  },
+  "main_navs": [
+    {
+      "title": "System",
+      "items": [
+        {
+          "title": "Users & Permissions",
+          "icon": "User",
+          "is_expand": true,
+          "children": [
+            {
+              "title": "Users",
+              "url": "/admin/users",
+              "icon": "User"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Business",
+      "items": [
+        {
+          "title": "Images",
+          "url": "/admin/ai-tasks",
+          "icon": "Brain"
+        }
+      ]
+    }
+  ],
+  "bottom_nav": {
+    "items": [
+      {
+        "title": "Settings",
+        "url": "/admin/settings/auth",
+        "icon": "Settings"
+      }
+    ]
+  },
+  "user": {
+    "nav": {
+      "items": [
+        {
+          "title": "Profile",
+          "url": "/settings/profile",
+          "icon": "User",
+          "target": "_blank"
+        }
+      ]
+    },
+    "show_email": true,
+    "show_signout": true,
+    "signout_callback": "/"
+  },
+  "footer": {
+    "nav": {
+      "items": [
+        {
+          "title": "Home",
+          "url": "/",
+          "icon": "Home",
+          "target": "_blank"
+        }
+      ]
+    },
+    "show_theme": true,
+    "show_locale": true
+  },
+  "variant": "floating"
+}
+```
+
+- `header`: Sidebar top brand information.
+- `main_navs`: Sidebar main menu.
+- `bottom_nav`: Sidebar bottom menu.
+- `user`: User login settings.
+- `footer`: Sidebar footer information.
+- `variant`: Sidebar layout variant. Optional values are `inset` / `sidebar` / `floating`.
+
+According to the above configuration content, the seen admin display effect is as follows:
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/admin-sidebar.png)

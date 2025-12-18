@@ -1,0 +1,42 @@
+---
+title: Google Analytics
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny 集成了 [Google Analytics](https://analytics.google.com/) 作为访问统计服务提供商，只需简单配置即可接入使用。
+
+## 快速开始
+
+参考以下步骤，在你的项目快速接入 Google Analytics 访问统计服务。
+
+<Steps>
+<Step>创建 Google Analytics 账户</Step>
+
+访问 [Google Analytics 官网](https://analytics.google.com/)，注册一个账户。
+
+<Step>添加统计网站</Step>
+
+在 Google Analytics 控制台，进入 `Admin` 页面，点击 `Create -> Property` 按钮，按照指示输入属性名称和你的网站域名，进入到 `Set up a Google tag` 页面。
+
+复制 `G-xxx` 格式的属性 ID。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/ga-set-tag.png)
+
+<Step>配置统计代码</Step>
+
+在项目管理后台，进入 `Settings -> Analytics` 页面，找到 `Google Analytics` 面板，在 `Google Analytics ID` 字段填入上一步复制的属性 ID，点击 `Save` 按钮。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/ga-settings.png)
+
+<Step>验证接入</Step>
+
+回到 Google Analytics 控制台的 `Set up a Google tag` 页面，点击 `Test installation` 按钮，验证 Google Analytics 接入是否成功。
+
+<Step>查看统计数据</Step>
+
+配置完成后，等项目正式上线运营后，你就可以在 Google Analytics 控制台看到项目的访问统计数据了。
+
+![](https://cdn.shipany.ai/shipany/imgs/docs/ga-overview.png)
+
+</Steps>

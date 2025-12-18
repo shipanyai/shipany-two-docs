@@ -1,0 +1,5 @@
+{
+  "title": "内容管理",
+  "icon": "FileText",
+  "pages": ["blog", "docs", "pages", "logs"]
+}

@@ -44,16 +44,21 @@ You can continue to manually adjust the content of `metadata` in the configurati
 
 ## Set Landing Page Content
 
-Project landing page content corresponds to the configuration file `src/config/locale/messages/{locale}/landing.json`
+Landing page content includes two parts.
 
-The default configuration content defines the display content of the landing page `header` / `hero` / `features` / `testimonials` / `faq` / `cta` and other blocks. You can replace the default content partially or completely according to the project situation.
+The site header and footer correspond to the `header` / `footer` blocks. Their content is defined in `src/config/locale/messages/{locale}/landing.json`.
 
-Use AI to assist in generating configuration file content. Reference prompt words:
+The homepage content corresponds to `src/config/locale/messages/{locale}/pages/index.json`.
+
+The default homepage content defines blocks such as `hero` / `features` / `testimonials` / `faq` / `cta`. You can replace some or all of the default content based on your project.
+
+Use AI to assist in generating configuration content. Sample prompt:
 
 ```txt
 The project I am developing is an AI image generator based on Nano Banana Pro model,
 please refer to the content on the webpage: https://gemini.google/overview/image-generation/,
-help me modify the landing page content in the configuration file under src/config/locale/messages/{locale}/landing.json.
+help me modify the landing page header and footer content defined in file: src/config/locale/messages/{locale}/landing.json.
+and modify the home page content defined in file: src/config/locale/messages/{locale}/pages/index.json.
 My project title is: Nano Banana Pro,
 Keywords contains: nano banana pro, nano banana, nano banana 2, gemini 3 pro image.
 ```
@@ -71,6 +76,10 @@ You can continue to manually adjust the landing page content in the configuratio
 After setting the landing page content with AI assistance, you can manually adjust the configuration file content to finely control the landing page display.
 
 ### Customize Header
+
+File path: `src/config/locale/messages/{locale}/landing.json`
+
+Content example:
 
 ```json
 {
@@ -122,80 +131,119 @@ According to the above configuration content, the seen `Header` effect is as fol
 
 ![](https://cdn.shipany.ai/shipany/imgs/docs/landing-header.png)
 
-> Other blocks, such as `Hero` / `Footer`, etc., custom display methods are similar to `Header`, you can refer to the above configuration content.
+> The `Footer` block can be customized similarly to `Header`. You can refer to the configuration above.
 
 ### Customize Block
 
-The default landing page configuration, on the website homepage, displays the following blocks:
+The default homepage displays the following blocks:
 
-- `header`: Top block
 - `hero`: Hero block
 - `logos`: Logo list block
-- `introduce`: Introduction information block
+- `introduce`: Introduction block
 - `benefits`: Benefits block
-- `usage`: Usage scenario block
-- `features`: Function features block
-- `stats`: Statistics data block
-- `testimonials`: User evaluation block
+- `usage`: Use cases block
+- `features`: Features block
+- `stats`: Stats block
+- `testimonials`: Testimonials block
 - `faq`: FAQ block
 - `cta`: Call to action block
-- `subscribe`: Subscribe block
-- `footer`: Bottom block
 
 You can customize the blocks displayed on the website homepage by following these steps.
 
 <Steps>
 
 <Step>
-  In the `src/config/locale/messages/{locale}/landing.json` configuration file,
-  delete unnecessary blocks or add custom blocks.
+  In `src/config/locale/messages/{locale}/pages/index.json`,
+  remove blocks you don’t need or add your own custom blocks.
 </Step>
 
 ```json
 {
-  "header": {},
-  "hero": {},
-  "features": {},
-  "faq": {},
-  "cta": {},
-  "footer": {}
+  "page": {
+    "sections": {
+      "hero": {},
+      "features": {},
+      "faq": {},
+      "cta": {},
+      "introduce": {},
+      "benefits": {},
+      "usage": {},
+      "stats": {},
+      "testimonials": {}
+    }
+  }
 }
 ```
 
 <Step>
-  In the `src/app/[locale]/(landing)/page.tsx` file, adjust the `showSections`
-  array to only include the blocks that need to be displayed.
+  In `src/config/locale/messages/{locale}/pages/index.json`, adjust the
+  `show_sections` array so it contains only the blocks you want to show.
 </Step>
 
-```tsx
-const showSections = ['hero', 'features', 'faq', 'cta'];
+```json
+{
+  "page": {
+    "show_sections": ["hero", "features", "faq", "cta"],
+    "sections": {
+      // ...
+    }
+  }
+}
 ```
 
 <Step>
-  In the `src/themes/default/pages/dynamic-page.tsx` file, specify the
-  corresponding display component for each type of block.
+  In `src/themes/default/pages/dynamic-page.tsx`,
+  assign a rendering component for specific blocks.
 </Step>
 
 ```tsx
+import { CustomHero } from '@/themes/default/blocks/custom-hero';
+
 // block name
 const block = section.block || section.id || sectionKey;
 
 switch (block) {
   case 'hero':
-    return <Hero key={sectionKey} section={section} />;
-  case 'features':
-    return <Features key={sectionKey} section={section} />;
-  case 'faq':
-    return <FAQ key={sectionKey} section={section} />;
-  case 'cta':
-    return <CTA key={sectionKey} section={section} />;
+    return <CustomHero key={sectionKey} section={section} />;
 
   default:
-  // ...
+    try {
+      if (section.component) {
+        return section.component;
+      }
+
+      const DynamicBlock = await getThemeBlock(block);
+      return (
+        <DynamicBlock
+          key={sectionKey}
+          section={section}
+          {...(data || section.data || {})}
+        />
+      );
+    } catch (error) {
+      return null;
+    }
 }
 ```
 
-Default page blocks are defined in the `src/themes/default/blocks` directory. If the default blocks do not meet your needs, you can refer to the [Customize Display Block](/docs/page-builder/dynamic-page#Customize Display Block) document to create custom block files.
+You can also customize block rendering without modifying the default `dynamic-page.tsx`, by configuring it in the page config file:
+
+```json
+{
+  "page": {
+    "sections": {
+      "hero": {
+        "block": "custom-hero"
+        // ...
+      }
+    }
+  }
+}
+```
+
+</Steps>
+
+Default page blocks are defined in `src/themes/default/blocks`. If the default blocks don’t meet your needs, refer to [Customize Display Block](/docs/page-builder/dynamic-page#Customize Display Block) to create your own block files.
 
 The default page layout file is defined in the `src/themes/default/layouts/landing.tsx` file.
 
@@ -230,8 +278,6 @@ export default async function LandingLayout({
 ```
 
 > If you don't want to modify the default theme, you can refer to the [Set Theme Folder](/docs/customize/theme#Set Theme Folder) document to customize the layout and display of the page through a custom theme.
-
-</Steps>
 
 ## Customize Admin Display
 

@@ -24,6 +24,16 @@ ShipAny Two 是 ShipAny 的第二个版本，相比于 ShipAny One，在架构�
 
 - 新用户在 [定价页面](https://shipany.ai/zh/pricing) 购买 ShipAny 高级版，自动获得 ShipAny Two 模板，再绑定 Github 用户名激活。
 
+## ShipAny 模板如何激活？
+
+在 [个人中心 -> 活动 -> 已购模板](https://shipany.ai/zh/activity/templates) 查看已购买模板，如果是未激活状态，可以点击 "激活" 按钮，在激活页面输入你的 Github 用户名，提交激活。
+
+> 请注意，一定要填写你的 Github 用户名，而不是邮箱。在浏览器访问：`github.com/your-github-username`，确保能进入你的 Github 个人主页，在激活页面填入 `your-github-username` 提交激活。
+
+![](https://cdn.shipany.ai/imgs/601d101f810e120d4d3b4971ad2bef93.png)
+
+> 如果模板已激活，但是 Github 邀请过期了。可以选择已购买模板右侧的下拉菜单，点击 `重新激活` 按钮，在激活页面重新提交激活。这种情况，不能修改 Github 用户名，只能重新发送 Github 邀请。
+
 ## 如何开始使用 ShipAny Two？
 
 参考 [获取 ShipAny](/zh/docs/guide/get-shipany) 获得 ShipAny Two 代码仓库访问权限。
@@ -99,6 +109,8 @@ git push origin main
 ```shell
 pnpm install
 ```
+
+> 如果上游代码改动较大，请谨慎同步。可以使用 [cherry-pick](https://git-scm.com/docs/git-cherry-pick) 命令，只同步你需要的变更。
 
 ## 如何更新数据库表结构？
 

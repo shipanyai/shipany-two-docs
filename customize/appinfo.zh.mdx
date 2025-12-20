@@ -26,14 +26,18 @@ NEXT_PUBLIC_APP_URL = "https://your-domain.com"
 NEXT_PUBLIC_APP_NAME = "My ShipAny Project"
 ```
 
-## 设置应用图标
+## 设置应用图标和预览图片
 
-应用图标包括 Logo、Favicon 等，应该符合品牌形象。
+应用图标包括 Logo、Favicon，应该符合品牌形象。
 
 - 默认显示的网站 Logo 文件在： `public/logo.png`
 - 默认显示的 favicon 图标文件在： `public/favicon.ico`
 
-请为你的项目设计这两个图标，并替换默认的图标文件。
+在社交平台分享项目链接时，会显示预览图片。
+
+- 默认显示的预览图片文件在： `public/preview.png`
+
+请为你的项目自定义 Logo、Favicon、预览图，并替换默认的文件。
 
 推荐的设计工具：
 
@@ -44,6 +48,23 @@ NEXT_PUBLIC_APP_NAME = "My ShipAny Project"
 或者使用 `Nano Banana Pro`，`ChatGPT` 等 AI 辅助设计工具。
 
 替换掉默认的图标文件后，打开项目首页刷新，可以看到顶部的 Logo 和浏览器标签页的图标已经更新为你设置的图标。
+
+如果你的 Logo、Favicon、预览图，不是默认的文件，你需要在环境变量文件中定义文件路径。
+
+比如自定义的 Logo、Favicon、预览图文件路径分别是：
+
+- `public/custom-logo.svg`
+- `public/custom-favicon.ico`
+- `public/custom-preview.png`
+
+那么在环境变量文件中设置：
+
+```toml
+# app
+NEXT_PUBLIC_APP_LOGO = "/custom-logo.svg"
+NEXT_PUBLIC_APP_FAVICON = "/custom-favicon.ico"
+NEXT_PUBLIC_APP_PREVIEW_IMAGE = "/custom-preview.png"
+```
 
 ## 设置站点地图
 

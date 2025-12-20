@@ -44,16 +44,21 @@ Keywords contains: nano banana pro, nano banana, nano banana 2, gemini 3 pro ima
 
 ## 设置着陆页内容
 
-项目着陆页内容，对应的配置文件是 `src/config/locale/messages/{locale}/landing.json`
+着陆页内容包括两部分。
 
-默认的配置内容，定义了着陆页 `header` / `hero` / `features` / `testimonials` / `faq` / `cta` 等区块的显示内容。你可以根据项目情况，部分或全部替换默认内容。
+其中网站头部和底部，对应的区块是 `header` / `footer`。内容定义在 `src/config/locale/messages/{locale}/landing.json` 文件中。
+
+网站首页内容，对应的配置文件是 `src/config/locale/messages/{locale}/pages/index.json`
+
+默认的首页内容，定义了 `hero` / `features` / `testimonials` / `faq` / `cta` 等区块的显示内容。你可以根据项目情况，部分或全部替换默认内容。
 
 利用 AI 辅助生成配置文件内容，参考的提示词：
 
 ```txt
 The project I am developing is an AI image generator based on Nano Banana Pro model,
 please refer to the content on the webpage: https://gemini.google/overview/image-generation/,
-help me modify the landing page content in the configuration file under src/config/locale/messages/{locale}/landing.json.
+help me modify the landing page header and footer content defined in file: src/config/locale/messages/{locale}/landing.json.
+and modify the home page content defined in file: src/config/locale/messages/{locale}/pages/index.json.
 My project title is: Nano Banana Pro,
 Keywords contains: nano banana pro, nano banana, nano banana 2, gemini 3 pro image.
 ```
@@ -71,6 +76,10 @@ Keywords contains: nano banana pro, nano banana, nano banana 2, gemini 3 pro ima
 在通过 AI 辅助设置着陆页内容后，你可以手动调整配置文件内容，精细化控制着陆页展示。
 
 ### 自定义 Header
+
+文件路径：`src/config/locale/messages/{locale}/landing.json`
+
+内容示例：
 
 ```json
 {
@@ -122,13 +131,12 @@ Keywords contains: nano banana pro, nano banana, nano banana 2, gemini 3 pro ima
 
 ![](https://cdn.shipany.ai/shipany/imgs/docs/landing-header.png)
 
-> 其他区块，比如 `Hero` / `Footer` 等，自定义展示方式与 `Header` 类似，可以参考上述配置内容。
+> `Footer` 区块，自定义展示方式与 `Header` 类似，可以参考上述配置内容。
 
 ### 自定义区块
 
-默认的着陆页配置，在网站首页，展示的区块包括：
+默认的着陆首页，展示的区块包括：
 
-- `header`：顶部区块
 - `hero`：主区块
 - `logos`：Logo 列表区块
 - `introduce`：介绍信息区块
@@ -139,61 +147,101 @@ Keywords contains: nano banana pro, nano banana, nano banana 2, gemini 3 pro ima
 - `testimonials`：用户评价区块
 - `faq`：常见问题区块
 - `cta`：行动号召区块
-- `subscribe`：订阅区块
-- `footer`：底部区块
 
 你可以按照以下步骤，自定义在网站首页展示的区块。
 
 <Steps>
 
 <Step>
-  在 `src/config/locale/messages/{locale}/landing.json`
-  配置文件中，删除不需要的区块，或者添加自定义区块。
+  在 `src/config/locale/messages/{locale}/pages/index.json`
+  文件中，删除不需要的区块，或者添加自定义区块。
 </Step>
 
 ```json
 {
-  "header": {},
-  "hero": {},
-  "features": {},
-  "faq": {},
-  "cta": {},
-  "footer": {}
+  "page": {
+    "sections": {
+      "hero": {},
+      "features": {},
+      "faq": {},
+      "cta": {},
+      "introduce": {},
+      "benefits": {},
+      "usage": {},
+      "stats": {},
+      "testimonials": {}
+    }
+  }
 }
 ```
 
 <Step>
-  在 `src/app/[locale]/(landing)/page.tsx` 文件中，调整 `showSections`
-  数组，只包含需要显示的区块。
+  在 `src/config/locale/messages/{locale}/pages/index.json` 文件中，调整
+  `show_sections` 数组，只包含需要显示的区块。
 </Step>
 
-```tsx
-const showSections = ['hero', 'features', 'faq', 'cta'];
+```json
+{
+  "page": {
+    "show_sections": ["hero", "features", "faq", "cta"],
+    "sections": {
+      // ...
+    }
+  }
+}
 ```
 
 <Step>
   在 `src/themes/default/pages/dynamic-page.tsx`
-  文件中，为每种类型的区块，指定对应的展示组件。
+  文件中，为特定的区块，指定对应的展示组件。
 </Step>
 
 ```tsx
+import { CustomHero } from '@/themes/default/blocks/custom-hero';
+
 // block name
 const block = section.block || section.id || sectionKey;
 
 switch (block) {
   case 'hero':
-    return <Hero key={sectionKey} section={section} />;
-  case 'features':
-    return <Features key={sectionKey} section={section} />;
-  case 'faq':
-    return <FAQ key={sectionKey} section={section} />;
-  case 'cta':
-    return <CTA key={sectionKey} section={section} />;
+    return <CustomHero key={sectionKey} section={section} />;
 
   default:
-  // ...
+    try {
+      if (section.component) {
+        return section.component;
+      }
+
+      const DynamicBlock = await getThemeBlock(block);
+      return (
+        <DynamicBlock
+          key={sectionKey}
+          section={section}
+          {...(data || section.data || {})}
+        />
+      );
+    } catch (error) {
+      return null;
+    }
 }
 ```
+
+以上自定义区块展示的方式，也可以不修改默认的 `dynamic-page.tsx` 文件，而是通过页面配置文件实现。
+
+```json
+{
+  "page": {
+    "sections": {
+      "hero": {
+        "block": "custom-hero"
+        // ...
+      }
+    }
+  }
+}
+```
+
+</Steps>
 
 默认的页面区块，定义在 `src/themes/default/blocks` 目录下。如果默认的区块不满足你的需求，你可以参考 [自定义展示区块](/zh/docs/page-builder/dynamic-page#自定义展示区块) 文档，创建自定义区块文件。
 
@@ -230,8 +278,6 @@ export default async function LandingLayout({
 ```
 
 > 如果你不想修改默认的主题，可以参考 [设置主题文件夹](/zh/docs/customize/theme#设置主题文件夹) 文档，通过自定义主题来定制页面的布局和展示。
-
-</Steps>
 
 ## 自定义后台展示
 

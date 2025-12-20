@@ -26,14 +26,18 @@ NEXT_PUBLIC_APP_URL = "https://your-domain.com"
 NEXT_PUBLIC_APP_NAME = "My ShipAny Project"
 ```
 
-## Set App Icon
+## Set App Icons and Preview Image
 
-App icons include Logo, Favicon, etc., which should conform to the brand image.
+App icons include Logo and Favicon, and they should match your brand.
 
 - The default website Logo file is at: `public/logo.png`
 - The default favicon icon file is at: `public/favicon.ico`
 
-Please design these two icons for your project and replace the default icon files.
+When you share your project link on social platforms, a preview image will be shown:
+
+- The default preview image file is at: `public/preview.png`
+
+Please customize the Logo, Favicon, and preview image for your project and replace the default files.
 
 Recommended design tools:
 
@@ -44,6 +48,23 @@ Recommended design tools:
 Or use AI-assisted design tools such as `Nano Banana Pro`, `ChatGPT`.
 
 After replacing the default icon files, open the project homepage and refresh it. You can see that the Logo at the top and the icon on the browser tab have been updated to the icons you set.
+
+If your Logo, Favicon, or preview image is not using the default filenames, you need to define their paths in environment variables.
+
+For example, if your custom files are:
+
+- `public/custom-logo.svg`
+- `public/custom-favicon.ico`
+- `public/custom-preview.png`
+
+Set the following in your environment variable file:
+
+```toml
+# app
+NEXT_PUBLIC_APP_LOGO = "/custom-logo.svg"
+NEXT_PUBLIC_APP_FAVICON = "/custom-favicon.ico"
+NEXT_PUBLIC_APP_PREVIEW_IMAGE = "/custom-preview.png"
+```
 
 ## Set Sitemap
 

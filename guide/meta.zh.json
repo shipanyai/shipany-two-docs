@@ -1,5 +1,12 @@
 {
   "title": "使用指南",
   "icon": "Sparkles",
-  "pages": ["get-shipany", "faq", "architecture", "prerequisites"]
+  "pages": [
+    "get-shipany",
+    "faq",
+    "architecture",
+    "prerequisites",
+    "tutorial",
+    "[更新日志](https://shipany.ai/zh/updates)"
+  ]
 }

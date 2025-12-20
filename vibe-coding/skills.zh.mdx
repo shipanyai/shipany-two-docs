@@ -1,0 +1,141 @@
+---
+title: Skills
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny 支持使用 [Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills) 来增强 [氛围编程](https://en.wikipedia.org/wiki/Vibe_coding)。
+
+ShipAny 模板在 `.claude/skills` 目录下，内置了常用的 Agent Skills，用于驱动 Coding Agent 快速实现相应的功能。
+
+## 快速初始化项目
+
+ShipAny 模板内置了一个名为 `shipany-quick-start` 的技能， 定义在 `.claude/skills/shipany-quick-start` 目录下。
+
+使用此技能，可以通过一句话描述，快速完成新项目的初始化，实现新项目的第一个版本。
+
+以开发一个 `Nano Banana Generator` 项目为例，演示使用 `shipany-quick-start` 技能实现项目第一个版本的流程：
+
+<Steps>
+
+<Step>通过模板创建项目</Step>
+
+拉取最新版本的 ShipAny 模板代码，创建新项目。
+
+```shell
+git clone git@github.com:shipanyai/shipany-template-two my-shipany-project
+```
+
+选择一个编辑器打开项目，确认项目根目录下存在 `.claude/skills/shipany-quick-start` 目录。
+
+<Step>通过提示词触发技能</Step>
+
+打开一个 Coding Agent（[Cursor](https://www.cursor.com/)、[Claude Code](https://code.claude.com/docs/en/overview)、[Codex](https://openai.com/codex/) 等），在 Coding Agent 的对话框输入以下提示词，使用 `shipany-quick-start` 技能，初始化项目。
+
+你只需要指定项目名称、域名、内容参考链接等信息。
+
+```txt
+use shipany-quick-start skill to start my new project.
+Project name is Nano Banana Generator,
+domain is: nano-banana-generator.com,
+content reference: https://gemini.google/overview/image-generation/
+```
+
+> 注意：技能的发现和使用，有一定的“抽卡”概率，意味着并不是所有的 Coding Agent，每一次都能准确发现和使用你指定的技能。
+
+- 技能的发现和使用，一方面跟 Coding Agent 的实现逻辑有关。
+
+比如，Claude Code 默认支持发现 `.claude/skills` 目录下的技能。Codex 的技能定义路径是 `.codex/skills`。其他 Coding Agent，也许会支持 `.claude/skills`，或者使用自定义的技能定义路径。
+
+你可以在提示词中明确指定技能的定义路径，比如：`use ".claude/skills/shipany-quick-start" to start my new project.`
+
+或者把模板中的技能复制到 Coding Agent 的技能定义目录下，比如：`cp -r .claude/skills .codex/skills`。
+
+- 不同的模型对技能的发现和使用逻辑也会有差异。
+
+比如，在 Cursor 的 Coding Agent 里面使用 `Auto`、`GPT-5.2`、`Opus 4.5` 等模型，技能的发现和使用概率准确度比较高。
+
+你可以通过切换模型，尝试不同的效果。
+
+<Step>使用技能完成项目初始化</Step>
+
+通过提示词触发技能之后，可以看到，Coding Agent 基于 `shipany-quick-start` 技能内定义的工作流程，规划了项目初始化的具体步骤，按顺序执行完这些步骤后，完成了项目初始化。
+
+项目第一个版本的改动内容包括：
+
+- 创建环境变量配置文件：`.env.development` 和 `.env.production`
+- 生成项目 Logo 和 Favicon：`public/logo.png` 和 `public/favicon.ico`
+- 修改项目站点地图：`public/sitemap.xml`
+- 修改项目通用信息：`src/config/locale/messages/{locale}/common.json`
+- 修改项目品牌信息和导航菜单：`src/config/locale/messages/{locale}/landing.json`
+- 修改项目着陆首页内容：`src/config/locale/messages/{locale}/pages/index.json`
+- 修改项目隐私政策和服务条款：`content/pages/privacy-policy*.mdx` 和 `content/pages/terms-of-service*.mdx`
+- 修改项目主题样式：`src/config/style/theme.css`
+
+![](https://cdn.shipany.ai/imgs/e25609bb9a849474a8a7c9839b6d32d9.png)
+
+<Step>预览项目</Step>
+
+通过技能完成项目初始化之后，在浏览器打开项目预览地址，可以看到项目第一个版本的效果。
+
+![](https://cdn.shipany.ai/imgs/cdbcf80355975d5a8a95dbc95619b159.png)
+
+网页上看到的图片，是通过 [Picsum](https://picsum.photos/) 生成的随机占位图。
+
+页面上展示的项目 Logo 和 Favicon 文件，是通过技能里面定义的脚本生成的。
+
+你可以根据实际需求，继续编辑页面内容，修改 Logo、Favicon、占位图。
+
+</Steps>
+
+通过上述步骤，我们使用 `shipany-quick-start` 技能，快速完成了项目初始化，实现了项目第一个版本。
+
+## 快速创建子页面
+
+ShipAny 模板内置了一个名为 `shipany-page-builder` 的技能， 定义在 `.claude/skills/shipany-page-builder` 目录下。
+
+使用此技能，可以通过一句话描述，在项目中快速创建子页面。
+
+以创建一个 `/models/nano-banana-pro` 页面为例，演示使用 `shipany-page-builder` 技能创建子页面的流程：
+
+<Steps>
+
+<Step>通过提示词触发技能</Step>
+
+打开一个 Coding Agent（[Cursor](https://www.cursor.com/)、[Claude Code](https://code.claude.com/docs/en/overview)、[Codex](https://openai.com/codex/) 等），在 Coding Agent 的对话框输入以下提示词，使用 `shipany-page-builder` 技能，创建子页面。
+
+```txt
+use ".claude/skills/shipany-page-builder" to build a new page.
+Page route is: /models/nano-banana-pro,
+keywords: Nano Banana, Nano Banana Pro,
+content reference: https://blog.google/technology/ai/nano-banana-pro/
+```
+
+在提示词里面，描述新页面的访问路径、需要覆盖的关键词、内容参考链接等信息。
+
+<Step>使用技能完成子页面创建</Step>
+
+通过提示词触发技能之后，可以看到，Coding Agent 基于 `shipany-page-builder` 技能内定义的工作流程，规划了子页面创建的具体步骤，按顺序执行完这些步骤后，完成了子页面创建。
+
+子页面创建的改动内容包括：
+
+- 创建子页面内容文件：`src/config/locale/messages/{locale}/pages/{route}.json`
+- 修改页面配置文件，追加新的页面路由：`src/config/locale/index.ts`
+
+![](https://cdn.shipany.ai/imgs/6efa1c0b88afe29cffeb9e491554efef.png)
+
+<Step>预览子页面</Step>
+
+通过技能完成子页面创建之后，在浏览器打开项目预览地址，访问子页面路由：`/models/nano-banana-pro`，可以看到子页面效果。
+
+{/* ![](https://cdn.shipany.ai/imgs/b3c6399b31fbae10cf84aded331c3ec7.png) */}
+
+![](https://cdn.shipany.ai/imgs/ce682b7be5d1e3295c5454d31f7cb767.png)
+
+子页面内容是通过 [Picsum](https://picsum.photos/) 生成的随机占位图。
+
+你可以根据实际需求，继续编辑页面内容，修改占位图。
+
+</Steps>
+
+通过上述步骤，我们使用 `shipany-page-builder` 技能，快速创建了子页面。

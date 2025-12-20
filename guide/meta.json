@@ -1,5 +1,12 @@
 {
   "title": "Guide",
   "icon": "Sparkles",
-  "pages": ["get-shipany", "faq", "architecture", "prerequisites"]
+  "pages": [
+    "get-shipany",
+    "faq",
+    "architecture",
+    "prerequisites",
+    "tutorial",
+    "[Updates](https://shipany.ai/updates)"
+  ]
 }

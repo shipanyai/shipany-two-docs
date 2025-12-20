@@ -1,0 +1,116 @@
+---
+title: MCP
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny supports [MCP](https://modelcontextprotocol.io/docs/getting-started/intro) for [Vibe coding](https://en.wikipedia.org/wiki/Vibe_coding).
+
+Below are the main scenarios for using MCP servers in a ShipAny project.
+
+## Mount documentation
+
+When building on ShipAny, you’ll often want to look up the ShipAny development docs to guide your Coding Agent to implement features quickly.
+
+ShipAny Two online documentation: [https://shipany.ai/zh/docs](https://shipany.ai/zh/docs)
+
+During development, you can open the relevant part of the docs, paste the link to your Coding Agent, and let it quickly learn what it needs to help you complete the task.
+
+The ShipAny Two docs are open-sourced on GitHub: [https://github.com/shipanyai/shipany-two-docs](https://github.com/shipanyai/shipany-two-docs)
+
+You can also clone the entire docs repo locally and ask your Coding Agent to scan it to assist your development work.
+
+```shell
+git clone git@github.com:shipanyai/shipany-two-docs.git
+```
+
+Alternatively, you can mount the ShipAny docs via an MCP server. We recommend Ref MCP and Context7 MCP.
+
+### Ref MCP
+
+<Steps>
+
+<Step>Install Ref MCP</Step>
+
+Go to [Ref API Keys](https://ref.tools/keys) and generate an API key.
+
+On [Ref Install](https://ref.tools/install), choose an installation method for your AI app.
+
+For example, after installing Ref MCP in Cursor, the MCP server configuration you fill in looks like:
+
+```json
+{
+  "mcpServers": {
+    "Ref": {
+      "type": "http",
+      "url": "https://api.ref.tools/mcp?apiKey=ref-xxxxxxx",
+      "headers": {}
+    }
+  }
+}
+```
+
+<Step>Use Ref MCP</Step>
+
+During development, ask your Coding Agent to use Ref MCP to quickly learn what it needs.
+
+Sample prompt:
+
+```txt
+Use Ref MCP to check the development documentation of ShipAny,
+tell me how to integrate Stripe payment
+```
+
+You’ll see the Coding Agent use Ref MCP’s `ref_search_documentation` tool to find relevant doc links,
+
+then call `ref_read_url` multiple times to read the docs and produce an answer.
+
+![](https://cdn.shipany.ai/imgs/38a36cbb89a3aa3f63561f95dec1bc24.png)
+
+</Steps>
+
+### Context7 MCP
+
+<Steps>
+
+<Step>Install Context7 MCP</Step>
+
+Go to [Context7 Dashboard](https://context7.com/dashboard), click `Create API Key`, and generate an API key.
+
+In the `Connect` panel, choose an installation method for your AI app.
+
+For example, after installing Context7 MCP in Cursor, the MCP server configuration you fill in looks like:
+
+```json
+{
+  "mcpServers": {
+    "context7": {
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "ctx7sk-xxxxxx"
+      }
+    }
+  }
+}
+```
+
+<Step>Use Context7 MCP</Step>
+
+During development, ask your Coding Agent to use Context7 MCP to quickly learn what it needs.
+
+Sample prompt:
+
+```txt
+Use Context7 MCP to check the development documentation of ShipAny Two,
+tell me how to Send Email
+```
+
+You’ll see the Coding Agent use Context7 MCP’s `resolve-library-id` tool to resolve the relevant docs repository/library ID,
+
+then call `get-library-docs` multiple times to read the docs and produce an answer.
+
+![](https://cdn.shipany.ai/imgs/78a9c1056c1704d69904261d12b9ac06.png)
+
+</Steps>
+
+With these two MCP servers, you can query ShipAny docs anytime during development so your Coding Agent can quickly learn what it needs and help you get work done.

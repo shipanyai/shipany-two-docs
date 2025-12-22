@@ -1,5 +1,5 @@
 {
   "title": "Payment",
   "icon": "CreditCard",
-  "pages": ["stripe"]
+  "pages": ["stripe", "creem"]
 }

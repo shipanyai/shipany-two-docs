@@ -1,0 +1,193 @@
+---
+title: Creem
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny integrates [Creem](https://creem.io/) as a payment service provider. With a simple configuration, you can start using it.
+
+## Integrate Creem Payment
+
+Follow these steps to integrate Creem payment for your project.
+
+<Steps>
+<Step>Activate a Creem merchant</Step>
+
+Sign in to the [Creem dashboard](https://www.creem.io/dashboard) and create a merchant.
+
+<Step>Create an API key</Step>
+
+In the Creem dashboard, go to [Developers](https://www.creem.io/dashboard/developers) to view or regenerate your `API Key`.
+
+> You can toggle `Test mode` in the upper-right corner of the Creem dashboard (next to the `Developers` button) to enter the sandbox environment and create API keys for testing.
+
+Copy the `API Key`.
+
+<Step>Create Creem products</Step>
+
+Create a corresponding payment product for each pricing plan based on your pricing table configuration.
+
+For example, one monthly plan in your pricing config might look like:
+
+```json
+{
+  "title": "Standard",
+  "description": "Ship Fast with your SaaS Startups.",
+  "interval": "month",
+  "amount": 16900,
+  "currency": "USD",
+  "price": "$169",
+  "unit": "/ month",
+  "product_id": "standard-monthly",
+  "product_name": "ShipAny Boilerplate Standard Monthly",
+  "group": "monthly"
+  // ...
+}
+```
+
+In the Creem dashboard, go to [Products](https://www.creem.io/dashboard/products) and click `Create Product`.
+
+- `Name`: Product name. Map this to the plan’s `product_name` (you can tweak it if you want).
+- `Return URL`: Redirect URL after successful payment. You can leave this blank.
+- `Description`: Product description. Map this to the plan’s `description` (you can tweak it if you want).
+
+Under `Payment Details`, `Currency` / `Pricing` / `Subscription interval` must match the plan’s `currency` / `amount` / `interval`.
+
+After filling out the product info, click `Create Product`.
+
+![](https://cdn.shipany.ai/imgs/7934b919e05985ab6db77f6482117173.png)
+
+On the [Products](https://www.creem.io/dashboard/products) page, find the product you just created, open the right-side dropdown menu, click `Copy Product ID`, and copy the product ID.
+
+<Step>Configure Creem payment</Step>
+
+In the project admin dashboard, go to `Settings -> Payment -> Creem`, and paste the `API Key` from Step 2 into `Creem API Key`.
+
+In `Creem Product IDs Mapping`, fill in the mapping from your pricing plan `product_id` (Step 3) to the Creem product ID.
+
+```json
+{
+  "standard-monthly": "prod_xxx"
+}
+```
+
+- `Creem Enabled`: Toggle to enable Creem payment.
+- `Creem Environment`: Creem environment. For local testing, choose `Sandbox` (corresponds to Creem’s Test Mode). For production, choose `Production`.
+- `Creem Signing Secret`: Signing secret for verifying payment notifications. You can leave it blank for now and fill it in after setting up webhooks later.
+
+Click `Save` to persist the Creem payment configuration.
+
+![](https://cdn.shipany.ai/imgs/5aae429d57798626df03ee9c6fde6e0b.png)
+
+In the project admin dashboard, go to `Settings -> Payment -> Basic Payment` and enable `Select Payment Method Enabled` so users can choose a payment method. Alternatively, set `Default Payment Provider` to `Creem` to use Creem by default.
+
+<Step>Payment verification</Step>
+
+Visit your project’s `/pricing` page, pick a plan, and click the Creem checkout button.
+
+![](https://cdn.shipany.ai/imgs/2e29fcece3b35f8a135139c9215e0362.png)
+
+If you are redirected to the Creem payment page successfully, the integration is working.
+
+If you’re using a test API key, you can use a [Creem test card](https://docs.creem.io/getting-started/test-mode#testing-payments) to verify the payment flow.
+
+</Steps>
+
+## Design Pricing Table
+
+The default pricing table configuration lives in `src/config/locale/messages/{locale}/pages/pricing.json`. It supports multiple languages; each `locale` has its own pricing configuration.
+
+Your pricing table is independent of the payment provider. When integrating Creem, you can follow Stripe’s guide for pricing design: [Design Pricing Table](/docs/payment/stripe#design-pricing-table).
+
+## Configure Payment Callback
+
+After a user selects a plan on the pricing page and places an order, they will be redirected to the Creem payment page. After payment succeeds, Creem redirects back to your project callback endpoint: `/api/payment/callback`.
+
+In the callback endpoint, ShipAny updates the order status by order number, then redirects to the configured `callbackUrl`.
+
+This `callbackUrl` is set in the checkout endpoint: `/api/payment/checkout`:
+
+```ts
+const callbackUrl =
+  paymentType === PaymentType.SUBSCRIPTION
+    ? `${callbackBaseUrl}/settings/billing`
+    : `${callbackBaseUrl}/settings/payments`;
+```
+
+By default, one-time payments redirect to `/settings/payments`, and subscription payments redirect to `/settings/billing`.
+
+You can change the post-payment redirect URLs to fit your product flow.
+
+> Note: The payment callback is a synchronous redirect. If the user confirms payment on the Creem page but closes the browser before the redirect happens, your callback endpoint won’t be hit, the order status won’t be updated, and the user won’t see the paid order in their account. This is commonly referred to as a `lost order`.
+
+To avoid `lost order` scenarios, it’s recommended to configure payment notifications (webhooks) in the Creem dashboard once you’re running in production.
+
+## Configure Payment Notifications
+
+<Steps>
+<Step>Add a webhook endpoint</Step>
+
+In the Creem merchant dashboard, go to [Developers -> Webhooks](https://www.creem.io/dashboard/developers/webhooks) and click `Create webhook`.
+
+- `Webhook Name`: A name for your own reference.
+- `Webhook URL`: The endpoint that receives notifications. It must be a publicly accessible `https` URL, in the format:
+
+```txt
+https://{your-domain.com}/api/payment/notify/creem
+```
+
+Replace `{your-domain.com}` with your project domain name (root domain or subdomain).
+
+- `Event Types`: Click `Select All` to subscribe to all events.
+
+Or, select only a subset. ShipAny can handle the following notification event types:
+
+```toml
+# Checkout completed
+checkout.completed
+# Payment succeeded
+subscription.paid
+# Subscription updated
+subscription.update
+# Subscription paused
+subscription.paused
+# Subscription activated
+subscription.active
+# Subscription canceled
+subscription.canceled
+```
+
+After completing the configuration, click `Save Webhook`.
+
+![](https://cdn.shipany.ai/imgs/127746152cf6d2d14e6aa735f4e3e8e0.png)
+
+<Step>Copy the signing secret</Step>
+
+After creating the webhook endpoint, open its details page and click the copy icon under `Signing secret` to copy the signing secret (it starts with `whsec_`).
+
+![](https://cdn.shipany.ai/imgs/8dceca46775684486c0e25a47f78d7fe.png)
+
+<Step>Configure the signing secret</Step>
+
+In the project admin dashboard, go to `Settings -> Payment -> Creem` and paste the signing secret into `Creem Signing Secret`.
+
+![](https://cdn.shipany.ai/imgs/5aae429d57798626df03ee9c6fde6e0b.png)
+
+</Steps>
+
+## Local Debugging of Payment Notification
+
+Across payment providers, the local debugging workflow for webhooks is generally the same: use `intranet penetration` (a tunneling tool) to map a public URL to your local dev machine, then configure that public URL as the webhook endpoint in the provider dashboard.
+
+For example, after setting up [ngrok](https://ngrok.com/), your Creem webhook URL might look like:
+
+```txt
+https://xxx.ngrok-free.app/api/payment/notify/creem
+```
+
+For step-by-step instructions, see Stripe’s guide: [Local Debugging of Payment Notification](/docs/payment/stripe#local-debugging-of-payment-notification).
+
+## References
+
+- [Creem Documentation](https://docs.creem.io/)
+- [ngrok](https://ngrok.com/)

@@ -1,0 +1,193 @@
+---
+title: Creem
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny 集成了 [Creem](https://creem.io/) 作为支付服务供应商，只需简单配置即可接入使用。
+
+## 接入 Creem 支付
+
+按照以下步骤为你的项目接入 Creem 支付。
+
+<Steps>
+<Step>开通 Creem 商户</Step>
+
+登录 [Creem 控制台](https://www.creem.io/dashboard)，创建一个商户。
+
+<Step>创建 API 密钥</Step>
+
+在 Creem 控制台，进入 [Developers](https://www.creem.io/dashboard/developers) 页面，查看或重新生成你的 `API Key`。
+
+> 你可以在 Creem 控制台右上角，`Developers` 按钮旁边，点击 `Test mode` 开关，进入测试环境，创建测试用的 API Key。
+
+复制 `API Key`。
+
+<Step>创建 Creem 支付产品</Step>
+
+根据你的价格表配置，为每个价格方案创建对应的支付产品。
+
+比如，价格表配置中的其中一个按月支付的方案为：
+
+```json
+{
+  "title": "Standard",
+  "description": "Ship Fast with your SaaS Startups.",
+  "interval": "month",
+  "amount": 16900,
+  "currency": "USD",
+  "price": "$169",
+  "unit": "/ month",
+  "product_id": "standard-monthly",
+  "product_name": "ShipAny Boilerplate Standard Monthly",
+  "group": "monthly"
+  // ...
+}
+```
+
+在 Creem 控制台，进入 [Products](https://www.creem.io/dashboard/products) 页面，点击 `Create Product` 按钮，创建支付产品。
+
+- `Name` 商品名称，跟价格方案的 `product_name` 对应，可适当修改。
+- `Return URL` 支付成功后的跳转地址，无需填写。
+- `Description` 商品描述，跟价格方案的 `description` 对应，可适当修改。
+
+`Payment Details` 里面的 `Currency` / `Pricing` / `Subscription interval` 必须跟价格方案的 `currency` / `amount` / `interval` 对应。
+
+填写完产品信息后，点击 `Create Product` 按钮，创建支付产品。
+
+![](https://cdn.shipany.ai/imgs/7934b919e05985ab6db77f6482117173.png)
+
+在 [Products](https://www.creem.io/dashboard/products) 页面，选择刚创建的支付产品，点击右侧下拉菜单的 `Copy Product ID`，复制支付产品 ID。
+
+<Step>配置 Creem 支付</Step>
+
+在项目管理后台，进入 `Settings -> Payment -> Creem` 面板，在 `Creem API Key` 字段填入第 2 步复制的 `API Key`。
+
+在 `Creem Product IDs Mapping` 字段填入第 3 步价格方案的 `product_id` 与支付产品 ID 的映射关系。
+
+```json
+{
+  "standard-monthly": "prod_xxx"
+}
+```
+
+- `Creem Enabled` Creem 支付开关，点击打开
+- `Creem Environment` Creem 支付环境。本地测试时，选择 `Sandbox` 环境（对应 Creem 后台的 Test Mode）；正式上线时，选择 `Production` 环境。
+- `Creem Signing Secret` 支付通知签名密钥，可在后续步骤配置完支付通知后，再来填写。
+
+点击 `Save` 按钮，保存 Creem 支付配置。
+
+![](https://cdn.shipany.ai/imgs/5aae429d57798626df03ee9c6fde6e0b.png)
+
+在项目管理后台的 `Settings -> Payment -> Basic Payment` 面板，开启 `Select Payment Method Enabled` 开关，允许用户选择支付方式。或者把 `Default Payment Provider` 设置为 `Creem`，默认使用 Creem 支付。
+
+<Step>支付验证</Step>
+
+访问项目的 `/pricing` 页面，查看默认的价格表，选择一个价格方案，点击 Creem 下单按钮。
+
+![](https://cdn.shipany.ai/imgs/2e29fcece3b35f8a135139c9215e0362.png)
+
+如果能正常跳转到 Creem 支付页面，说明支付配置成功。
+
+如果上一步填入的是测试 API 密钥，可以复制一个 [Creem 测试卡号](https://docs.creem.io/getting-started/test-mode#testing-payments) 进行支付验证。
+
+</Steps>
+
+## 设计价格表
+
+默认的价格表配置在 `src/config/locale/messages/{locale}/pages/pricing.json` 文件中，支持多语言，每个 `locale` 对应一个独立的价格表配置。
+
+项目价格表跟支付供应商无关。接入 Creem 支付时，价格表设计可参考 Stripe 支付的：[设计价格表](/zh/docs/payment/stripe#设计价格表)。
+
+## 配置支付回调
+
+用户在价格表页面选择价格方案下单成功后，会跳转到 Creem 支付页面，支付成功后，会跳转到项目的回调接口：`/api/payment/callback`。
+
+在回调接口中，会根据订单号更新订单状态，再跳转到配置的 `callbackUrl`。
+
+这个配置的 `callbackUrl` 是在下单接口：`/api/payment/checkout` 中指定的：
+
+```ts
+const callbackUrl =
+  paymentType === PaymentType.SUBSCRIPTION
+    ? `${callbackBaseUrl}/settings/billing`
+    : `${callbackBaseUrl}/settings/payments`;
+```
+
+按照默认配置，如果是一次性支付，最终会跳转到 `/settings/payments` 页面；如果是订阅支付，最终会跳转到 `/settings/billing` 页面。
+
+你可以根据项目需求，自行修改用户支付完成后的跳转地址。
+
+> 注意：支付回调是同步跳转的，如果用户在 Creem 支付页面确认支付，在页面跳转前关闭了浏览器，未能正常跳转到项目回调接口，订单状态无法更新，用户在个人中心无法看到已支付的订单。此类情况叫做：`丢单`。
+
+为了避免支付回调的 `丢单` 情况，建议项目上线运营时，在 Creem 后台配置支付通知。
+
+## 配置支付通知
+
+<Steps>
+<Step>添加支付通知地址</Step>
+
+在 Creem 商户后台，进入 [Developers -> Webhooks](https://www.creem.io/dashboard/developers/webhooks) 页面，点击 `Create webhook` 按钮，添加支付通知地址。
+
+- `Webhook Name` 通知名称，给自己看的，随便填。
+- `Webhook URL` 输入接收通知的地址。必须是可以公网访问的 `https` 地址。格式为：
+
+```txt
+https://{your-domain.com}/api/payment/notify/creem
+```
+
+把 `{your-domain.com}` 替换为你的项目域名，可以是根域名，也可以是子域名。
+
+- `Event Types` 点击 `Select All` 选择全部事件。
+
+或者也可以只勾选其中一部分事件。ShipAny 项目中支持处理的支付通知事件包括：
+
+```toml
+# 下单完成
+checkout.completed
+# 支付成功
+subscription.paid
+# 订阅更新
+subscription.update
+# 订阅暂停
+subscription.paused
+# 订阅激活
+subscription.active
+# 订阅取消
+subscription.canceled
+```
+
+填写完配置后，点击 `Save Webhook` 按钮，添加支付通知地址。
+
+![](https://cdn.shipany.ai/imgs/127746152cf6d2d14e6aa735f4e3e8e0.png)
+
+<Step>复制支付通知签名密钥</Step>
+
+创建完支付通知地址后，进入支付通知地址的详情页面，点击 `Signing secret` 下方的复制图标，复制 `whsec_` 开头的支付通知的签名密钥。
+
+![](https://cdn.shipany.ai/imgs/8dceca46775684486c0e25a47f78d7fe.png)
+
+<Step>配置支付通知签名密钥</Step>
+
+在项目管理后台，进入 `Settings -> Payment -> Creem` 面板，在 `Creem Signing Secret` 字段填入上一步复制的支付通知签名密钥。
+
+![](https://cdn.shipany.ai/imgs/5aae429d57798626df03ee9c6fde6e0b.png)
+
+</Steps>
+
+## 本地调试支付通知
+
+不同的支付供应商，本地调试支付通知的步骤一致。核心思路都是通过 `内网穿透`，把一个公网地址映射到本地开发机，然后在支付供应商后台配置支付通知地址时，填入这个公网地址。
+
+比如通过 [ngrok](https://ngrok.com/) 实现 `内网穿透` 后，填入到 Creem 后台的支付通知地址示例：
+
+```txt
+https://xxx.ngrok-free.app/api/payment/notify/creem
+```
+
+具体步骤可参考 Stripe 支付的：[本地调试支付通知](/zh/docs/payment/stripe#本地调试支付通知)。
+
+## 参考
+
+- [Creem 官方文档](https://docs.creem.io/)
+- [ngrok 官网](https://ngrok.com/)

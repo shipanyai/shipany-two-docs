@@ -72,6 +72,8 @@ pnpm dev --port 8080
 
 ![](https://cdn.shipany.ai/shipany/imgs/docs/project-preview.png)
 
+> 如果你想通过 AI 快速完成项目初始化，可以参考 [使用 Agent Skills 初始化项目](/zh/docs/vibe-coding/skills)。
+
 ### 配置环境变量
 
 1. 创建配置文件
@@ -149,7 +151,9 @@ postgresql://postgres.xxx:xxxxxx@aws-0-ap-southeast-1.pooler.supabase.com:6543/p
 postgresql://user:password@127.0.0.1:5432/my_shipany_project
 ```
 
-建议本地开发使用自建的 PostgreSQL 数据库，线上版本使用云数据库。
+建议本地开发使用自建的 [PostgreSQL](/zh/docs/database/postgresql) 数据库，线上版本使用 [Supabase](/zh/docs/database/supabase)，[Neon](/zh/docs/database/neon) 等云数据库（兼容 PostgreSQL，无缝切换）。
+
+或者本地开发使用 [SQLite](/zh/docs/database/sqlite) 数据库，线上版本使用 [Turso](/zh/docs/database/turso) 等云数据库（兼容 SQLite，无缝切换）。
 
 常用数据库的创建和连接地址获取，可以参考：[数据库](/zh/docs/database) 部分的文档。
 
@@ -158,8 +162,8 @@ postgresql://user:password@127.0.0.1:5432/my_shipany_project
 把上一步骤得到的数据库连接地址填入环境变量 `DATABASE_URL`。
 
 ```toml
-DATABASE_URL = "postgresql://user:password@127.0.0.1:5432/my_shipany_project"
 DATABASE_PROVIDER = "postgresql"
+DATABASE_URL = "postgresql://user:password@127.0.0.1:5432/my_shipany_project"
 DB_SINGLETON_ENABLED = "true"
 DB_MAX_CONNECTIONS = "1"
 ```

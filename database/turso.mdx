@@ -1,0 +1,153 @@
+---
+title: Turso
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+[Turso](https://turso.tech/) is a “small but powerful” edge database. It is 100% compatible with SQLite syntax, and its concurrent read/write performance is significantly better than traditional SQLite—ideal for AI apps, embedded use cases, and serverless scenarios.
+
+ShipAny has Turso integrated. Follow the steps below to get started quickly.
+
+## Quick Start
+
+<Steps>
+<Step>Create a Turso database</Step>
+
+Sign up for a [Turso Cloud](https://app.turso.tech/) account. After logging into the console, click `Create Database` to create a database.
+
+<Step>Set up token authentication</Step>
+
+Open the database you created in the previous step, click `Create Token`, and create a token with:
+
+- Expiration set to `Never`
+- `Read & Write` permissions
+
+![](https://cdn.shipany.ai/imgs/4411398e389fa26a8d1b40173c767851.png)
+
+<Step>Configure the database</Step>
+
+Copy the database `Database URL` and `Token` from the previous step.
+
+In your project environment variable files, fill in the Turso database configuration:
+
+- Local development: `.env.development`
+- Production: `.env.production`
+- Cloudflare Workers: `wrangler.toml`
+
+```toml
+DATABASE_PROVIDER = "turso"
+DATABASE_URL = "turso-database-url"
+DATABASE_AUTH_TOKEN = "turso-auth-token"
+DB_SCHEMA_FILE = "./src/config/db/schema.sqlite.ts"
+DB_MIGRATIONS_OUT = "./src/config/db/migrations_turso"
+```
+
+- DATABASE_PROVIDER: Required. Fixed value `turso`
+- DATABASE_URL: Required. Your Turso `Database URL`
+- DATABASE_AUTH_TOKEN: Required. Your Turso `Token`
+- DB_SCHEMA_FILE: Required. Fixed value `./src/config/db/schema.sqlite.ts`
+- DB_MIGRATIONS_OUT: Optional. Output path for migration files. Default is `./src/config/db/migrations`. You can choose different output paths based on database type.
+
+<Step>Modify the database Schema file</Step>
+
+Using Turso database, the data table structure is defined in the `./src/config/db/schema.sqlite.ts` file, you need to export the data table from this file.
+
+Open `./src/config/db/schema.ts` file, modify the content to:
+
+```ts
+export * from './schema.sqlite';
+```
+
+<Step>Run migrations</Step>
+
+Run the following commands to migrate your database tables:
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+<Step>Manage the database</Step>
+
+You can manage your database in [Turso Cloud](https://app.turso.tech/), or run the following command locally:
+
+```shell
+pnpm db:studio
+```
+
+This will open the database admin panel.
+
+</Steps>
+
+## Customization
+
+### Update tables
+
+If you need to add new tables or modify table columns, edit `./src/config/db/schema.sqlite.ts` to update the schema.
+
+After making changes, run the following commands to generate and apply migrations:
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+### Update database connection
+
+If you need to adjust connection parameters (e.g., custom options, connection pooling, etc.), update the logic in `./src/core/db/sqlite.ts`.
+
+By default, data operations use the `db()` instance exported from `./src/core/db/index.ts`. Its return type is `any`, so in some cases you may not get good type hints.
+
+```ts
+import { db } from '@/core/db';
+import { user } from '@/config/db/schema';
+
+const [result] = await db().select().from(user).limit(1);
+```
+
+If you want a strongly typed database instance, you can use the following approaches when operating on data:
+
+```ts
+import { dbSqlite } from '@/core/db';
+import { user } from '@/config/db/schema';
+
+const [result] = await dbSqlite().select().from(user).limit(1);
+```
+
+Or:
+
+```ts
+import { getSqliteDb } from '@/core/db/sqlite';
+import { user } from '@/config/db/schema';
+
+const [result] = await getSqliteDb().select().from(user).limit(1);
+```
+
+### Deploy to Cloudflare Workers
+
+Turso can be used on Cloudflare Workers, but it does not support using Hyperdrive to accelerate database access.
+
+Hyperdrive currently targets TCP-based relational database connection pools/proxies (typically Postgres/MySQL). It is not designed for SQLite/libSQL-style protocols.
+
+So when deploying on Cloudflare Workers, you only need to provide your Turso Cloud configuration—no Hyperdrive configuration is required.
+
+Here is an example snippet from `wrangler.toml` for Cloudflare Workers deployments:
+
+```toml
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = ""
+localConnectionString = ""
+
+[vars]
+DATABASE_PROVIDER = "turso"
+DATABASE_URL = "turso-database-url"
+DATABASE_AUTH_TOKEN = "turso-auth-token"
+```
+
+## References
+
+- [Turso Website](https://turso.tech/)
+- [Turso Docs](https://turso.tech/docs)
+- [Turso Cloud Console](https://app.turso.tech/)
+- [Drizzle ORM: Turso Cloud Guide](https://orm.drizzle.team/docs/get-started/turso-new)

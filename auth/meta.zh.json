@@ -1,5 +1,5 @@
 {
   "title": "登录鉴权",
   "icon": "Lock",
-  "pages": ["google"]
+  "pages": ["email", "google", "github"]
 }

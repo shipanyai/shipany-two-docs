@@ -1,0 +1,50 @@
+---
+title: GitHub Login
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Quick Start
+
+Follow the steps below to configure GitHub login for your project.
+
+<Steps>
+<Step>Create a GitHub OAuth App</Step>
+
+Go to [GitHub Developer Settings](https://github.com/settings/developers), click the `New OAuth App` button, and create a GitHub OAuth app.
+
+- Set `Application name` to your project name.
+- Set `Homepage URL` to your project domain.
+- Set `Authorization callback URL` to your project callback URL in the following format:
+
+```shell
+https://{your-domain}/api/auth/callback/github
+```
+
+Click the `Register application` button to finish creating the app.
+
+![](https://cdn.shipany.ai/imgs/8a146bb702f5eb46033e8f0a521a7d9b.png)
+
+<Step>Copy the GitHub Client ID and Client Secret</Step>
+
+On the app details page, click `Generate a new client secret` to create a new client secret.
+
+Copy the `Client ID` and `Client secret`.
+
+<Step>Configure GitHub Login</Step>
+
+In the project admin console, go to `Settings -> Auth -> Github Auth` and fill in the `Client ID` and `Client secret` you copied in the previous step.
+
+Turn on `Auth Enabled` to enable GitHub login.
+
+Click `Save` to save the configuration.
+
+![](https://cdn.shipany.ai/imgs/f4c6bbd8804297a8dc3d10cf776e9d28.png)
+
+<Step>Verify GitHub Login</Step>
+
+Go to your project homepage, refresh the page, and click the `Login` button in the top-right corner to see the GitHub login option.
+
+![](https://cdn.shipany.ai/imgs/41d68aaca9d313987b7926d9f593038e.png)
+
+</Steps>

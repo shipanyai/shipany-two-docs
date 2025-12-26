@@ -1,0 +1,150 @@
+---
+title: Turso
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+[Turso](https://turso.tech/) 定位是“小而强”的边缘数据库，百分百兼容 SQLite语法，并发读写性能远高于传统 SQLite，主打 AI 应用、嵌入式和 Serverless 场景。
+
+ShipAny 已集成 Turso，按照下面的步骤快速接入。
+
+## 快速开始
+
+<Steps>
+<Step>创建 Turso 数据库</Step>
+
+注册 [Turso Cloud](https://app.turso.tech/) 账号，登录管理后台，点击 `Create Database` 按钮，创建一个数据库。
+
+<Step>设置 Token 认证</Step>
+
+进入上一步创建的数据库，点击 `Create Token` 按钮，创建一个过期时间为 `Nerver`，有 `Read & Write` 权限的 Token。
+
+![](https://cdn.shipany.ai/imgs/4411398e389fa26a8d1b40173c767851.png)
+
+<Step>配置数据库</Step>
+
+复制上一步设置的数据库 `Database URL` 和 `Token`。
+
+在项目的环境变量文件中，填入 `Turso` 数据库相关的配置。
+
+- 本地开发环境变量文件 `.env.development`
+- 生产环境变量文件 `.env.production`
+- Cloudflare Workers 环境变量文件 `wrangler.toml`
+
+```toml
+DATABASE_PROVIDER = "turso"
+DATABASE_URL = "turso-database-url"
+DATABASE_AUTH_TOKEN = "turso-auth-token"
+DB_SCHEMA_FILE = "./src/config/db/schema.sqlite.ts"
+DB_MIGRATIONS_OUT = "./src/config/db/migrations_turso"
+```
+
+- DATABASE_PROVIDER，必填，固定值 `turso`
+- DATABASE_URL，必填，填 Turso 数据库的 `Database URL`
+- DATABASE_AUTH_TOKEN，必填，填 Turso 数据库的 `Token`
+- DB_SCHEMA_FILE，必填，固定值 `./src/config/db/schema.sqlite.ts`
+- DB_MIGRATIONS_OUT，选填，数据库迁移文件输出路径，默认值 `./src/config/db/migrations`，可以根据数据库类型选择不同的输出路径
+
+<Step>修改数据库 Schema 文件</Step>
+
+使用 Turso 数据库时，数据表结构定义在 `./src/config/db/schema.sqlite.ts` 文件中，你需要导出这个文件的数据表。
+
+打开 `./src/config/db/schema.ts` 文件，修改内容为：
+
+```ts
+export * from './schema.sqlite';
+```
+
+<Step>迁移数据表</Step>
+
+执行以下命令，迁移数据表
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+<Step>管理数据库</Step>
+
+你可以在 [Turso Cloud](https://app.turso.tech/) 管理数据库，也可以在本地执行命令:
+
+```shell
+pnpm db:studio
+```
+
+打开数据库管理面板。
+
+</Steps>
+
+## 自定义
+
+### 修改数据表
+
+如果你需要新增数据表，或者修改数据表字段，可以打开 `./src/config/db/schema.sqlite.ts` 文件，修改数据表结构。
+
+修改完成后，执行以下命令，迁移数据表
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+### 修改数据库连接
+
+如果你需要修改数据表连接参数，比如配置自定义选项、连接池等，可以修改 `./src/core/db/sqlite.ts` 文件中的逻辑。
+
+在进行数据操作时，默认使用的是 `./src/core/db/index.ts` 导出的 `db()` 对象，导出类型是 `any`，在某些情况下，可能会缺乏类型提示。
+
+```ts
+import { db } from '@/core/db';
+import { user } from '@/config/db/schema';
+
+const [result] = await db().select().from(user).limit(1);
+```
+
+如果你希望使用强类型的数据库对象，可以在操作数据时，使用以下方式获取数据库对象：
+
+```ts
+import { dbSqlite } from '@/core/db';
+import { user } from '@/config/db/schema';
+
+const [result] = await dbSqlite().select().from(user).limit(1);
+```
+
+或者：
+
+```ts
+import { getSqliteDb } from '@/core/db/sqlite';
+import { user } from '@/config/db/schema';
+
+const [result] = await getSqliteDb().select().from(user).limit(1);
+```
+
+### 部署到 Cloudflare Workers
+
+Turso 数据库支持部署到 Cloudflare Workers，但是不支持使用 Hyperdrive 加速数据库访问。
+
+Hyperdrive 目前只面向基于 TCP 的关系型数据库连接池/代理（典型是 Postgres / MySQL 这类），不是给 SQLite/libSQL 这种协议用的。
+
+所以在 Cloudflare Workers 上部署时，只需要填 Turso Cloud 的配置信息即可，无需配置 Hyperdrive。
+
+在 Cloudflare Workers 部署的 `wrangler.toml` 部分内容参考：
+
+```toml
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = ""
+localConnectionString = ""
+
+[vars]
+DATABASE_PROVIDER = "turso"
+DATABASE_URL = "turso-database-url"
+DATABASE_AUTH_TOKEN = "turso-auth-token"
+```
+
+## 参考
+
+- [Turso 官网](https://turso.tech/)
+- [Turso 文档](https://turso.tech/docs)
+- [Turso Cloud 数据库管理后台](https://app.turso.tech/)
+- [Drizzle ORM 接入 Turso Cloud 文档](https://orm.drizzle.team/docs/get-started/turso-new)

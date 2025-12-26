@@ -1,0 +1,75 @@
+---
+title: 邮箱登录
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny 默认支持邮箱登录，简单配置即可启用。
+
+## 快速开始
+
+在启用邮箱登录功能前，你需要先配置好数据库和登录鉴权。
+
+<Steps>
+<Step>配置数据库</Step>
+
+参考：[配置数据库](/zh/docs/quick-start#配置数据库)。
+
+<Step>配置登录鉴权</Step>
+
+参考：[配置登录鉴权](/zh/docs/quick-start#配置登录鉴权)。
+
+<Step>配置邮箱登录</Step>
+
+在完成数据库和鉴权配置后，访问网站首页，点击右上角的 `登录` 按钮，即可看到邮箱登录入口。
+
+你可以使用邮箱注册一个新账户，并在此页面使用邮箱登录。
+
+![](https://cdn.shipany.ai/imgs/20ee2553241b1a7328ead537580e729a.png)
+
+<Step>配置管理后台</Step>
+
+参考：[配置管理后台](/zh/docs/quick-start#配置管理后台访问)，为使用邮箱注册的第一个账户配置超级管理员权限。
+
+登录管理后台，可配置其他登录方式，可选择关闭邮箱登录。
+
+</Steps>
+
+## 关闭邮箱登录
+
+在项目管理后台，进入 `Settings -> Auth -> Email Auth` 面板，点击 `Enabled` 开关，关闭邮箱登录。
+
+![](https://cdn.shipany.ai/imgs/b1d604ecbae7e31061109e1f80915361.png)
+
+> 关闭邮箱登录后，用户在登录页面将看不到邮箱登录入口。请确保你已经配置了其他登录方式后再关闭邮箱登录。
+
+其他登录方式配置参考：
+
+- [Google 登录](/zh/docs/auth/google)
+- [Github 登录](/zh/docs/auth/github)
+
+## 邮箱验证
+
+在开启邮箱登录功能后，默认情况下，用户可以使用任意符合邮箱格式的邮箱地址注册新账户并登录。
+
+用户使用的邮箱，格式虽然符合邮箱格式，但也许不能正常接收邮件。比如：`test@111.com`。
+
+为了防止恶意注册，你可以选择开启邮箱验证功能。
+
+> 邮箱验证依赖邮件服务。在开启邮箱验证功能前，请确保你已经配置了邮件服务。
+
+邮件服务配置参考：
+
+- [Resend 邮件服务](/zh/docs/email/resend)。
+
+在项目管理后台，进入 `Settings -> Auth -> Email Auth` 面板，点击 `Email Verification Required` 开关，开启邮箱验证功能。
+
+![](https://cdn.shipany.ai/imgs/c5c54d677c57a752115193b245315e62.png)
+
+开启邮箱验证后，用户使用邮箱注册或登录后，如果邮箱未验证，将会跳转到等待验证页面。
+
+![](https://cdn.shipany.ai/imgs/6b22a105e414989b29de01e74b44ebeb.png)
+
+用户邮箱会收到一封验证邮件，点击验证链接完成验证后，才能正常使用邮箱登录。
+
+![](https://cdn.shipany.ai/imgs/2252519b181b267f790df4d595dcf753.png)

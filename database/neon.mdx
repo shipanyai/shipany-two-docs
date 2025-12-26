@@ -1,0 +1,157 @@
+---
+title: Neon
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+[Neon](https://neon.tech/) is an open-source PostgreSQL database designed for cloud-native, edge, and serverless scenarios.
+
+ShipAny has Neon integrated. Follow the steps below to get started quickly.
+
+## Quick Start
+
+<Steps>
+<Step>Create a Neon database</Step>
+
+Sign up for a [Neon](https://neon.tech/) account, open the [console](https://console.neon.tech/), and click `New Project` to create a project.
+
+<Step>Copy the database connection URL</Step>
+
+Open the database you created in the previous step, click `Connect`, and copy the connection URL.
+
+![](https://cdn.shipany.ai/imgs/71a1cb2e683c20ff77032dbd0922f8e6.png)
+
+Run the copied command in your terminal to test whether the connection works:
+
+```shell
+psql 'postgresql://neondb_owner:xxxxxx@xxx.neon.tech/neondb?sslmode=require&channel_binding=require'
+```
+
+The Neon `Database URL` looks like:
+
+```toml
+postgresql://neondb_owner:xxxxxx@xxx.neon.tech/neondb?sslmode=require&channel_binding=require
+```
+
+<Step>Configure the database</Step>
+
+Copy the `Database URL` from the previous step.
+
+In your project environment variable files, fill in the Neon database configuration:
+
+- Local development: `.env.development`
+- Production: `.env.production`
+- Cloudflare Workers: `wrangler.toml`
+
+```toml
+DATABASE_PROVIDER = "postgresql"
+DATABASE_URL = "neon-database-url"
+DB_SCHEMA_FILE = "./src/config/db/schema.postgres.ts"
+DB_MIGRATIONS_OUT = "./src/config/db/migrations"
+```
+
+- DATABASE_PROVIDER: Required. Fixed value `postgresql`
+- DATABASE_URL: Required. Your Neon `Database URL`
+- DB_SCHEMA_FILE: Required. Fixed value `./src/config/db/schema.postgres.ts`
+- DB_MIGRATIONS_OUT: Optional. Output path for migration files. Default is `./src/config/db/migrations`. You can choose different output paths based on database type.
+
+<Step>Modify the database Schema file</Step>
+
+Using Neon database, the data table structure is defined in the `./src/config/db/schema.postgres.ts` file, you need to export the data table from this file.
+
+Open `./src/config/db/schema.ts` file, modify the content to:
+
+```ts
+export * from './schema.postgres';
+```
+
+<Step>Run migrations</Step>
+
+Run the following commands to migrate your database tables:
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+<Step>Manage the database</Step>
+
+You can manage your database in the [Neon console](https://console.neon.tech/), or run the following command locally:
+
+```shell
+pnpm db:studio
+```
+
+This will open the database admin panel.
+
+</Steps>
+
+## Customization
+
+### Update tables
+
+If you need to add new tables or modify table columns, edit `./src/config/db/schema.postgres.ts` to update the schema.
+
+After making changes, run the following commands to generate and apply migrations:
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+### Update database connection
+
+If you need to adjust connection parameters (e.g., custom options, connection pooling, etc.), update the logic in `./src/core/db/postgres.ts`.
+
+By default, data operations use the `db()` instance exported from `./src/core/db/index.ts`. Its return type is `any`, so in some cases you may not get good type hints.
+
+```ts
+import { db } from '@/core/db';
+import { user } from '@/config/db/schema';
+
+const [result] = await db().select().from(user).limit(1);
+```
+
+If you want a strongly typed database instance, you can use the following approaches when operating on data:
+
+```ts
+import { dbPostgres } from '@/core/db';
+import { user } from '@/config/db/schema';
+
+const [result] = await dbPostgres().select().from(user).limit(1);
+```
+
+Or:
+
+```ts
+import { getPostgresDb } from '@/core/db/postgres';
+import { user } from '@/config/db/schema';
+
+const [result] = await getPostgresDb().select().from(user).limit(1);
+```
+
+### Deploy to Cloudflare Workers
+
+Neon works on Cloudflare Workers, and it also supports using Hyperdrive to accelerate database access.
+
+For Hyperdrive configuration, see: [Configure Hyperdrive](/docs/deploy/cloudflare#configure-hyperdrive).
+
+Example `wrangler.toml` snippet for deploying to Cloudflare Workers with Neon:
+
+```toml
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "your-hyperdrive-config-id"
+localConnectionString = "postgresql://neondb_owner:xxxxxx@xxx.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+[vars]
+DATABASE_PROVIDER = "postgresql"
+DATABASE_URL = "postgresql://neondb_owner:xxxxxx@xxx.neon.tech/neondb?sslmode=require&channel_binding=require"
+```
+
+## References
+
+- [Neon Website](https://neon.tech/)
+- [Neon Docs](https://neon.tech/docs)
+- [Neon Console](https://console.neon.tech/)
+- [Drizzle ORM: Neon Guide](https://orm.drizzle.team/docs/get-started/neon-new)

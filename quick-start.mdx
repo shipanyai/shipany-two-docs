@@ -73,6 +73,8 @@ Open the project preview address, and the page you see for the first time is lik
 
 ![](https://cdn.shipany.ai/shipany/imgs/docs/project-preview.png)
 
+> If you want to quickly complete the project initialization through AI, please refer to [Use Agent Skills to Initialize Project](/docs/vibe-coding/skills).
+
 ### Configure Environment Variables
 
 1. Create configuration file
@@ -149,7 +151,9 @@ You can also use a self-built PostgreSQL database to get the database connection
 postgresql://user:password@127.0.0.1:5432/my_shipany_project
 ```
 
-It is recommended to use a self-built PostgreSQL database for local development and a cloud database for the online version.
+It is recommended to use a self-built [PostgreSQL](/docs/database/postgresql) database for local development and a cloud database such as [Supabase](/docs/database/supabase), [Neon](/docs/database/neon) for the online version (compatible with PostgreSQL, seamless switch).
+
+Or use a self-built [SQLite](/docs/database/sqlite) database for local development and a cloud database such as [Turso](/docs/database/turso) for the online version (compatible with SQLite, seamless switch).
 
 For the creation and connection address acquisition of common databases, please refer to the documentation in the [Database](/docs/database) section.
 

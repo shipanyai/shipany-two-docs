@@ -1,0 +1,141 @@
+---
+title: MySQL
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+[MySQL](https://www.mysql.com/) 是一个流行的开源关系型数据库管理系统。它广泛用于 Web 应用程序和后端系统。
+
+ShipAny 支持 MySQL 数据库。按照以下步骤快速开始。
+
+## 快速开始
+
+<Steps>
+<Step>创建 MySQL 数据库</Step>
+
+根据你的操作系统类型，自行搜索安装 MySQL 数据库，通过命令行创建数据库：
+
+![](https://cdn.shipany.ai/imgs/cdf2646d0afe9410240d1c7c3121f5a9.png)
+
+> 或者你也可以使用各类云服务器厂商提供的 MySQL 云数据库服务。
+
+<Step>设置数据库连接参数</Step>
+
+对上一步创建的数据库，你需要设置用户名、密码，分配权限，开启远程访问权限等。
+
+通过以下命令测试数据库连接是否正常：
+
+```shell
+mysql -u user -p password -h host -P port -D database
+```
+
+得到的数据库连接地址 `DATABASE_URL` 如下：
+
+```shell
+mysql://user:password@host:port/database
+```
+
+<Step>配置数据库</Step>
+
+在项目的环境变量文件中，填入 `MySQL` 数据库相关的配置。
+
+- 本地开发环境变量文件 `.env.development`
+- 生产环境变量文件 `.env.production`
+
+```toml
+DATABASE_PROVIDER = "mysql"
+DATABASE_URL = "mysql-database-url"
+DB_SCHEMA_FILE = "./src/config/db/schema.mysql.ts"
+DB_MIGRATIONS_OUT = "./src/config/db/migrations_mysql"
+```
+
+- DATABASE_PROVIDER，必填，固定值 `mysql`
+- DATABASE_URL，必填，填 MySQL 数据库的 `Database URL`
+- DB_SCHEMA_FILE，必填，固定值 `./src/config/db/schema.mysql.ts`
+- DB_MIGRATIONS_OUT，选填，数据库迁移文件输出路径，默认值 `./src/config/db/migrations`，可以根据数据库类型选择不同的输出路径
+
+<Step>修改数据库 Schema 文件</Step>
+
+使用 MySQL 数据库时，数据表结构定义在 `./src/config/db/schema.mysql.ts` 文件中，你需要导出这个文件的数据表。
+
+打开 `./src/config/db/schema.ts` 文件，修改内容为：
+
+```ts
+export * from './schema.mysql';
+```
+
+<Step>迁移数据表</Step>
+
+执行以下命令，迁移数据表
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+<Step>管理数据库</Step>
+
+你可以在 MySQL 数据库管理后台管理数据库，也可以在本地执行命令:
+
+```shell
+pnpm db:studio
+```
+
+打开数据库管理面板。
+
+</Steps>
+
+## 自定义
+
+### 修改数据表
+
+如果你需要新增数据表，或者修改数据表字段，可以打开 `./src/config/db/schema.mysql.ts` 文件，修改数据表结构。
+
+修改完成后，执行以下命令，迁移数据表
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+### 修改数据库连接
+
+如果你需要修改数据表连接参数，比如配置自定义选项、连接池等，可以修改 `./src/core/db/mysql.ts` 文件中的逻辑。
+
+在进行数据操作时，默认使用的是 `./src/core/db/index.ts` 导出的 `db()` 对象，导出类型是 `any`，在某些情况下，可能会缺乏类型提示。
+
+```ts
+import { db } from '@/core/db';
+import { user } from '@/config/db/schema';
+
+const [result] = await db().select().from(user).limit(1);
+```
+
+如果你希望使用强类型的数据库对象，可以在操作数据时，使用以下方式获取数据库对象：
+
+```ts
+import { dbMysql } from '@/core/db';
+import { user } from '@/config/db/schema';
+
+const [result] = await dbMysql().select().from(user).limit(1);
+```
+
+或者：
+
+```ts
+import { getMysqlDb } from '@/core/db/mysql';
+import { user } from '@/config/db/schema';
+
+const [result] = await getMysqlDb().select().from(user).limit(1);
+```
+
+### 部署到 Cloudflare Workers
+
+使用 Cloudflare Workers 部署项目时，暂不支持使用 MySQL 数据库。
+
+你可以使用 [Supabase](/zh/docs/database/supabase) / [Turso](/zh/docs/database/turso) 等云数据库服务。
+
+## 参考
+
+- [MySQL 官网](https://www.mysql.com/)
+- [Drizzle ORM 接入 MySQL 文档](https://orm.drizzle.team/docs/get-started/mysql-new)

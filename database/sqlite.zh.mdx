@@ -1,0 +1,125 @@
+---
+title: SQLite
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny 支持 [SQLite](https://www.sqlite.org/) 数据库。按照以下步骤快速开始。
+
+## 快速开始
+
+<Steps>
+<Step>安装 SQLite</Step>
+
+根据你的操作系统类型，自行搜索安装 SQLite，安装完成后，通过命令行创建数据库文件：
+
+```shell
+sqlite3 data/local.db
+```
+
+你也可以跳过这一步，在项目中配置 SQLite 后，执行数据表迁移命令时，会自动创建数据库文件。
+
+<Step>配置数据库</Step>
+
+在项目的环境变量文件中，填入 `SQLite` 数据库相关的配置。
+
+- 本地开发环境变量文件 `.env.development`
+- 生产环境变量文件 `.env.production`
+
+```toml
+DATABASE_PROVIDER = "sqlite"
+DATABASE_URL = "file:data/local.db"
+DB_SCHEMA_FILE = "./src/config/db/schema.sqlite.ts"
+DB_MIGRATIONS_OUT = "./src/config/db/migrations_sqlite"
+```
+
+- DATABASE_PROVIDER，必填，固定值 `sqlite`
+- DATABASE_URL，必填，填 SQLite 数据库的文件路径。格式为 `file:file-path`，`file:` 前缀是固定值，`file-path` 可以自定义，用相对目录指定项目中任意路径，建议使用 `.db` / `.sqlite` 后缀。
+- DB_SCHEMA_FILE，必填，固定值 `./src/config/db/schema.sqlite.ts`
+- DB_MIGRATIONS_OUT，选填，数据库迁移文件输出路径，默认值 `./src/config/db/migrations`，可以根据数据库类型选择不同的输出路径
+
+<Step>修改数据库 Schema 文件</Step>
+
+使用 SQLite 数据库时，数据表结构定义在 `./src/config/db/schema.sqlite.ts` 文件中，你需要导出这个文件的数据表。
+
+打开 `./src/config/db/schema.ts` 文件，修改内容为：
+
+```ts
+export * from './schema.sqlite';
+```
+
+<Step>迁移数据表</Step>
+
+执行以下命令，迁移数据表
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+<Step>管理数据库</Step>
+
+在本地执行命令:
+
+```shell
+pnpm db:studio
+```
+
+打开数据库管理面板。
+
+</Steps>
+
+## 自定义
+
+### 修改数据表
+
+如果你需要新增数据表，或者修改数据表字段，可以打开 `./src/config/db/schema.sqlite.ts` 文件，修改数据表结构。
+
+修改完成后，执行以下命令，迁移数据表
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+### 修改数据库连接
+
+如果你需要修改数据表连接参数，比如配置自定义选项、连接池等，可以修改 `./src/core/db/sqlite.ts` 文件中的逻辑。
+
+在进行数据操作时，默认使用的是 `./src/core/db/index.ts` 导出的 `db()` 对象，导出类型是 `any`，在某些情况下，可能会缺乏类型提示。
+
+```ts
+import { db } from '@/core/db';
+import { user } from '@/config/db/schema';
+
+const [result] = await db().select().from(user).limit(1);
+```
+
+如果你希望使用强类型的数据库对象，可以在操作数据时，使用以下方式获取数据库对象：
+
+```ts
+import { dbSqlite } from '@/core/db';
+import { user } from '@/config/db/schema';
+
+const [result] = await dbSqlite().select().from(user).limit(1);
+```
+
+或者：
+
+```ts
+import { getSqliteDb } from '@/core/db/sqlite';
+import { user } from '@/config/db/schema';
+
+const [result] = await getSqliteDb().select().from(user).limit(1);
+```
+
+### 部署到 Cloudflare Workers
+
+使用 Cloudflare Workers 部署项目时，暂不支持使用 SQLite 数据库。
+
+你可以使用 [Turso](/zh/docs/database/turso) 等兼容 SQLite 的数据库服务。
+
+## 参考
+
+- [SQLite 官网](https://www.sqlite.org/)
+- [Drizzle ORM 接入 SQLite 文档](https://orm.drizzle.team/docs/get-started/sqlite-new)

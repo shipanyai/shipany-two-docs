@@ -1,5 +1,5 @@
 {
   "title": "数据库",
   "icon": "Database",
-  "pages": ["supabase"]
+  "pages": ["supabase", "neon", "postgresql", "turso", "sqlite", "mysql"]
 }

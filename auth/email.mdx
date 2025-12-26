@@ -1,0 +1,75 @@
+---
+title: Email Login
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ShipAny supports email login by default—enable it with a simple setup.
+
+## Quick Start
+
+Before enabling email login, you need to configure the database and authentication.
+
+<Steps>
+<Step>Set up the database</Step>
+
+See: [Set up the database](/docs/quick-start#configure-database).
+
+<Step>Configure authentication</Step>
+
+See: [Configure authentication](/docs/quick-start#configure-authentication).
+
+<Step>Enable email login</Step>
+
+After finishing the database and auth setup, visit the website homepage and click the `Login` button in the top-right corner to see the email login entry.
+
+You can register a new account with your email and log in on this page.
+
+![](https://cdn.shipany.ai/imgs/20ee2553241b1a7328ead537580e729a.png)
+
+<Step>Configure the admin console</Step>
+
+See: [Configure the admin console](/docs/quick-start#configure-admin-access) to grant super admin permissions to the first account created via email registration.
+
+After logging into the admin console, you can configure other login methods and optionally disable email login.
+
+</Steps>
+
+## Disable Email Login
+
+In the project admin console, go to `Settings -> Auth -> Email Auth` and toggle `Enabled` off to disable email login.
+
+![](https://cdn.shipany.ai/imgs/b1d604ecbae7e31061109e1f80915361.png)
+
+> After disabling email login, users will no longer see the email login option on the login page. Make sure you have configured other login methods before turning off email login.
+
+For other login methods, see:
+
+- [Google Login](/docs/auth/google)
+- [GitHub Login](/docs/auth/github)
+
+## Email Verification
+
+After enabling email login, by default users can register a new account and log in with any email address that matches the email format.
+
+However, an address may look valid but still be unable to receive emails—for example: `test@111.com`.
+
+To prevent malicious sign-ups, you can enable email verification.
+
+> Email verification depends on an email service. Before enabling email verification, make sure you have configured an email service.
+
+Email service setup:
+
+- [Resend Email Service](/docs/email/resend).
+
+In the project admin console, go to `Settings -> Auth -> Email Auth` and toggle `Email Verification Required` on to enable email verification.
+
+![](https://cdn.shipany.ai/imgs/c5c54d677c57a752115193b245315e62.png)
+
+After email verification is enabled, when users register or log in with email, they will be redirected to a verification-waiting page if their email is not verified.
+
+![](https://cdn.shipany.ai/imgs/6b22a105e414989b29de01e74b44ebeb.png)
+
+Users will receive a verification email. After clicking the verification link to complete verification, they can use email login normally.
+
+![](https://cdn.shipany.ai/imgs/2252519b181b267f790df4d595dcf753.png)

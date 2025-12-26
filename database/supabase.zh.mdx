@@ -13,11 +13,10 @@ import { Step, Steps } from 'fumadocs-ui/components/steps';
 你可以按照以下步骤，在 ShipAny 项目中接入 Supabase。
 
 <Steps>
-<Step>注册账号</Step>
-
-访问 [Supabase](https://supabase.com/) 官网，注册一个 Supabase 账号。
 
 <Step>创建项目</Step>
+
+访问 [Supabase](https://supabase.com/) 官网，注册一个 Supabase 账号。.
 
 进入 [Supabase 控制台](https://supabase.com/dashboard)，创建一个项目。
 
@@ -31,13 +30,11 @@ import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 ![](https://cdn.shipany.ai/shipany/imgs/docs/supabase-database-url.png)
 
-把 `[YOUR-PASSWORD]` 替换成上一步生成的随机密码，得到 Supabase 项目的数据库连接地址。类似这种：
+把 `[YOUR-PASSWORD]` 替换成上一步生成的随机密码，得到 Supabase 项目的 `DATABASE_URL`。类似这种：
 
 ```shell
 postgresql://postgres.seilzcqsafesmugglqlk:xxxxxx@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres
 ```
-
-<Step>测试数据库连接</Step>
 
 使用 `psql` 工具，测试数据库是否能正常连接。
 
@@ -49,6 +46,190 @@ psql "postgresql://postgres.seilzcqsafesmugglqlk:xxxxxx@aws-1-ap-northeast-1.poo
 
 <Step>配置数据库</Step>
 
-参考 [配置数据库](/zh/docs/quick-start#配置数据库) 文档，为 ShipAny 项目配置数据库。
+复制上一步设置的数据库 `DATABASE_URL`。
+
+在项目的环境变量文件中，填入 `Supabase` 数据库相关的配置。
+
+- 本地开发环境变量文件 `.env.development`
+- 生产环境变量文件 `.env.production`
+- Cloudflare Workers 环境变量文件 `wrangler.toml`
+
+```toml
+DATABASE_PROVIDER = "postgresql"
+DATABASE_URL = "supabase-database-url"
+DB_SCHEMA_FILE = "./src/config/db/schema.postgres.ts"
+DB_MIGRATIONS_OUT = "./src/config/db/migrations"
+```
+
+- DATABASE_PROVIDER，必填，固定值 `postgresql`
+- DATABASE_URL，必填，填 Supabase 数据库的 `DATABASE_URL`
+- DB_SCHEMA_FILE，必填，固定值 `./src/config/db/schema.postgres.ts`
+- DB_MIGRATIONS_OUT，选填，数据库迁移文件输出路径，默认值 `./src/config/db/migrations`，可以根据数据库类型选择不同的输出路径
+
+<Step>修改数据库 Schema 文件</Step>
+
+使用 Supabase 数据库时，数据表结构定义在 `./src/config/db/schema.postgres.ts` 文件中，你需要导出这个文件的数据表。
+
+打开 `./src/config/db/schema.ts` 文件，修改内容为：
+
+```ts
+export * from './schema.postgres';
+```
+
+<Step>迁移数据表</Step>
+
+执行以下命令，迁移数据表
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+<Step>管理数据库</Step>
+
+你可以在 [Supabase 控制台](https://supabase.com/dashboard) 管理数据库，也可以在本地执行命令:
+
+```shell
+pnpm db:studio
+```
+
+打开数据库管理面板。
 
 </Steps>
+
+## 自定义
+
+### 修改数据表
+
+如果你需要新增数据表，或者修改数据表字段，可以打开 `./src/config/db/schema.postgres.ts` 文件，修改数据表结构。
+
+修改完成后，执行以下命令，迁移数据表
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+### 修改数据库连接
+
+如果你需要修改数据表连接参数，比如配置自定义选项、连接池等，可以修改 `./src/core/db/postgres.ts` 文件中的逻辑。
+
+在进行数据操作时，默认使用的是 `./src/core/db/index.ts` 导出的 `db()` 对象，导出类型是 `any`，在某些情况下，可能会缺乏类型提示。
+
+```ts
+import { db } from '@/core/db';
+import { user } from '@/config/db/schema';
+
+const [result] = await db().select().from(user).limit(1);
+```
+
+如果你希望使用强类型的数据库对象，可以在操作数据时，使用以下方式获取数据库对象：
+
+```ts
+import { dbPostgres } from '@/core/db';
+import { user } from '@/config/db/schema';
+
+const [result] = await dbPostgres().select().from(user).limit(1);
+```
+
+或者：
+
+```ts
+import { getPostgresDb } from '@/core/db/postgres';
+import { user } from '@/config/db/schema';
+
+const [result] = await getPostgresDb().select().from(user).limit(1);
+```
+
+### 部署到 Cloudflare Workers
+
+Supabase 数据库支持部署到 Cloudflare Workers，也支持使用 Hyperdrive 加速数据库访问。
+
+使用 Hyperdrive 加速数据库访问的配置参考：[配置 Hyperdrive](/zh/docs/deploy/cloudflare#配置-hyperdrive)。
+
+在 Cloudflare Workers 部署项目使用 Supabase 数据库的 `wrangler.toml` 部分内容参考：
+
+```toml
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "your-hyperdrive-config-id"
+localConnectionString = "postgresql://xxx:xxxxxx@xxx.supabase.com:6543/postgres"
+
+[vars]
+DATABASE_PROVIDER = "postgresql"
+DATABASE_URL = "postgresql://xxx:xxxxxx@xxx.supabase.com:6543/postgres"
+```
+
+### 通过 Schema 隔离数据
+
+Supabase 每新建一个项目，需要额外支付 10 美金/月的基础费用。如果你的项目比较多，可以考虑复用同一个 Supabase 项目，通过 Schema 隔离数据。
+
+Supabase 使用 `public` 作为默认 Schema。在同一个 Supabase 项目中，可以创建多个 Schema，来存储多个不同项目的数据。
+
+<Steps>
+
+<Step>创建自定义 Schema</Step>
+
+进入 Supabase 项目的 `Table Editor` 页面，点击 `schema` 下拉框，点击 `Create a new schema`，输入 `Schema name` 创建自定义 Schema。
+
+比如这里创建一个名为 `project_2` 的 Schema。
+
+![](https://cdn.shipany.ai/imgs/33efbf87d2d83f84fffbde0b25b5079e.png)
+
+<Step>配置数据库</Step>
+
+在新项目的环境变量文件中，填入 `Supabase` 数据库相关的配置。
+
+- 本地开发环境变量文件 `.env.development`
+- 生产环境变量文件 `.env.production`
+- Cloudflare Workers 环境变量文件 `wrangler.toml`
+
+```toml
+# supabase
+DATABASE_PROVIDER = "postgresql"
+DATABASE_URL = "postgresql://xxx:xxx.pooler.supabase.com:6543/postgres"
+
+DB_SCHEMA_FILE = "./src/config/db/schema.postgres.ts"
+DB_MIGRATIONS_OUT = "./src/config/db/migrations_project_2"
+DB_SCHEMA = "project_2"
+DB_MIGRATIONS_SCHEMA = "project_2"
+DB_MIGRATIONS_TABLE = "__drizzle_migrations"
+```
+
+- DATABASE_PROVIDER，必填，固定值 `postgresql`
+- DATABASE_URL，必填，填 Supabase 数据库的 `DATABASE_URL`
+- DB_SCHEMA_FILE，必填，固定值 `./src/config/db/schema.postgres.ts`
+- DB_MIGRATIONS_OUT，选填，数据库迁移文件输出路径，默认值 `./src/config/db/migrations`，可以根据数据库类型和项目名称选择不同的输出路径
+- DB_SCHEMA，选填，数据库 Schema 名称，默认值 `public`，填入新项目的 Schema 名称，达到隔离数据的目的
+- DB_MIGRATIONS_SCHEMA，选填，数据库迁移 Schema 名称，默认值 `drizzle`，这里填入新项目的 Schema 名称，达到隔离数据的目的
+- DB_MIGRATIONS_TABLE，选填，数据库迁移表名称，默认值 `__drizzle_migrations`，可以保持不变。
+
+<Step>迁移数据表</Step>
+
+执行以下命令，迁移数据表
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+<Step>管理数据库</Step>
+
+你可以在 [Supabase 控制台](https://supabase.com/dashboard) ，切换到新项目的 Schema，管理数据表。
+
+也可以在本地执行命令:
+
+```shell
+pnpm db:studio
+```
+
+打开数据库管理面板，切换到新项目的 Schema，管理数据表。
+
+</Steps>
+
+## 参考
+
+- [Supabase 官网](https://supabase.com/)
+- [Supabase 文档](https://supabase.com/docs)
+- [Supabase 控制台](https://supabase.com/dashboard)
+- [Drizzle ORM 接入 Supabase 文档](https://orm.drizzle.team/docs/get-started/supabase-new)

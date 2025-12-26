@@ -4,51 +4,230 @@ title: 'Supabase'
 
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
-[Supabase](https://supabase.com/) is a cloud database development platform built around PostgreSQL. It provides backend services including database, authentication, real-time subscriptions, file storage, and edge functions, exposing PostgreSQL capabilities to developers through RESTful and GraphQL APIs without the need to build your own backend services.
+[Supabase](https://supabase.com/) is a cloud database development platform built around PostgreSQL. It provides backend services including database, authentication, realtime subscriptions, file storage, and edge functions, and exposes PostgreSQL capabilities via RESTful and GraphQL APIs—so you don’t need to build your own backend from scratch.
 
 In ShipAny projects, you can use Supabase to store and manage your data.
 
 ## Quick Start
 
-You can follow the steps below to integrate Supabase into your ShipAny project.
+Follow the steps below to integrate Supabase into your ShipAny project.
 
 <Steps>
-<Step>Register an Account</Step>
 
-Visit the [Supabase](https://supabase.com/) website and register a Supabase account.
+<Step>Create a project</Step>
 
-<Step>Create a Project</Step>
+Go to the [Supabase](https://supabase.com/) website and register a Supabase account.
 
-Go to the [Supabase Dashboard](https://supabase.com/dashboard) and create a project.
+Then open the [Supabase Dashboard](https://supabase.com/dashboard) and create a project.
 
-Enter the project name, click `Generate a password` to generate a random password, then click the `Copy` button to copy the password.
+Enter the project name, click `Generate a password` to generate a random password, then click `Copy` to copy the password.
 
 ![](https://cdn.shipany.ai/shipany/imgs/docs/create-supabase-project.png)
 
-<Step>Get Database Connection URL</Step>
+<Step>Get the database connection URL</Step>
 
-Go to the project management page created in the previous step, click the `Connect` button at the top, switch to the `ORMs -> Drizzle` tab, and copy the value of `DATABASE_URL`.
+On the project page, click `Connect` at the top, switch to `ORMs -> Drizzle`, and copy the `DATABASE_URL` value.
 
 ![](https://cdn.shipany.ai/shipany/imgs/docs/supabase-database-url.png)
 
-Replace `[YOUR-PASSWORD]` with the random password generated in the previous step to get the database connection URL for your Supabase project. It should look like this:
+Replace `[YOUR-PASSWORD]` with the random password you generated in the previous step to get your Supabase project `DATABASE_URL`, for example:
 
 ```shell
 postgresql://postgres.seilzcqsafesmugglqlk:xxxxxx@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres
 ```
 
-<Step>Test Database Connection</Step>
-
-Use the `psql` tool to test if the database can connect normally.
+Use `psql` to test whether you can connect to the database:
 
 ```shell
 psql "postgresql://postgres.seilzcqsafesmugglqlk:xxxxxx@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
 ```
 
-> Please search for the installation method of the `psql` tool yourself. Generally, after installing `PostgreSQL` locally, the `psql` tool will be included.
+> Please look up how to install `psql` on your system. In most cases, installing `PostgreSQL` locally also installs `psql`.
 
-<Step>Configure Database</Step>
+<Step>Configure the database</Step>
 
-Refer to the [Configure Database](/docs/quick-start#configure-database) documentation to configure the database for your ShipAny project.
+Copy the `DATABASE_URL` from the previous step.
+
+In your project environment variable files, fill in the Supabase database configuration:
+
+- Local development: `.env.development`
+- Production: `.env.production`
+- Cloudflare Workers: `wrangler.toml`
+
+```toml
+DATABASE_PROVIDER = "postgresql"
+DATABASE_URL = "supabase-database-url"
+DB_SCHEMA_FILE = "./src/config/db/schema.postgres.ts"
+DB_MIGRATIONS_OUT = "./src/config/db/migrations"
+```
+
+- DATABASE_PROVIDER: Required. Fixed value `postgresql`
+- DATABASE_URL: Required. Your Supabase `DATABASE_URL`
+- DB_SCHEMA_FILE: Required. Fixed value `./src/config/db/schema.postgres.ts`
+- DB_MIGRATIONS_OUT: Optional. Output path for migration files. Default is `./src/config/db/migrations`. You can choose different output paths based on database type.
+
+<Step>Modify the database Schema file</Step>
+
+Using Supabase database, the data table structure is defined in the `./src/config/db/schema.postgres.ts` file, you need to export the data table from this file.
+
+Open `./src/config/db/schema.ts` file, modify the content to:
+
+```ts
+export * from './schema.postgres';
+```
+
+<Step>Run migrations</Step>
+
+Run the following commands to migrate your database tables:
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+<Step>Manage the database</Step>
+
+You can manage your database in the [Supabase Dashboard](https://supabase.com/dashboard), or run the following command locally:
+
+```shell
+pnpm db:studio
+```
+
+This will open the database admin panel.
 
 </Steps>
+
+## Customization
+
+### Update tables
+
+If you need to add new tables or modify table columns, edit `./src/config/db/schema.postgres.ts` to update the schema.
+
+After making changes, run the following commands to generate and apply migrations:
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+### Update database connection
+
+If you need to adjust connection parameters (e.g., custom options, connection pooling, etc.), update the logic in `./src/core/db/postgres.ts`.
+
+By default, data operations use the `db()` instance exported from `./src/core/db/index.ts`. Its return type is `any`, so in some cases you may not get good type hints.
+
+```ts
+import { db } from '@/core/db';
+import { user } from '@/config/db/schema';
+
+const [result] = await db().select().from(user).limit(1);
+```
+
+If you want a strongly typed database instance, you can use the following approaches when operating on data:
+
+```ts
+import { dbPostgres } from '@/core/db';
+import { user } from '@/config/db/schema';
+
+const [result] = await dbPostgres().select().from(user).limit(1);
+```
+
+Or:
+
+```ts
+import { getPostgresDb } from '@/core/db/postgres';
+import { user } from '@/config/db/schema';
+
+const [result] = await getPostgresDb().select().from(user).limit(1);
+```
+
+### Deploy to Cloudflare Workers
+
+Supabase works on Cloudflare Workers, and it also supports using Hyperdrive to accelerate database access.
+
+For Hyperdrive configuration, see: [Configure Hyperdrive](/docs/deploy/cloudflare#configure-hyperdrive).
+
+Example `wrangler.toml` snippet for deploying to Cloudflare Workers with Supabase:
+
+```toml
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "your-hyperdrive-config-id"
+localConnectionString = "postgresql://xxx:xxxxxx@xxx.supabase.com:6543/postgres"
+
+[vars]
+DATABASE_PROVIDER = "postgresql"
+DATABASE_URL = "postgresql://xxx:xxxxxx@xxx.supabase.com:6543/postgres"
+```
+
+### Use Schema to isolate data
+
+Supabase charges $10/month for each new project. If you have many projects, you can consider reusing the same Supabase project and isolating data through Schema.
+
+Supabase uses `public` as the default Schema. In the same Supabase project, you can create multiple Schemas to store data for different projects.
+
+<Steps>
+
+<Step>Create a custom Schema</Step>
+
+Go to the `Table Editor` page of your Supabase project, click the `schema` dropdown menu, click `Create a new schema`, enter `Schema name` to create a custom Schema.
+
+For example, create a Schema named `project_2`.
+
+![](https://cdn.shipany.ai/imgs/33efbf87d2d83f84fffbde0b25b5079e.png)
+
+<Step>Configure the database</Step>
+
+In the environment variable file of the new project, fill in the Supabase database configuration:
+
+- Local development: `.env.development`
+- Production: `.env.production`
+- Cloudflare Workers: `wrangler.toml`
+
+```toml
+# supabase
+DATABASE_PROVIDER = "postgresql"
+DATABASE_URL = "postgresql://xxx:xxx.pooler.supabase.com:6543/postgres"
+
+DB_SCHEMA_FILE = "./src/config/db/schema.postgres.ts"
+DB_MIGRATIONS_OUT = "./src/config/db/migrations_project_2"
+DB_SCHEMA = "project_2"
+DB_MIGRATIONS_SCHEMA = "project_2"
+DB_MIGRATIONS_TABLE = "__drizzle_migrations"
+```
+
+- DATABASE_PROVIDER: Required. Fixed value `postgresql`
+- DATABASE_URL: Required. Your Supabase `DATABASE_URL`
+- DB_SCHEMA_FILE: Required. Fixed value `./src/config/db/schema.postgres.ts`
+- DB_MIGRATIONS_OUT: Optional. Output path for migration files. Default is `./src/config/db/migrations`. You can choose different output paths based on database type and project name.
+- DB_SCHEMA: Optional. Database Schema name. Default is `public`. Enter the Schema name of the new project to isolate data.
+- DB_MIGRATIONS_SCHEMA: Optional. Database migration Schema name. Default is `drizzle`. Enter the Schema name of the new project to isolate data.
+- DB_MIGRATIONS_TABLE: Optional. Database migration table name. Default is `__drizzle_migrations`. Can be kept unchanged.
+
+<Step>Run migrations</Step>
+
+Run the following commands to generate and apply migrations:
+
+```shell
+pnpm db:generate
+pnpm db:migrate
+```
+
+<Step>Manage the database</Step>
+
+You can manage your database in the [Supabase Dashboard](https://supabase.com/dashboard), switch to the new project's Schema, or run the following command locally:
+
+```shell
+pnpm db:studio
+```
+
+This will open the database admin panel, switch to the new project's Schema, and manage the tables.
+
+</Steps>
+
+## References
+
+- [Supabase Website](https://supabase.com/)
+- [Supabase Docs](https://supabase.com/docs)
+- [Supabase Dashboard](https://supabase.com/dashboard)
+- [Drizzle ORM: Supabase Guide](https://orm.drizzle.team/docs/get-started/supabase-new)

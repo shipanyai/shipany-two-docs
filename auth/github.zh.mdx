@@ -1,0 +1,50 @@
+---
+title: Github 登录
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## 快速开始
+
+按照以下步骤为你的项目配置 Github 登录。
+
+<Steps>
+<Step>创建 Github 应用</Step>
+
+访问 [Github Developer Settings](https://github.com/settings/developers) 页面，点击 `New OAuth App` 按钮，创建一个 Github 应用。
+
+- `Application name` 填写你的项目名称。
+- `Homepage URL` 填写你的项目域名。
+- `Authorization callback URL` 填写你的项目回调地址，格式为：
+
+```shell
+https://{your-domain}/api/auth/callback/github
+```
+
+点击 `Register application` 按钮，完成 Github 应用创建。
+
+![](https://cdn.shipany.ai/imgs/8a146bb702f5eb46033e8f0a521a7d9b.png)
+
+<Step>复制 Github 应用 ID 和密钥</Step>
+
+在 Github 应用详情页，点击 `Generate a new client secret` 按钮，生成一个新的客户端密钥。
+
+复制 `Client ID` 和 `Client secret`。
+
+<Step>配置 Github 登录</Step>
+
+在项目管理后台，进入 `Settings -> Auth -> Github Auth` 面板，填入上一步复制的 `Client ID` 和 `Client secret`。
+
+打开 `Auth Enabled` 开关启用 Github 登录功能。
+
+点击 `Save` 按钮，保存配置。
+
+![](https://cdn.shipany.ai/imgs/f4c6bbd8804297a8dc3d10cf776e9d28.png)
+
+<Step>验证 Github 登录</Step>
+
+进入项目主页，刷新页面，点击右上角的 `登录` 按钮，即可看到 Github 登录入口。
+
+![](https://cdn.shipany.ai/imgs/41d68aaca9d313987b7926d9f593038e.png)
+
+</Steps>
